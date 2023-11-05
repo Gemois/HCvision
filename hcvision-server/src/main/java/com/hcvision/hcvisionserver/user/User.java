@@ -15,7 +15,7 @@ import java.util.Collection;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "users")
+@Table(name = "_user")
 public class User implements UserDetails {
 
     @Id
@@ -29,12 +29,12 @@ public class User implements UserDetails {
     private Role role;
     private boolean activated;
 
-    public User(String firstName, String lastName, String email, String password, Role appUserRole) {
+    public User(String firstName, String lastName, String email, String password, Role role) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
-        this.role = appUserRole;
+        this.role = role;
     }
 
     @Override

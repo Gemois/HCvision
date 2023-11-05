@@ -9,12 +9,11 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
+    private final UserService service;
 
     @GetMapping()
     public ResponseEntity<User> getUserByEmail(@RequestParam("email") String email) {
-        return ResponseEntity.ok(userService.findUserByEmail(email));
+        return ResponseEntity.ok(service.findUserByEmail(email));
     }
-
 
 }

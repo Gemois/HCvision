@@ -1,4 +1,4 @@
-package com.hcvision.hcvisionserver.auth;
+package com.hcvision.hcvisionserver.auth.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
