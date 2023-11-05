@@ -1,4 +1,4 @@
-package com.hcvision.hcvisionserver.auth.dto;
+package com.hcvision.hcvisionserver.user.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,10 +9,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterRequest {
-
-    private String firstname;
-    private String lastname;
+public class ForgotPasswordRequest {
     private String email;
-    private String password;
 }

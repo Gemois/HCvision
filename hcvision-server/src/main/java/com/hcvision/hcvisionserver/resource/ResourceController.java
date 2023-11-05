@@ -17,10 +17,7 @@ public class ResourceController {
 
         ClassPathResource resource = new ClassPathResource("static/logo_light.png");
         MediaType mediaType = MediaType.IMAGE_PNG;
-        return ResponseEntity.ok()
-                .contentType(mediaType)
-                .body(resource);
+        return ResponseEntity.ok().contentType(mediaType).body(resource);
 
     }
-
 }

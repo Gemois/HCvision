@@ -22,12 +22,19 @@ public class SecurityConfiguration {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
 
+    private static final String[] WHITE_LIST = {
+            "/api/v1/auth/**",
+            "/api/v1/resources/**",
+            "/api/v1/users/password/forgot",
+            "/api/v1/users/password/reset"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req ->
-                        req.requestMatchers("/api/v1/auth/**","/api/v1/resources/**")
+                        req.requestMatchers(WHITE_LIST)
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated()

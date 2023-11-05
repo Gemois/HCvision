@@ -2,10 +2,7 @@ package com.hcvision.hcvisionserver.auth.token;
 
 import com.hcvision.hcvisionserver.user.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -19,6 +16,9 @@ public class ConfirmationToken {
     @Id
     @GeneratedValue()
     private Long id;
+
+    @Enumerated
+    private TokenType type;
 
     @Column(nullable = false)
     private String token;
@@ -40,5 +40,6 @@ public class ConfirmationToken {
         this.createdAt = createdAt;
         this.expiresAt = expiresAt;
         this.user = user;
+        this.type = TokenType.UUID;
     }
 }

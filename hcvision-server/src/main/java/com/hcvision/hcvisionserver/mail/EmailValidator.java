@@ -1,6 +1,7 @@
 package com.hcvision.hcvisionserver.mail;
 
 import org.springframework.stereotype.Service;
+
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 

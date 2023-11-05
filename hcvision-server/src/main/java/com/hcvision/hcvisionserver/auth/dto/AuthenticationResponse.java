@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Data
@@ -14,25 +15,25 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class AuthenticationResponse {
 
-  @JsonProperty("name")
-  private String name;
+    @JsonProperty("name")
+    private String name;
 
-  @JsonProperty("email")
-  private String email;
+    @JsonProperty("email")
+    private String email;
 
-  @JsonProperty("role")
-  private Role role;
+    @JsonProperty("role")
+    private Role role;
 
-  @JsonProperty("confirmed")
-  private boolean confirmed;
+    @JsonProperty("confirmed")
+    private boolean confirmed;
 
-  @JsonProperty("access_token")
-  private String accessToken;
+    @JsonProperty("access_token")
+    private String accessToken;
 
-  @JsonProperty("issuedAt")
-  private LocalDateTime issuedAt;
+    @JsonProperty("issuedAt")
+    private LocalDateTime issuedAt;
 
-  @JsonProperty("expiresAt")
-  private LocalDateTime expiresAt;
+    @JsonProperty("expiresAt")
+    private LocalDateTime expiresAt;
 
 }

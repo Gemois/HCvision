@@ -44,8 +44,7 @@ public class AuthenticationService {
                 .name(user.getFirstName())
                 .email(user.getEmail())
                 .confirmed(user.isActivated())
-                .role(user.getRole())
-                .accessToken(jwtToken)
+                .role(user.getRole()).accessToken(jwtToken)
                 .issuedAt(LocalDateTime.now())
                 .expiresAt(LocalDateTime.now().plusSeconds(jwtService.getJwtExpiration()))
                 .build();
@@ -64,20 +63,23 @@ public class AuthenticationService {
             throw new IllegalStateException("email not valid");
         }
         var user = User.builder()
-                        .firstName(request.getFirstname())
-                        .lastName(request.getLastname())
-                        .email(request.getEmail())
-                        .password(passwordEncoder.encode(request.getPassword()))
-                        .role(Role.USER)
-                        .build();
+                .firstName(request.getFirstname())
+                .lastName(request.getLastname())
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.USER)
+                .build();
 
         repository.save(user);
         String token = createConfirmationToken(user);
 
         try {
             String link = "http://localhost:8080/api/v1/auth/confirm?token=" + token;
-            emailService.send(request.getEmail(), emailService.buildVerificationEmail(request.getFirstname(), link),"Confirm your Email!");
-        } catch (Exception ignored) {}
+            emailService.send(request.getEmail(),
+                    emailService.buildVerificationEmail(request.getFirstname(), link),
+                    EmailService.EMAIL_VERIFICATION_SUBJECT);
+        } catch (Exception ignored) {
+        }
 
         return RegisterResponse.builder()
                 .name(user.getFirstName())
@@ -85,11 +87,13 @@ public class AuthenticationService {
                 .role(user.getRole())
                 .confirmed(user.isActivated())
                 .registeredAt(LocalDateTime.now())
-                .msg("Welcome to HCvision!").build();
+                .msg("Welcome to HCvision!")
+                .build();
     }
 
     public ConfirmationTokenResponse confirmToken(String token) {
-        ConfirmationToken confirmationToken = confirmationTokenService.getToken(token).orElseThrow(() -> new IllegalStateException("token not found"));
+        ConfirmationToken confirmationToken = confirmationTokenService.getToken(token)
+                .orElseThrow(() -> new IllegalStateException("token not found"));
 
         if (confirmationToken.getConfirmedAt() != null) {
             throw new IllegalStateException("email already confirmed");
@@ -105,32 +109,36 @@ public class AuthenticationService {
         userService.enableUser(confirmationToken.getUser().getEmail());
         return ConfirmationTokenResponse.builder()
                 .confirmed(true)
-                .build();
+                .confirmedAt(LocalDateTime.now())
+                .msg("Email confirmed").build();
     }
 
     public void sendConfirmationEmail(String jwt) {
         User user = repository.findByEmail(jwtService.extractUsername(jwt.substring(7)))
                 .orElseThrow(() -> new RuntimeException("User does not exist"));
 
-        if (user.isActivated())
-            throw new IllegalStateException("user is already activated!");
+        if (user.isActivated()) throw new IllegalStateException("user is already activated!");
 
         confirmationTokenService.retireTokens(user);
         String token = createConfirmationToken(user);
 
         try {
             String link = "http://localhost:8080/api/v1/auth/confirm?token=" + token;
-            emailService.send(user.getEmail(), emailService.buildVerificationEmail(user.getFirstName(), link),"Confirm your Email!");
-        } catch (Exception exception) {throw  new IllegalStateException("Verification Email couldn't be send");}
+            emailService.send(user.getEmail(),
+                    emailService.buildVerificationEmail(user.getFirstName(), link),
+                    EmailService.EMAIL_VERIFICATION_SUBJECT);
+        } catch (Exception exception) {
+            throw new IllegalStateException("Verification Email couldn't be send");
+        }
     }
 
     private String createConfirmationToken(User user) {
         String token = UUID.randomUUID().toString();
-        ConfirmationToken confirmationToken = new ConfirmationToken(token, LocalDateTime.now(), LocalDateTime.now().plusMinutes(15), user);
+        ConfirmationToken confirmationToken = new ConfirmationToken(token, LocalDateTime.now(),
+                LocalDateTime.now().plusMinutes(15), user);
         confirmationTokenService.saveConfirmationToken(confirmationToken);
         return token;
     }
-
 
 
 }
