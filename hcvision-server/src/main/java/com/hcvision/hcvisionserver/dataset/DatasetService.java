@@ -26,16 +26,14 @@ public class DatasetService {
 
     private final UserService userService;
     private final DatasetRepository datasetRepository;
-    private final DatasetValidator datasetValidator;
+    private final DatasetUtils datasetUtils;
 
     private static String getFilePathByUserIdAndType(String file, AccessType accessType, User user) {
-        return CWD + File.separator + DATASETS_DIRECTORY + File.separator + accessType +
-                (accessType.equals(AccessType.PRIVATE) ? File.separator + user.getId() : "") + File.separator + file;
+        return CWD + File.separator + DATASETS_DIRECTORY + File.separator + accessType + (accessType.equals(AccessType.PRIVATE) ? File.separator + user.getId() : "") + File.separator + file;
     }
 
     private static String getUserDirectoryPathByType(AccessType accessType, User user) {
-        return CWD + File.separator + DATASETS_DIRECTORY + File.separator + accessType +
-                (accessType.equals(AccessType.PRIVATE) ? File.separator + user.getId() : "");
+        return CWD + File.separator + DATASETS_DIRECTORY + File.separator + accessType + (accessType.equals(AccessType.PRIVATE) ? File.separator + user.getId() : "");
     }
 
     private static String getAccessTypePath(AccessType accessType) {
@@ -44,7 +42,7 @@ public class DatasetService {
 
     public ResponseEntity<String> saveFile(UploadDatasetRequest uploadDatasetRequest, String jwt) {
 
-        if (!datasetValidator.isValidFileFormat(uploadDatasetRequest.getFile()))
+        if (!datasetUtils.isValidFileFormat(uploadDatasetRequest.getFile()))
             return ResponseEntity.badRequest().body("File format not supported.");
 
         User user = userService.getUserFromJwt(jwt);
@@ -61,7 +59,7 @@ public class DatasetService {
         try {
             String filePath = getFilePathByUserIdAndType(uploadDatasetRequest.getFile().getOriginalFilename(), uploadDatasetRequest.getType(), user);
             uploadDatasetRequest.getFile().transferTo(new File(filePath));
-            Dataset dataset = new Dataset(user, fileName, uploadDatasetRequest.getType(), filePath);
+            Dataset dataset = new Dataset(user, fileName, uploadDatasetRequest.getType(), filePath, datasetUtils.getNumericColumns(filePath));
             datasetRepository.save(dataset);
             return ResponseEntity.ok("File uploaded successfully.");
         } catch (Exception e) {
@@ -90,8 +88,7 @@ public class DatasetService {
         User user = userService.getUserFromJwt(jwt);
         Dataset dataset = getDataset(filename, accessType, user);
 
-        if (dataset == null)
-            return ResponseEntity.notFound().build();
+        if (dataset == null) return ResponseEntity.notFound().build();
 
         if (!dataset.getUser().equals(user))
             return ResponseEntity.badRequest().body("You dont have permission to delete this dataset.");
@@ -109,8 +106,7 @@ public class DatasetService {
 
     private void maybeCreateUserDirectory(AccessType accessType, User user) {
         if (!userDirectoryExists(accessType, user)) {
-            File accessTypeDir = new File(getAccessTypePath(accessType) +
-                    (accessType.equals(AccessType.PRIVATE) ? File.separator + user.getId() : File.separator));
+            File accessTypeDir = new File(getAccessTypePath(accessType) + (accessType.equals(AccessType.PRIVATE) ? File.separator + user.getId() : File.separator));
             if (accessTypeDir.mkdirs()) {
                 System.out.println("User directory created for user " + user.getId());
             } else {

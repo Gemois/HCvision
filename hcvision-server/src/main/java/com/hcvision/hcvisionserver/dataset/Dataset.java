@@ -24,13 +24,14 @@ public class Dataset {
     private String fileName;
     private com.hcvision.hcvisionserver.dataset.dto.AccessType accessType;
     private String path;
+    private String numericCols;
 
-
-    public Dataset(User user, String name, AccessType accessType, String path) {
+    public Dataset(User user, String name, AccessType accessType, String path, String numericCols) {
         this.user = user;
         this.fileName = name;
         this.accessType = accessType;
         this.path = path;
+        this.numericCols = numericCols;
     }
 
     public interface ProjectNameAndAccessType {
