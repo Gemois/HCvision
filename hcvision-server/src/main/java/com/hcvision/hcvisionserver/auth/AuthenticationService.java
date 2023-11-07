@@ -6,12 +6,12 @@ import com.hcvision.hcvisionserver.auth.dto.AuthenticationResponse;
 import com.hcvision.hcvisionserver.auth.dto.RegisterRequest;
 import com.hcvision.hcvisionserver.auth.dto.RegisterResponse;
 import com.hcvision.hcvisionserver.auth.token.ConfirmationToken;
-import com.hcvision.hcvisionserver.auth.token.ConfirmationTokenResponse;
+import com.hcvision.hcvisionserver.auth.token.dto.ConfirmationTokenResponse;
 import com.hcvision.hcvisionserver.auth.token.ConfirmationTokenService;
 import com.hcvision.hcvisionserver.config.JwtService;
 import com.hcvision.hcvisionserver.mail.EmailService;
 import com.hcvision.hcvisionserver.mail.EmailValidator;
-import com.hcvision.hcvisionserver.user.Role;
+import com.hcvision.hcvisionserver.user.dto.Role;
 import com.hcvision.hcvisionserver.user.User;
 import com.hcvision.hcvisionserver.user.UserRepository;
 import com.hcvision.hcvisionserver.user.UserService;
@@ -139,6 +139,5 @@ public class AuthenticationService {
         confirmationTokenService.saveConfirmationToken(confirmationToken);
         return token;
     }
-
 
 }

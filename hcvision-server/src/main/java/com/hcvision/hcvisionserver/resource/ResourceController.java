@@ -20,4 +20,5 @@ public class ResourceController {
         return ResponseEntity.ok().contentType(mediaType).body(resource);
 
     }
+
 }

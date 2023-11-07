@@ -1,4 +1,4 @@
-package com.hcvision.hcvisionserver.auth.token;
+package com.hcvision.hcvisionserver.auth.token.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

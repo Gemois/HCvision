@@ -1,5 +1,6 @@
 package com.hcvision.hcvisionserver.user;
 
+import com.hcvision.hcvisionserver.user.dto.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +21,7 @@ public class User implements UserDetails {
 
     @Id
     @GeneratedValue()
-    private Integer id;
+    private Long id;
     private String firstName;
     private String lastName;
     private String email;

@@ -118,4 +118,5 @@ public class EmailService {
                 "                    </tr>\n" +
                 htmlBottomPage;
     }
+
 }

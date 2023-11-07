@@ -2,7 +2,8 @@ package com.hcvision.hcvisionserver.user;
 
 import com.hcvision.hcvisionserver.auth.token.ConfirmationToken;
 import com.hcvision.hcvisionserver.auth.token.ConfirmationTokenService;
-import com.hcvision.hcvisionserver.auth.token.TokenType;
+import com.hcvision.hcvisionserver.auth.token.dto.TokenType;
+import com.hcvision.hcvisionserver.config.JwtService;
 import com.hcvision.hcvisionserver.mail.EmailService;
 import com.hcvision.hcvisionserver.user.dto.ForgotPasswordRequest;
 import com.hcvision.hcvisionserver.user.dto.ResetPasswordRequest;
@@ -26,6 +27,8 @@ public class UserService implements UserDetailsService {
     private final ConfirmationTokenService confirmationTokenService;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final JwtService jwtService;
+
     private static final SecureRandom secureRandom = new SecureRandom();
 
     private final static String USER_NOT_FOUND_MSG = "user with email %s not found";
@@ -90,5 +93,11 @@ public class UserService implements UserDetailsService {
         }
         return token.toString();
     }
+
+    public User getUserFromJwt(String jwt) {
+        return userRepository.findByEmail(jwtService.extractUsername(jwt.substring(7)))
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+    }
+
 
 }

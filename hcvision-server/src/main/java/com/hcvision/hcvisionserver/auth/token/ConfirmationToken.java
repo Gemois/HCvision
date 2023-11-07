@@ -1,5 +1,6 @@
 package com.hcvision.hcvisionserver.auth.token;
 
+import com.hcvision.hcvisionserver.auth.token.dto.TokenType;
 import com.hcvision.hcvisionserver.user.User;
 import jakarta.persistence.*;
 import lombok.*;

@@ -4,7 +4,7 @@ import com.hcvision.hcvisionserver.auth.dto.AuthenticationRequest;
 import com.hcvision.hcvisionserver.auth.dto.AuthenticationResponse;
 import com.hcvision.hcvisionserver.auth.dto.RegisterRequest;
 import com.hcvision.hcvisionserver.auth.dto.RegisterResponse;
-import com.hcvision.hcvisionserver.auth.token.ConfirmationTokenResponse;
+import com.hcvision.hcvisionserver.auth.token.dto.ConfirmationTokenResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

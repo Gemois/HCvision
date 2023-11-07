@@ -1,7 +1,7 @@
 package com.hcvision.hcvisionserver.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.hcvision.hcvisionserver.user.Role;
+import com.hcvision.hcvisionserver.user.dto.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
