@@ -37,6 +37,13 @@ public class DatasetController {
         return service.deleteFile(filename, accessType, jwt);
     }
 
+    @GetMapping(produces="application/json")
+    public ResponseEntity<String> readDataset(@RequestParam("filename") String filename,
+                                              @RequestParam("type") AccessType accessType,
+                                              @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
+        return service.getDatasetInJson(filename, accessType, jwt);
+    }
+
     @GetMapping("/all")
     public ResponseEntity<List<Dataset.ProjectNameAndAccessType>> getDatasets(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
         return ResponseEntity.ok(service.getDatasets(jwt));

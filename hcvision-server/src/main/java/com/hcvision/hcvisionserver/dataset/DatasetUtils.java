@@ -5,11 +5,14 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Service
@@ -93,6 +96,92 @@ public class DatasetUtils {
 
     private static String removeDoubleQuotes(String str) {
         return str.replaceAll("\"", "");
+    }
+
+    public  String  convertDatasetToJson(String filePath) {
+
+        if (filePath.toLowerCase().endsWith(".csv")) {
+            return convertCsvToJson(filePath);
+        } else if (filePath.toLowerCase().endsWith(".xlsx")) {
+            return convertXlsxToJson(filePath);
+        } else {
+            return null;
+        }
+    }
+
+    public static String convertCsvToJson(String csvFilePath) {
+        try (FileReader fileReader = new FileReader(csvFilePath);
+             StringWriter stringWriter = new StringWriter();
+             CSVParser csvParser = CSVFormat.DEFAULT.withHeader().parse(fileReader)) {
+            List<String> headers = csvParser.getHeaderNames();
+            JSONArray jsonArray = new JSONArray();
+
+            for (org.apache.commons.csv.CSVRecord record : csvParser) {
+                JSONObject jsonRow = new JSONObject();
+                for (String header : headers) {
+                    jsonRow.put(header, record.get(header));
+                }
+                jsonArray.add(jsonRow);
+            }
+
+            jsonArray.writeJSONString(stringWriter);
+            return stringWriter.toString();
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    private static String convertXlsxToJson(String xlsxFilePath) {
+        try (Workbook workbook = new XSSFWorkbook(new FileInputStream(xlsxFilePath));
+             StringWriter stringWriter = new StringWriter()) {
+            Sheet sheet = workbook.getSheetAt(0);
+            JSONArray jsonArray = new JSONArray();
+
+            Iterator<Row> rowIterator = sheet.iterator();
+            String[] headers = null;
+
+            while (rowIterator.hasNext()) {
+                Row row = rowIterator.next();
+                JSONObject jsonRow = new JSONObject();
+
+                if (headers == null) {
+                    headers = new String[row.getPhysicalNumberOfCells()];
+                    for (int i = 0; i < headers.length; i++) {
+                        headers[i] = row.getCell(i).getStringCellValue();
+                    }
+                } else {
+                    for (int i = 0; i < headers.length; i++) {
+                        Cell cell = row.getCell(i);
+                        jsonRow.put(headers[i], getCellValue(cell));
+                    }
+
+                    jsonArray.add(jsonRow);
+                }
+            }
+
+            jsonArray.writeJSONString(stringWriter);
+            return stringWriter.toString();
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    private static String getCellValue(Cell cell) {
+        if (cell == null) {
+            return "";
+        }
+
+        if (cell.getCellType() == CellType.STRING) {
+            return cell.getStringCellValue();
+        } else if (cell.getCellType() == CellType.NUMERIC) {
+            return String.valueOf(cell.getNumericCellValue());
+        } else if (cell.getCellType() == CellType.BOOLEAN) {
+            return String.valueOf(cell.getBooleanCellValue());
+        } else if (cell.getCellType() == CellType.FORMULA) {
+            return cell.getCellFormula();
+        } else {
+            return "";
+        }
     }
 
 }

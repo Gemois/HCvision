@@ -86,7 +86,12 @@
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-            <version>3.9</version>
+            <version>5.2.0</version> <!-- Use the latest version -->
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>1.1.1</version>
         </dependency>
     </dependencies>
         <build>

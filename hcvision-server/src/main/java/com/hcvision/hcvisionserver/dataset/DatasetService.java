@@ -28,8 +28,8 @@ public class DatasetService {
     private final DatasetRepository datasetRepository;
     private final DatasetUtils datasetUtils;
 
-    private static String getFilePathByUserIdAndType(String file, AccessType accessType, User user) {
-        return CWD + File.separator + DATASETS_DIRECTORY + File.separator + accessType + (accessType.equals(AccessType.PRIVATE) ? File.separator + user.getId() : "") + File.separator + file;
+    private static String getFilePathByUserIdAndType(String fileName, AccessType accessType, User user) {
+        return CWD + File.separator + DATASETS_DIRECTORY + File.separator + accessType + (accessType.equals(AccessType.PRIVATE) ? File.separator + user.getId() : "") + File.separator + fileName;
     }
 
     private static String getUserDirectoryPathByType(AccessType accessType, User user) {
@@ -67,15 +67,15 @@ public class DatasetService {
         }
     }
 
-    public ResponseEntity<UrlResource> findFile(String filename, AccessType accessType, String jwt) {
+    public ResponseEntity<UrlResource> findFile(String fileName, AccessType accessType, String jwt) {
         User user = userService.getUserFromJwt(jwt);
 
         try {
-            Path filePath = Paths.get(getDataset(filename, accessType, user).getPath());
+            Path filePath = Paths.get(getDataset(fileName, accessType, user).getPath());
             UrlResource resource = new UrlResource(filePath.toUri());
 
             if (resource.exists() && resource.isReadable()) {
-                return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename).body(resource);
+                return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName).body(resource);
             } else {
                 return ResponseEntity.notFound().build();
             }
@@ -84,9 +84,9 @@ public class DatasetService {
         }
     }
 
-    public ResponseEntity<String> deleteFile(String filename, AccessType accessType, String jwt) {
+    public ResponseEntity<String> deleteFile(String fileName, AccessType accessType, String jwt) {
         User user = userService.getUserFromJwt(jwt);
-        Dataset dataset = getDataset(filename, accessType, user);
+        Dataset dataset = getDataset(fileName, accessType, user);
 
         if (dataset == null) return ResponseEntity.notFound().build();
 
@@ -136,4 +136,18 @@ public class DatasetService {
         return datasetRepository.findAllByUser(user);
     }
 
+    public ResponseEntity<String> getDatasetInJson(String fileName, AccessType accessType, String jwt) {
+        User user = userService.getUserFromJwt(jwt);
+        Dataset dataset = getDataset(fileName, accessType, user);
+
+        if (dataset == null)
+            return ResponseEntity.notFound().build();
+
+        String jsonDataset = datasetUtils.convertDatasetToJson(dataset.getPath());
+
+        if (jsonDataset == null)
+            return ResponseEntity.internalServerError().body("There was an error while processing the file.");
+
+        return ResponseEntity.ok().body(jsonDataset);
+    }
 }
