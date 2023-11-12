@@ -26,13 +26,12 @@ public class DatasetService {
 
     private final UserService userService;
     private final DatasetRepository datasetRepository;
-    private final DatasetUtils datasetUtils;
 
     private static String getFilePathByUserIdAndType(String fileName, AccessType accessType, User user) {
         return CWD + File.separator + DATASETS_DIRECTORY + File.separator + accessType + (accessType.equals(AccessType.PRIVATE) ? File.separator + user.getId() : "") + File.separator + fileName;
     }
 
-    private static String getUserDirectoryPathByType(AccessType accessType, User user) {
+    public static String getUserDirectoryPathByType(AccessType accessType, User user) {
         return CWD + File.separator + DATASETS_DIRECTORY + File.separator + accessType + (accessType.equals(AccessType.PRIVATE) ? File.separator + user.getId() : "");
     }
 
@@ -42,7 +41,7 @@ public class DatasetService {
 
     public ResponseEntity<String> saveFile(UploadDatasetRequest uploadDatasetRequest, String jwt) {
 
-        if (!datasetUtils.isValidFileFormat(uploadDatasetRequest.getFile()))
+        if (!DatasetUtils.isValidFileFormat(uploadDatasetRequest.getFile()))
             return ResponseEntity.badRequest().body("File format not supported.");
 
         User user = userService.getUserFromJwt(jwt);
@@ -59,7 +58,7 @@ public class DatasetService {
         try {
             String filePath = getFilePathByUserIdAndType(uploadDatasetRequest.getFile().getOriginalFilename(), uploadDatasetRequest.getType(), user);
             uploadDatasetRequest.getFile().transferTo(new File(filePath));
-            Dataset dataset = new Dataset(user, fileName, uploadDatasetRequest.getType(), filePath, datasetUtils.getNumericColumns(filePath));
+            Dataset dataset = new Dataset(user, fileName, uploadDatasetRequest.getType(), filePath, DatasetUtils.getNumericColumns(filePath));
             datasetRepository.save(dataset);
             return ResponseEntity.ok("File uploaded successfully.");
         } catch (Exception e) {
@@ -143,7 +142,7 @@ public class DatasetService {
         if (dataset == null)
             return ResponseEntity.notFound().build();
 
-        String jsonDataset = datasetUtils.convertDatasetToJson(dataset.getPath());
+        String jsonDataset = DatasetUtils.convertDatasetToJson(dataset.getPath());
 
         if (jsonDataset == null)
             return ResponseEntity.internalServerError().body("There was an error while processing the file.");

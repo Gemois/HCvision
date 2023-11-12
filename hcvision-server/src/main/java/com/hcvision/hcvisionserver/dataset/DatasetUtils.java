@@ -1,6 +1,7 @@
 package com.hcvision.hcvisionserver.dataset;
 
 
+import lombok.experimental.UtilityClass;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.poi.ss.usermodel.*;
@@ -11,14 +12,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
-@Service
+@UtilityClass
 public class DatasetUtils {
 
-    public boolean isValidFileFormat(MultipartFile multipartFile) {
+    public static boolean isValidFileFormat(MultipartFile multipartFile) {
         try (InputStream inputStream = multipartFile.getInputStream(); BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream))) {
             String originalFileName = multipartFile.getOriginalFilename();
             String fileExtension = originalFileName != null ? originalFileName.substring(originalFileName.lastIndexOf(".") + 1).toLowerCase() : "";
@@ -45,7 +44,7 @@ public class DatasetUtils {
     }
 
 
-    public String getNumericColumns(String filePath) {
+    public static String getNumericColumns(String filePath) {
         List<String> numericColumnNames = new ArrayList<>();
 
         if (filePath.endsWith(".csv")) {
@@ -98,7 +97,7 @@ public class DatasetUtils {
         return str.replaceAll("\"", "");
     }
 
-    public  String  convertDatasetToJson(String filePath) {
+    public static String  convertDatasetToJson(String filePath) {
 
         if (filePath.toLowerCase().endsWith(".csv")) {
             return convertCsvToJson(filePath);
@@ -182,6 +181,14 @@ public class DatasetUtils {
         } else {
             return "";
         }
+    }
+
+    public  static boolean areAllElementsInArray(String[] selected, String[] numeric) {
+
+        Set<String> selectedCols = new HashSet<>(Arrays.asList(selected));
+        Set<String> numericCols = new HashSet<>(Arrays.asList(numeric));
+
+        return numericCols.containsAll(selectedCols);
     }
 
 }

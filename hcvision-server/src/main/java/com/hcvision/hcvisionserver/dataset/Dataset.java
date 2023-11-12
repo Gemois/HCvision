@@ -36,7 +36,6 @@ public class Dataset {
 
     public interface ProjectNameAndAccessType {
         String getFileName();
-
         String getAccessType();
     }
 

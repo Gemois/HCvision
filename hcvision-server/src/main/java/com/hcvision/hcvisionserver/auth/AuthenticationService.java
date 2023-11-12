@@ -9,6 +9,7 @@ import com.hcvision.hcvisionserver.auth.token.ConfirmationToken;
 import com.hcvision.hcvisionserver.auth.token.dto.ConfirmationTokenResponse;
 import com.hcvision.hcvisionserver.auth.token.ConfirmationTokenService;
 import com.hcvision.hcvisionserver.config.JwtService;
+import com.hcvision.hcvisionserver.hierarchical.PythonExecutorService;
 import com.hcvision.hcvisionserver.mail.EmailService;
 import com.hcvision.hcvisionserver.mail.EmailValidator;
 import com.hcvision.hcvisionserver.user.dto.Role;
@@ -36,6 +37,7 @@ public class AuthenticationService {
     private final ConfirmationTokenService confirmationTokenService;
     private final EmailService emailService;
 
+
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         var user = repository.findByEmail(request.getEmail()).orElseThrow();
@@ -49,6 +51,7 @@ public class AuthenticationService {
                 .expiresAt(LocalDateTime.now().plusSeconds(jwtService.getJwtExpiration()))
                 .build();
     }
+
 
     public RegisterResponse register(RegisterRequest request) {
         boolean userExists = repository.findByEmail(request.getEmail()).isPresent();
@@ -91,6 +94,7 @@ public class AuthenticationService {
                 .build();
     }
 
+
     public ConfirmationTokenResponse confirmToken(String token) {
         ConfirmationToken confirmationToken = confirmationTokenService.getToken(token)
                 .orElseThrow(() -> new IllegalStateException("token not found"));
@@ -112,6 +116,7 @@ public class AuthenticationService {
                 .confirmedAt(LocalDateTime.now())
                 .msg("Email confirmed").build();
     }
+
 
     public void sendConfirmationEmail(String jwt) {
         User user = repository.findByEmail(jwtService.extractUsername(jwt.substring(7)))
@@ -139,5 +144,6 @@ public class AuthenticationService {
         confirmationTokenService.saveConfirmationToken(confirmationToken);
         return token;
     }
+
 
 }
