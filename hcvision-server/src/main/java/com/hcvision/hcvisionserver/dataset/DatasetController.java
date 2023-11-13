@@ -44,7 +44,7 @@ public class DatasetController {
         return service.getDatasetInJson(filename, accessType, jwt);
     }
 
-    @GetMapping("/all")
+    @GetMapping("/list")
     public ResponseEntity<List<Dataset.ProjectNameAndAccessType>> getDatasets(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
         return ResponseEntity.ok(service.getDatasets(jwt));
     }

@@ -60,7 +60,7 @@ if __name__ == "__main__":
     parser.add_argument("dataset_path")
     parser.add_argument("linkage_type")
     parser.add_argument("num_clusters", type=int)
-    parser.add_argument("sampling")
+    parser.add_argument("--sampling", action="store_true", default=False)
     parser.add_argument("attributes", nargs='+')
    
     args = parser.parse_args()

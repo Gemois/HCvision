@@ -15,16 +15,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table
 public class Optimal implements PythonScript {
 
     @Id
     @GeneratedValue
     private long id;
-
     @ManyToOne
     @JoinColumn(nullable = false, name = "_user_id")
     private User user;
-
     @ManyToOne
     @JoinColumn(nullable = false, name = "dataset_id")
     private Dataset dataset;

@@ -25,4 +25,9 @@ public interface ConfirmationTokenRepository extends JpaRepository<ConfirmationT
     @Modifying
     @Query("UPDATE ConfirmationToken c " + "SET c.confirmedAt = ?2 " + "WHERE c.user = ?1")
     void retireTokens(User user, LocalDateTime now);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM ConfirmationToken c WHERE c.user = ?1")
+    void deleteAllUserConfirmationTokens(User user);
 }

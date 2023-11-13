@@ -88,7 +88,7 @@ public class HierarchicalService {
                 getBaseResultPathByPythonScript(optimal) + " " +
                 dataset.getPath() +  " " +
                 maxClusters +  " " +
-                isSample + " " +
+                (isSample ? "--sampling " : "") +
                 attributes;
 
 
@@ -131,7 +131,7 @@ public class HierarchicalService {
                 dataset.getPath() +  " " +
                 linkage +  " " +
                 numClusters +  " " +
-                isSample + " " +
+                (isSample ? "--sampling " : "") +
                 attributes;
 
         maybeCreateResultDirectory(analysis);

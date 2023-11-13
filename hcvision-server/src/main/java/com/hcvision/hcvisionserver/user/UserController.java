@@ -1,8 +1,10 @@
 package com.hcvision.hcvisionserver.user;
 
+import com.hcvision.hcvisionserver.user.dto.EditUserRequest;
 import com.hcvision.hcvisionserver.user.dto.ForgotPasswordRequest;
 import com.hcvision.hcvisionserver.user.dto.ResetPasswordRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,4 +41,17 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    @PostMapping("/delete")
+    public ResponseEntity<String> deleteUser(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
+        service.deleteUser(jwt);
+        return ResponseEntity.ok("User deleted along with all his information.");
+    }
+
+    @PostMapping("/update")
+    public ResponseEntity<String> updateUser(@RequestBody EditUserRequest editUserRequest, @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
+        service.updateUser(editUserRequest, jwt);
+        return ResponseEntity.ok("User profile updates successfully.");
+    }
+
 }

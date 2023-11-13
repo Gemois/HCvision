@@ -1,10 +1,22 @@
 package com.hcvision.hcvisionserver.user;
 
 import com.hcvision.hcvisionserver.auth.token.ConfirmationToken;
+import com.hcvision.hcvisionserver.auth.token.ConfirmationTokenRepository;
 import com.hcvision.hcvisionserver.auth.token.ConfirmationTokenService;
 import com.hcvision.hcvisionserver.auth.token.dto.TokenType;
 import com.hcvision.hcvisionserver.config.JwtService;
+import com.hcvision.hcvisionserver.dataset.Dataset;
+import com.hcvision.hcvisionserver.dataset.DatasetRepository;
+import com.hcvision.hcvisionserver.dataset.DatasetService;
+import com.hcvision.hcvisionserver.dataset.DatasetUtils;
+import com.hcvision.hcvisionserver.dataset.dto.AccessType;
+import com.hcvision.hcvisionserver.hierarchical.HierarchicalService;
+import com.hcvision.hcvisionserver.hierarchical.script.Optimal.Optimal;
+import com.hcvision.hcvisionserver.hierarchical.script.Optimal.OptimalRepository;
+import com.hcvision.hcvisionserver.hierarchical.script.analysis.Analysis;
+import com.hcvision.hcvisionserver.hierarchical.script.analysis.AnalysisRepository;
 import com.hcvision.hcvisionserver.mail.EmailService;
+import com.hcvision.hcvisionserver.user.dto.EditUserRequest;
 import com.hcvision.hcvisionserver.user.dto.ForgotPasswordRequest;
 import com.hcvision.hcvisionserver.user.dto.ResetPasswordRequest;
 import lombok.AllArgsConstructor;
@@ -14,9 +26,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+
 
 
 @Service
@@ -28,6 +43,10 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final JwtService jwtService;
+    private final DatasetRepository datasetRepository;
+    private final OptimalRepository optimalRepository;
+    private final AnalysisRepository analysisRepository;
+    private final ConfirmationTokenRepository confirmationTokenRepository;
 
     private static final SecureRandom secureRandom = new SecureRandom();
 
@@ -100,4 +119,74 @@ public class UserService implements UserDetailsService {
     }
 
 
+    public void deleteUser(String jwt) {
+        User user = getUserFromJwt(jwt);
+
+        List<Optimal> userOptimalResults = optimalRepository.findByUser(user);
+        userOptimalResults.forEach(optimal -> {
+            File optimalDir = new File(HierarchicalService.getBaseResultPathByPythonScript(optimal));
+            if (optimalDir.exists())
+                DatasetUtils.deleteUserDirectory(optimalDir);
+        });
+        optimalRepository.deleteAllUserOptimal(user);
+
+        List<Analysis> userAnalysisResults = analysisRepository.findByUser(user);
+        userAnalysisResults.forEach(analysis -> {
+            File analysisDir = new File(HierarchicalService.getBaseResultPathByPythonScript(analysis));
+            if (analysisDir.exists())
+                DatasetUtils.deleteUserDirectory(analysisDir);
+        });
+        analysisRepository.deleteAllUserAnalysis(user);
+
+        List<Dataset> userPublicDatasetList = datasetRepository.findByUserAndAccessType(user, AccessType.PUBLIC);
+        userPublicDatasetList.forEach(dataset -> {
+            File publicDataset = new File(dataset.getPath());
+            if (publicDataset.exists())
+                DatasetUtils.deleteUserDirectory(publicDataset);
+        });
+        datasetRepository.deleteAllUserDatasets(user);
+
+        File userDir = new File(DatasetService.getUserDirectoryPathByType(AccessType.PRIVATE, user));
+        if (userDir.exists())
+            DatasetUtils.deleteUserDirectory(userDir);
+
+        confirmationTokenRepository.deleteAllUserConfirmationTokens(user);
+
+        userRepository.deleteById(user.getId());
+    }
+
+    public void updateUser(EditUserRequest editUserRequest, String jwt) {
+        boolean emailChanged = false;
+        User user = getUserFromJwt(jwt);
+
+        if (!editUserRequest.getNewEmail().equals(user.getEmail())) {
+            user.setEmail(editUserRequest.getNewEmail());
+            user.setActivated(false);
+            emailChanged = true;
+        }
+
+        if (!editUserRequest.getNewFirstName().equals(user.getFirstName())) {
+            user.setFirstName(editUserRequest.getNewFirstName());
+        }
+
+        if (!editUserRequest.getNewLastName().equals(user.getLastName())) {
+            user.setLastName(editUserRequest.getNewLastName());
+        }
+
+        if (!passwordEncoder.encode(editUserRequest.getNewPassword()).equals(user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(editUserRequest.getNewPassword()));
+        }
+        userRepository.save(user);
+        if (emailChanged) {
+            String token = confirmationTokenService.createConfirmationToken(user);
+
+            try {
+                String link = "http://localhost:8080/api/v1/auth/confirm?token=" + token;
+                emailService.send(user.getEmail(),
+                        emailService.buildVerificationEmail(user.getFirstName(), link),
+                        EmailService.EMAIL_VERIFICATION_SUBJECT);
+            } catch (Exception ignored) { }
+
+        }
+    }
 }

@@ -191,4 +191,21 @@ public class DatasetUtils {
         return numericCols.containsAll(selectedCols);
     }
 
+
+    public static void deleteUserDirectory(File userDirectory) {
+        File[] allFiles = userDirectory.listFiles();
+
+        if (allFiles != null) {
+            for (File file : allFiles) {
+                if (file.isDirectory()) {
+                    deleteUserDirectory(file);
+                } else {
+                    file.delete();
+                }
+            }
+        }
+
+        userDirectory.delete();
+    }
+
 }

@@ -17,6 +17,8 @@ import com.hcvision.hcvisionserver.user.User;
 import com.hcvision.hcvisionserver.user.UserRepository;
 import com.hcvision.hcvisionserver.user.UserService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -74,7 +76,7 @@ public class AuthenticationService {
                 .build();
 
         repository.save(user);
-        String token = createConfirmationToken(user);
+        String token = confirmationTokenService.createConfirmationToken(user);
 
         try {
             String link = "http://localhost:8080/api/v1/auth/confirm?token=" + token;
@@ -82,6 +84,7 @@ public class AuthenticationService {
                     emailService.buildVerificationEmail(request.getFirstname(), link),
                     EmailService.EMAIL_VERIFICATION_SUBJECT);
         } catch (Exception ignored) {
+
         }
 
         return RegisterResponse.builder()
@@ -125,7 +128,7 @@ public class AuthenticationService {
         if (user.isActivated()) throw new IllegalStateException("user is already activated!");
 
         confirmationTokenService.retireTokens(user);
-        String token = createConfirmationToken(user);
+        String token = confirmationTokenService.createConfirmationToken(user);
 
         try {
             String link = "http://localhost:8080/api/v1/auth/confirm?token=" + token;
@@ -137,13 +140,7 @@ public class AuthenticationService {
         }
     }
 
-    private String createConfirmationToken(User user) {
-        String token = UUID.randomUUID().toString();
-        ConfirmationToken confirmationToken = new ConfirmationToken(token, LocalDateTime.now(),
-                LocalDateTime.now().plusMinutes(15), user);
-        confirmationTokenService.saveConfirmationToken(confirmationToken);
-        return token;
-    }
+
 
 
 }

@@ -2,6 +2,8 @@ package com.hcvision.hcvisionserver.mail;
 
 import jakarta.mail.internet.MimeMessage;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -18,7 +20,6 @@ public class EmailService {
     public static final String EMAIL_VERIFICATION_SUBJECT = "Mail Confirmation";
     public static final String RESET_PASSWORD_OTP_SUBJECT = "Reset Password";
     public static final String PASSWORD_CHANGE_NOTIFICATION_SUBJECT = "Password Changed";
-
 
     @Async
     public void send(String to, String content, String subject) {

@@ -1,5 +1,8 @@
 package com.hcvision.hcvisionserver.user;
 
+import com.hcvision.hcvisionserver.dataset.Dataset;
+import com.hcvision.hcvisionserver.hierarchical.script.Optimal.Optimal;
+import com.hcvision.hcvisionserver.hierarchical.script.analysis.Analysis;
 import com.hcvision.hcvisionserver.user.dto.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,6 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 
 @Data
 @Builder

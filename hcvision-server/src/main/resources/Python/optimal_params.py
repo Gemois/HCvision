@@ -61,7 +61,7 @@ if __name__ == '__main__':
     parser.add_argument("result_path", type=str)
     parser.add_argument("dataset_path", type=str)
     parser.add_argument("max_clusters", type=int)
-    parser.add_argument("sampling", type=bool)
+    parser.add_argument("--sampling", action="store_true", default=False)
     parser.add_argument("attributes", type=str, nargs='+')
     args = parser.parse_args()
     find_best_linkage_and_clusters(args.result_path, args.dataset_path, args.max_clusters, args.sampling, args.attributes)
