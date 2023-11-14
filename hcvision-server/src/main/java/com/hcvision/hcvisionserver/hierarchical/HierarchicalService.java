@@ -4,6 +4,8 @@ import com.hcvision.hcvisionserver.dataset.Dataset;
 import com.hcvision.hcvisionserver.dataset.DatasetService;
 import com.hcvision.hcvisionserver.dataset.DatasetUtils;
 import com.hcvision.hcvisionserver.dataset.dto.AccessType;
+import com.hcvision.hcvisionserver.hierarchical.History.History;
+import com.hcvision.hcvisionserver.hierarchical.History.HistoryRepository;
 import com.hcvision.hcvisionserver.hierarchical.script.Linkage;
 import com.hcvision.hcvisionserver.hierarchical.script.Optimal.Optimal;
 import com.hcvision.hcvisionserver.hierarchical.script.Optimal.OptimalService;
@@ -18,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -30,13 +33,17 @@ public class HierarchicalService {
     private final PythonExecutorService asyncPythonService;
     private final AnalysisService analysisService;
     private final OptimalService optimalService;
+    private final HistoryRepository historyRepository;
 
+   // final String OPTIMAL_SCRIPT = "python" + File.separator + "optimal_params.py";
+   // final String ANALYSIS_SCRIPT = "python" + File.separator + "analysis.py";
     final String OPTIMAL_SCRIPT = "python/optimal_params.py";
     final String ANALYSIS_SCRIPT = "python/analysis.py";
-
+    private static final String CWD = System.getProperty("user.dir");
     private String getPythonScriptPath(String resourcePath) {
         ClassLoader classLoader = getClass().getClassLoader();
         return new File(Objects.requireNonNull(classLoader.getResource(resourcePath)).getFile()).getPath();
+       //return CWD + File.separator + resourcePath;
     }
 
     public static final String RESULT_DIR = "results";
@@ -76,12 +83,15 @@ public class HierarchicalService {
         if (invalidParams(dataset, maxClusters, attributes))
             return ResponseEntity.badRequest().build();
 
-        Optional<Optimal.ProjectOptimal> reRun = optimalService.getOptimalReRun(user, dataset , maxClusters,isSample, attributes);
+        Optional<Optimal.ProjectOptimal> reRun = optimalService.getOptimalReRun(user, dataset , maxClusters, isSample, DatasetUtils.sortAttributes(attributes));
 
         if(reRun.isPresent())
             return ResponseEntity.ok(reRun.get());
 
-        Optimal optimal = optimalService.createOptimal(new Optimal(user, dataset, maxClusters , isSample , attributes, ResultStatus.RUNNING));
+        Optimal optimal = optimalService.createOptimal(new Optimal(user, dataset, maxClusters , isSample , DatasetUtils.sortAttributes(attributes), ResultStatus.RUNNING));
+
+        History history = new History(LocalDateTime.now(), user, optimal);
+        historyRepository.save(history);
 
         String command = "python " +
                 getPythonScriptPath(OPTIMAL_SCRIPT) + " " +
@@ -118,12 +128,14 @@ public class HierarchicalService {
             return ResponseEntity.badRequest().build();
 
 
-        Optional<Analysis.ProjectAnalysis> reRun = analysisService.getAnalysisReRun(user, dataset , linkage, numClusters, isSample, attributes);
-
+        Optional<Analysis.ProjectAnalysis> reRun = analysisService.getAnalysisReRun(user, dataset , linkage, numClusters, isSample, DatasetUtils.sortAttributes(attributes));
         if(reRun.isPresent())
             return ResponseEntity.ok(reRun.get());
 
-        Analysis analysis = analysisService.createAnalysis( new Analysis(user, dataset, linkage, numClusters , isSample , attributes, ResultStatus.RUNNING));
+        Analysis analysis = analysisService.createAnalysis( new Analysis(user, dataset, linkage, numClusters , isSample , DatasetUtils.sortAttributes(attributes), ResultStatus.RUNNING));
+
+        History history = new History(LocalDateTime.now(), user, analysis);
+        historyRepository.save(history);
 
         String command = "python " +
                 getPythonScriptPath(ANALYSIS_SCRIPT) + " " +

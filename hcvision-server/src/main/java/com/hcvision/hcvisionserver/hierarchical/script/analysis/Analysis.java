@@ -83,7 +83,6 @@ public class Analysis implements PythonScript {
         String getClusterAssignmentResultPath();
     }
 
-
 }
 
 

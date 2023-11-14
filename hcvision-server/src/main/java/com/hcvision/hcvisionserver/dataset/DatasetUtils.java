@@ -183,7 +183,7 @@ public class DatasetUtils {
         }
     }
 
-    public  static boolean areAllElementsInArray(String[] selected, String[] numeric) {
+    public static boolean areAllElementsInArray(String[] selected, String[] numeric) {
 
         Set<String> selectedCols = new HashSet<>(Arrays.asList(selected));
         Set<String> numericCols = new HashSet<>(Arrays.asList(numeric));
@@ -191,6 +191,11 @@ public class DatasetUtils {
         return numericCols.containsAll(selectedCols);
     }
 
+    public static String sortAttributes(String attributeSequence) {
+        String[] attributes = attributeSequence.split("\\s+");
+        Arrays.sort(attributes);
+        return String.join(" ", attributes);
+    }
 
     public static void deleteUserDirectory(File userDirectory) {
         File[] allFiles = userDirectory.listFiles();

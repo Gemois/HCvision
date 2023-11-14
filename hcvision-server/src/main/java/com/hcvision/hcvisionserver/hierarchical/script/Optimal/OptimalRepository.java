@@ -1,7 +1,6 @@
 package com.hcvision.hcvisionserver.hierarchical.script.Optimal;
 
 import com.hcvision.hcvisionserver.dataset.Dataset;
-import com.hcvision.hcvisionserver.hierarchical.script.analysis.Analysis;
 import com.hcvision.hcvisionserver.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;

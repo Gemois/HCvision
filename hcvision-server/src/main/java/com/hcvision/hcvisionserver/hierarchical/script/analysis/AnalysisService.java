@@ -46,5 +46,4 @@ public class AnalysisService  {
         return analysisRepository.getAnalysisById(id);
     }
 
-
 }
