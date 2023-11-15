@@ -40,3 +40,4 @@ application:
     jwt:
       secret-key: ${SECRET_KEY}
       expiration: ${SECRET_KEY_EXPIRATION}
+

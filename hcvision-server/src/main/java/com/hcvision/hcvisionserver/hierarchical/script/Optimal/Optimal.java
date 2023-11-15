@@ -53,6 +53,10 @@ public class Optimal implements PythonScript {
         return "optimal";
     }
 
+    public String getOptimalParamsResultFileName() {
+        return "optimal_params.json";
+    }
+
     public interface ProjectOptimal {
         ResultStatus getStatus();
         Dataset.ProjectNameAndAccessType getDataset();

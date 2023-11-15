@@ -8,7 +8,6 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
@@ -93,11 +92,11 @@ public class DatasetUtils {
         }
     }
 
-    private static String removeDoubleQuotes(String str) {
+    public static String removeDoubleQuotes(String str) {
         return str.replaceAll("\"", "");
     }
 
-    public static String  convertDatasetToJson(String filePath) {
+    public static JSONArray convertDatasetToJson(String filePath) {
 
         if (filePath.toLowerCase().endsWith(".csv")) {
             return convertCsvToJson(filePath);
@@ -108,7 +107,7 @@ public class DatasetUtils {
         }
     }
 
-    public static String convertCsvToJson(String csvFilePath) {
+    public static JSONArray convertCsvToJson(String csvFilePath) {
         try (FileReader fileReader = new FileReader(csvFilePath);
              StringWriter stringWriter = new StringWriter();
              CSVParser csvParser = CSVFormat.DEFAULT.withHeader().parse(fileReader)) {
@@ -123,14 +122,13 @@ public class DatasetUtils {
                 jsonArray.add(jsonRow);
             }
 
-            jsonArray.writeJSONString(stringWriter);
-            return stringWriter.toString();
+            return jsonArray;
         } catch (IOException e) {
             return null;
         }
     }
 
-    private static String convertXlsxToJson(String xlsxFilePath) {
+    private static JSONArray convertXlsxToJson(String xlsxFilePath) {
         try (Workbook workbook = new XSSFWorkbook(new FileInputStream(xlsxFilePath));
              StringWriter stringWriter = new StringWriter()) {
             Sheet sheet = workbook.getSheetAt(0);
@@ -158,8 +156,7 @@ public class DatasetUtils {
                 }
             }
 
-            jsonArray.writeJSONString(stringWriter);
-            return stringWriter.toString();
+            return jsonArray;
         } catch (IOException e) {
             return null;
         }
@@ -181,6 +178,19 @@ public class DatasetUtils {
         } else {
             return "";
         }
+    }
+
+    public static String mergeJsonStrings(JSONArray dataset, String attributes) {
+        String[] attributesArray = attributes.split(",");
+        JSONArray jsonArray = new JSONArray();
+        for (String attribute : attributesArray) {
+            jsonArray.add(attribute.trim());
+        }
+
+        JSONObject result = new JSONObject();
+        result.put("dataset", dataset);
+        result.put("attributes", jsonArray);
+        return result.toJSONString();
     }
 
     public static boolean areAllElementsInArray(String[] selected, String[] numeric) {

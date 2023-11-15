@@ -2,12 +2,16 @@ package com.hcvision.hcvisionserver.dataset;
 
 import com.hcvision.hcvisionserver.dataset.dto.AccessType;
 import com.hcvision.hcvisionserver.dataset.dto.UploadDatasetRequest;
+import com.hcvision.hcvisionserver.exception.BadRequestException;
+import com.hcvision.hcvisionserver.exception.ForbiddenException;
+import com.hcvision.hcvisionserver.exception.InternalServerErrorException;
+import com.hcvision.hcvisionserver.exception.NotFoundException;
 import com.hcvision.hcvisionserver.user.User;
 import com.hcvision.hcvisionserver.user.UserService;
 import lombok.AllArgsConstructor;
+import org.json.simple.JSONArray;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -41,17 +45,18 @@ public class DatasetService {
 
     public ResponseEntity<String> saveFile(UploadDatasetRequest uploadDatasetRequest, String jwt) {
 
+        if (uploadDatasetRequest.getFile() == null || uploadDatasetRequest.getType() == null)
+            throw new BadRequestException("Provide both dataset file and type parameters.");
+
         if (!DatasetUtils.isValidFileFormat(uploadDatasetRequest.getFile()))
-            return ResponseEntity.badRequest().body("File format not supported.");
+            throw new BadRequestException("File format not supported.");
 
         User user = userService.getUserFromJwt(jwt);
         String fileName = uploadDatasetRequest.getFile().getOriginalFilename();
 
-        if (!(uploadDatasetRequest.getType().equals(AccessType.PUBLIC) || uploadDatasetRequest.getType().equals(AccessType.PRIVATE)))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Access type not recognised.");
 
         if (fileExists(fileName, uploadDatasetRequest.getType(), user))
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File with the same name already exists.");
+           throw new BadRequestException("File with the same name already exists.");
 
         maybeCreateUserDirectory(uploadDatasetRequest.getType(), user);
 
@@ -62,7 +67,7 @@ public class DatasetService {
             datasetRepository.save(dataset);
             return ResponseEntity.ok("File uploaded successfully.");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("File was not uploaded due to internal error.");
+            throw new InternalServerErrorException("File was not uploaded due to internal error.");
         }
     }
 
@@ -76,10 +81,10 @@ public class DatasetService {
             if (resource.exists() && resource.isReadable()) {
                 return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName).body(resource);
             } else {
-                return ResponseEntity.notFound().build();
+                throw new NotFoundException("Dataset does not exist");
             }
         } catch (IOException e) {
-            return ResponseEntity.internalServerError().build();
+           throw new InternalServerErrorException("Something went wrong");
         }
     }
 
@@ -87,19 +92,19 @@ public class DatasetService {
         User user = userService.getUserFromJwt(jwt);
         Dataset dataset = getDataset(fileName, accessType, user);
 
-        if (dataset == null) return ResponseEntity.notFound().build();
+        if (dataset == null) throw new NotFoundException("Dataset does not exist");
 
         if (!dataset.getUser().equals(user))
-            return ResponseEntity.badRequest().body("You dont have permission to delete this dataset.");
+            throw new ForbiddenException("You dont have permission to delete this dataset.");
 
         File file = new File(dataset.getPath());
         if (file.exists() && file.isFile()) {
             if (file.delete()) {
                 datasetRepository.delete(dataset);
-                return ResponseEntity.ok().body("File deleted Successfully.");
-            } else return ResponseEntity.badRequest().body("File not deleted due to internal error.");
+                return ResponseEntity.ok().build();
+            } else throw new InternalServerErrorException("File not deleted due to internal error.");
         } else {
-            return ResponseEntity.notFound().build();
+            throw new NotFoundException("Dataset does not exist");
         }
     }
 
@@ -140,14 +145,14 @@ public class DatasetService {
         Dataset dataset = getDataset(fileName, accessType, user);
 
         if (dataset == null)
-            return ResponseEntity.notFound().build();
+            throw new NotFoundException("Dataset does not exist");
 
-        String jsonDataset = DatasetUtils.convertDatasetToJson(dataset.getPath());
+        JSONArray jsonDataset = DatasetUtils.convertDatasetToJson(dataset.getPath());
 
         if (jsonDataset == null)
-            return ResponseEntity.internalServerError().body("There was an error while processing the file.");
+            throw new InternalServerErrorException("There was an error while processing the file.");
 
-        return ResponseEntity.ok().body(jsonDataset);
+        return ResponseEntity.ok(DatasetUtils.mergeJsonStrings(jsonDataset, dataset.getNumericCols()));
     }
 
 }

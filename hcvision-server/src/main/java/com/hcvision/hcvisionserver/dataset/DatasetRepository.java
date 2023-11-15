@@ -11,14 +11,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static java.nio.file.attribute.AclEntryPermission.DELETE;
-
 @Repository
 public interface DatasetRepository extends JpaRepository<Dataset, Long> {
 
     Dataset findByFileNameAndAccessTypeAndUser(String fileName, AccessType accessType, User user);
 
     Dataset findByAccessTypeAndFileName(AccessType accessType, String fileName);
+
+    List<Dataset> findByUserAndAccessType(User user, AccessType accessType);
 
     List<Dataset.ProjectNameAndAccessType> findAllByUser(User user);
 
@@ -27,5 +27,4 @@ public interface DatasetRepository extends JpaRepository<Dataset, Long> {
     @Query("DELETE FROM Dataset s WHERE s.user = ?1")
     void deleteAllUserDatasets(User user);
 
-    List<Dataset> findByUserAndAccessType(User user, AccessType accessType);
 }

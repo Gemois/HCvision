@@ -6,6 +6,7 @@ import com.hcvision.hcvisionserver.user.dto.ResetPasswordRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,12 +17,12 @@ public class UserController {
 
     private final UserService service;
 
-    @GetMapping()
+    @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<User> getUserByEmail(@RequestParam("email") String email) {
         return ResponseEntity.ok(service.findUserByEmail(email));
     }
 
-    @PostMapping("/password/reset")
+    @PostMapping(value = "/password/reset", consumes = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<String> setPassword(@RequestBody ResetPasswordRequest setPasswordRequest) {
         try {
             service.resetPassword(setPasswordRequest);
@@ -32,7 +33,7 @@ public class UserController {
 
     }
 
-    @PostMapping("/password/forgot")
+    @PostMapping(value = "/password/forgot", consumes = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest) {
         try {
             service.forgotPassword(forgotPasswordRequest);
@@ -48,7 +49,7 @@ public class UserController {
         return ResponseEntity.ok("User deleted along with all his information.");
     }
 
-    @PostMapping("/update")
+    @PostMapping(value = "/update", consumes = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<String> updateUser(@RequestBody EditUserRequest editUserRequest, @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
         service.updateUser(editUserRequest, jwt);
         return ResponseEntity.ok("User profile updates successfully.");

@@ -25,7 +25,6 @@ public class OptimalService {
         optimalRepository.save(optimal);
     }
 
-
     public Optimal createOptimal(Optimal optimal) {
         return optimalRepository.save(optimal);
     }

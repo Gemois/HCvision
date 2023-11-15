@@ -10,6 +10,7 @@ import com.hcvision.hcvisionserver.dataset.DatasetRepository;
 import com.hcvision.hcvisionserver.dataset.DatasetService;
 import com.hcvision.hcvisionserver.dataset.DatasetUtils;
 import com.hcvision.hcvisionserver.dataset.dto.AccessType;
+import com.hcvision.hcvisionserver.exception.NotFoundException;
 import com.hcvision.hcvisionserver.hierarchical.HierarchicalService;
 import com.hcvision.hcvisionserver.hierarchical.script.Optimal.Optimal;
 import com.hcvision.hcvisionserver.hierarchical.script.Optimal.OptimalRepository;
@@ -115,7 +116,7 @@ public class UserService implements UserDetailsService {
 
     public User getUserFromJwt(String jwt) {
         return userRepository.findByEmail(jwtService.extractUsername(jwt.substring(7)))
-                .orElseThrow(() -> new IllegalStateException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
 

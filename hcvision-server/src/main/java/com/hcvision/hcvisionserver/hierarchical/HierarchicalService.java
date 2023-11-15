@@ -4,6 +4,8 @@ import com.hcvision.hcvisionserver.dataset.Dataset;
 import com.hcvision.hcvisionserver.dataset.DatasetService;
 import com.hcvision.hcvisionserver.dataset.DatasetUtils;
 import com.hcvision.hcvisionserver.dataset.dto.AccessType;
+import com.hcvision.hcvisionserver.exception.BadRequestException;
+import com.hcvision.hcvisionserver.exception.NotFoundException;
 import com.hcvision.hcvisionserver.hierarchical.History.History;
 import com.hcvision.hcvisionserver.hierarchical.History.HistoryRepository;
 import com.hcvision.hcvisionserver.hierarchical.script.Linkage;
@@ -35,15 +37,14 @@ public class HierarchicalService {
     private final OptimalService optimalService;
     private final HistoryRepository historyRepository;
 
-   // final String OPTIMAL_SCRIPT = "python" + File.separator + "optimal_params.py";
-   // final String ANALYSIS_SCRIPT = "python" + File.separator + "analysis.py";
+
     final String OPTIMAL_SCRIPT = "python/optimal_params.py";
     final String ANALYSIS_SCRIPT = "python/analysis.py";
     private static final String CWD = System.getProperty("user.dir");
     private String getPythonScriptPath(String resourcePath) {
         ClassLoader classLoader = getClass().getClassLoader();
         return new File(Objects.requireNonNull(classLoader.getResource(resourcePath)).getFile()).getPath();
-       //return CWD + File.separator + resourcePath;
+
     }
 
     public static final String RESULT_DIR = "results";
@@ -78,10 +79,10 @@ public class HierarchicalService {
         Dataset dataset = datasetService.getDataset(filename, accessType, user);
 
         if (dataset == null)
-            return ResponseEntity.notFound().build();
+            throw new NotFoundException("Dataset not found");
 
         if (invalidParams(dataset, maxClusters, attributes))
-            return ResponseEntity.badRequest().build();
+            throw new BadRequestException("Invalid attributes selected");
 
         Optional<Optimal.ProjectOptimal> reRun = optimalService.getOptimalReRun(user, dataset , maxClusters, isSample, DatasetUtils.sortAttributes(attributes));
 
@@ -122,10 +123,10 @@ public class HierarchicalService {
         Dataset dataset = datasetService.getDataset(filename, accessType, user);
 
         if (dataset == null)
-            return ResponseEntity.notFound().build();
+            throw new NotFoundException("Dataset not found");
 
         if (invalidParams(dataset, numClusters, attributes))
-            return ResponseEntity.badRequest().build();
+            throw new BadRequestException("Invalid attributes selected");
 
 
         Optional<Analysis.ProjectAnalysis> reRun = analysisService.getAnalysisReRun(user, dataset , linkage, numClusters, isSample, DatasetUtils.sortAttributes(attributes));

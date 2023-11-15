@@ -34,6 +34,7 @@ public class History {
     @OneToOne
     @JoinColumn(name = "analysis_id")
     private Analysis analysis;
+
         public History(LocalDateTime timeStarted, User user, Optimal optimal) {
         this.timeStarted = timeStarted;
         this.user = user;
@@ -44,4 +45,17 @@ public class History {
         this.user = user;
         this.analysis = analysis;
     }
+
+    public interface ProjectHistory {
+        String getId();
+        LocalDateTime getTimeStarted();
+        Optimal.ProjectOptimal getOptimal();
+        Analysis.ProjectAnalysis getAnalysis();
+    }
+
+    public interface ProjectHistoryList {
+        String getId();
+        LocalDateTime getTimeStarted();
+    }
+
 }

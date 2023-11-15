@@ -5,6 +5,7 @@ import com.hcvision.hcvisionserver.dataset.dto.UploadDatasetRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,20 +18,20 @@ public class DatasetController {
 
     private final DatasetService service;
 
-    @PostMapping("/upload")
+    @PostMapping(value = "/upload", produces = { MediaType.APPLICATION_JSON_VALUE }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<String> upload(@ModelAttribute UploadDatasetRequest uploadDatasetRequest,
                                          @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
         return service.saveFile(uploadDatasetRequest, jwt);
     }
 
-    @GetMapping("/download")
+    @GetMapping(value = "/download")
     public ResponseEntity<UrlResource> download(@RequestParam("filename") String filename,
                                                 @RequestParam("type") AccessType accessType,
                                                 @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
         return service.findFile(filename, accessType, jwt);
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping(value = "/delete", produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<String> delete(@RequestParam("filename") String filename,
                                          @RequestParam("type") AccessType accessType,
                                          @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
@@ -44,7 +45,7 @@ public class DatasetController {
         return service.getDatasetInJson(filename, accessType, jwt);
     }
 
-    @GetMapping("/list")
+    @GetMapping(value = "/list", produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<List<Dataset.ProjectNameAndAccessType>> getDatasets(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
         return ResponseEntity.ok(service.getDatasets(jwt));
     }

@@ -2,6 +2,7 @@ package com.hcvision.hcvisionserver.hierarchical.History;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,8 +15,8 @@ public class HistoryController {
 
     private final HistoryService service;
 
-    @GetMapping()
-    public ResponseEntity<History> getHistoryById(@RequestParam("history") long historyId,
+    @GetMapping(value = "/{historyId}", produces = { MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity<History.ProjectHistory> getHistoryById(@PathVariable() long historyId,
                                                   @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt ) {
         return service.findHistoryById(historyId, jwt);
     }
@@ -28,7 +29,7 @@ public class HistoryController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<History>> getAllHistory(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
+    public ResponseEntity<List<History.ProjectHistoryList>> getAllHistory(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
         return ResponseEntity.ok(service.getAllHistory(jwt));
     }
 

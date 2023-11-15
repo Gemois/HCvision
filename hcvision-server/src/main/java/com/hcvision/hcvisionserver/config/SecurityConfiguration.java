@@ -24,7 +24,7 @@ public class SecurityConfiguration {
 
     private static final String[] WHITE_LIST = {
             "/api/v1/auth/**",
-            "/api/v1/resources/**",
+            "/api/v1/resources/logo-light",
             "/api/v1/users/password/forgot",
             "/api/v1/users/password/reset"
     };

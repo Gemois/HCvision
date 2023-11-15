@@ -6,6 +6,7 @@ import com.hcvision.hcvisionserver.hierarchical.script.Optimal.Optimal;
 import com.hcvision.hcvisionserver.hierarchical.script.analysis.Analysis;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +17,7 @@ public class HierarchicalController {
 
     private final HierarchicalService service;
 
-    @GetMapping("/optimal")
+    @GetMapping(value = "/optimal", produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<Optimal.ProjectOptimal> predict(@RequestParam("filename") String filename,
                                            @RequestParam("type") AccessType accessType,
                                            @RequestParam("max_clusters") int maxClusters,
@@ -27,7 +28,7 @@ public class HierarchicalController {
 
     }
 
-    @GetMapping("/analysis")
+    @GetMapping(value = "/analysis", produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<Analysis.ProjectAnalysis> analyze(@RequestParam("filename") String filename,
                                                             @RequestParam("type") AccessType accessType,
                                                             @RequestParam("linkage") Linkage linkage,

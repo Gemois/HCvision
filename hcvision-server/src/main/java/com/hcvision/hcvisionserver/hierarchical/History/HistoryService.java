@@ -16,10 +16,10 @@ public class HistoryService {
     private final UserService userService;
     private final HistoryRepository historyRepository;
 
-    public ResponseEntity<History> findHistoryById(long historyId, String jwt) {
+    public ResponseEntity<History.ProjectHistory> findHistoryById(long historyId, String jwt) {
         User user = userService.getUserFromJwt(jwt);
 
-        Optional<History> history = historyRepository.findByIdAndUser(historyId, user);
+        Optional<History.ProjectHistory> history = historyRepository.findByUserAndId(user, historyId);
 
         return history.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
 
@@ -35,7 +35,7 @@ public class HistoryService {
 
     }
 
-    public List<History> getAllHistory(String jwt) {
+    public List<History.ProjectHistoryList> getAllHistory(String jwt) {
 
         User user = userService.getUserFromJwt(jwt);
 
