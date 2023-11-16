@@ -1,5 +1,6 @@
 package com.hcvision.hcvisionserver.hierarchical.History;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hcvision.hcvisionserver.hierarchical.script.Optimal.Optimal;
 import com.hcvision.hcvisionserver.hierarchical.script.analysis.Analysis;
 import com.hcvision.hcvisionserver.user.User;
@@ -47,14 +48,23 @@ public class History {
     }
 
     public interface ProjectHistory {
+        @JsonProperty("id")
         String getId();
+
+        @JsonProperty("start_time")
         LocalDateTime getTimeStarted();
+
+        @JsonProperty("optimal")
         Optimal.ProjectOptimal getOptimal();
+
+        @JsonProperty("analysis")
         Analysis.ProjectAnalysis getAnalysis();
     }
 
     public interface ProjectHistoryList {
+        @JsonProperty("id")
         String getId();
+        @JsonProperty("start_time")
         LocalDateTime getTimeStarted();
     }
 

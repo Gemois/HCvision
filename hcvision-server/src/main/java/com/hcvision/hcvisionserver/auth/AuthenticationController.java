@@ -7,7 +7,6 @@ import com.hcvision.hcvisionserver.auth.dto.RegisterResponse;
 import com.hcvision.hcvisionserver.auth.token.dto.ConfirmationTokenResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,12 +18,12 @@ public class AuthenticationController {
 
     private final AuthenticationService service;
 
-    @PostMapping(value = "/register", produces = { MediaType.APPLICATION_JSON_VALUE })
+    @PostMapping(value = "/register", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest request) {
         return ResponseEntity.ok(service.register(request));
     }
 
-    @PostMapping(value = "/authenticate", produces = { MediaType.APPLICATION_JSON_VALUE })
+    @PostMapping(value = "/authenticate", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
         return ResponseEntity.ok(service.authenticate(request));
     }

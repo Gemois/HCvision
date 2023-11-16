@@ -13,13 +13,8 @@ import java.util.Optional;
 
 @Repository
 public interface OptimalRepository extends JpaRepository<Optimal, Long> {
-    @Override
-    Optional<Optimal> findById(Long id);
 
     Optimal.ProjectOptimal getOptimalById(Long id);
-
-    @Override
-    List<Optimal> findAll();
 
     Optional<Optimal.ProjectOptimal> findByDatasetAndUserAndMaxClustersAndSampleAndAttributes(Dataset dataset, User user, int maxClusters, boolean sample, String attributes);
 

@@ -1,5 +1,6 @@
 package com.hcvision.hcvisionserver.hierarchical.script.analysis;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hcvision.hcvisionserver.dataset.Dataset;
 import com.hcvision.hcvisionserver.hierarchical.script.Linkage;
 import com.hcvision.hcvisionserver.hierarchical.script.ResultStatus;
@@ -10,6 +11,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @Builder
@@ -45,12 +48,12 @@ public class Analysis implements PythonScript {
 
     private String clusterAssignmentResultPath;
 
-    public Analysis(User user, Dataset dataset, Linkage linkage, int numClusters, boolean sample, String attributes, ResultStatus status) {
+    public Analysis(User user, Dataset dataset, Linkage linkage, int numClusters, boolean isSample, String attributes, ResultStatus status) {
         this.user = user;
         this.dataset = dataset;
         this.linkage = linkage;
         this.numClusters = numClusters;
-        this.sample = sample;
+        this.sample = isSample;
         this.attributes = attributes;
         this.status = status;
     }
@@ -71,15 +74,40 @@ public class Analysis implements PythonScript {
         return "cluster_assignments.png";
     }
 
+
+    public List<String> getAttributes() {
+        return List.of(attributes.split(","));
+    }
+
     public interface ProjectAnalysis {
+        @JsonProperty("id")
+        Long getId();
+
+        @JsonProperty("status")
         ResultStatus getStatus();
+
+        @JsonProperty("dataset")
         Dataset.ProjectNameAndAccessType getDataset();
+
+        @JsonProperty("linkage")
         Linkage getLinkage();
+
+        @JsonProperty("n_clusters")
         int getNumClusters();
-        boolean getSample();
-        String dendrogramResultPath();
+
+        @JsonProperty("sampling")
+        boolean isSample();
+
+        @JsonProperty("attributes")
+        List<String> getAttributes();
+
+        @JsonProperty("dendrogram")
         String getDendrogramResultPath();
+
+        @JsonProperty("parallel_coordinates")
         String getParallelCoordinatesResultPath();
+
+        @JsonProperty("cluster_assignment")
         String getClusterAssignmentResultPath();
     }
 

@@ -30,10 +30,10 @@ public class AuthenticationResponse {
     @JsonProperty("access_token")
     private String accessToken;
 
-    @JsonProperty("issuedAt")
+    @JsonProperty("issued_at")
     private LocalDateTime issuedAt;
 
-    @JsonProperty("expiresAt")
+    @JsonProperty("expires_at")
     private LocalDateTime expiresAt;
 
 }

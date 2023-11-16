@@ -30,7 +30,4 @@ public class RegisterResponse {
     @JsonProperty("registeredAt")
     private LocalDateTime registeredAt;
 
-    @JsonProperty("msg")
-    private String msg;
-
 }

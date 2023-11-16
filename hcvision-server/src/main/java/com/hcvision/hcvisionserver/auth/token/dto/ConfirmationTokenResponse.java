@@ -17,7 +17,7 @@ public class ConfirmationTokenResponse {
     @JsonProperty("confirmed")
     private boolean confirmed;
 
-    @JsonProperty("confirmedAt")
+    @JsonProperty("confirmed_at")
     private LocalDateTime confirmedAt;
 
     @JsonProperty("msg")

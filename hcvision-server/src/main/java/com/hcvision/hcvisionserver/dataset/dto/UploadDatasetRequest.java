@@ -1,5 +1,6 @@
 package com.hcvision.hcvisionserver.dataset.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,10 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 public class UploadDatasetRequest {
 
+    @JsonProperty("file")
     private MultipartFile file;
-    private AccessType type;
+
+    @JsonProperty("access_type")
+    private AccessType access_type;
 
 }

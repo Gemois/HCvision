@@ -3,26 +3,25 @@ package com.hcvision.hcvisionserver.hierarchical;
 import com.hcvision.hcvisionserver.dataset.Dataset;
 import com.hcvision.hcvisionserver.dataset.DatasetService;
 import com.hcvision.hcvisionserver.dataset.DatasetUtils;
-import com.hcvision.hcvisionserver.dataset.dto.AccessType;
 import com.hcvision.hcvisionserver.exception.BadRequestException;
 import com.hcvision.hcvisionserver.exception.NotFoundException;
 import com.hcvision.hcvisionserver.hierarchical.History.History;
 import com.hcvision.hcvisionserver.hierarchical.History.HistoryRepository;
-import com.hcvision.hcvisionserver.hierarchical.script.Linkage;
+import com.hcvision.hcvisionserver.hierarchical.History.HistoryService;
 import com.hcvision.hcvisionserver.hierarchical.script.Optimal.Optimal;
+import com.hcvision.hcvisionserver.hierarchical.script.Optimal.OptimalRequest;
 import com.hcvision.hcvisionserver.hierarchical.script.Optimal.OptimalService;
 import com.hcvision.hcvisionserver.hierarchical.script.PythonScript;
 import com.hcvision.hcvisionserver.hierarchical.script.ResultStatus;
 import com.hcvision.hcvisionserver.hierarchical.script.analysis.Analysis;
+import com.hcvision.hcvisionserver.hierarchical.script.analysis.AnalysisRequest;
 import com.hcvision.hcvisionserver.hierarchical.script.analysis.AnalysisService;
 import com.hcvision.hcvisionserver.user.User;
 import com.hcvision.hcvisionserver.user.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -35,7 +34,7 @@ public class HierarchicalService {
     private final PythonExecutorService asyncPythonService;
     private final AnalysisService analysisService;
     private final OptimalService optimalService;
-    private final HistoryRepository historyRepository;
+    private final HistoryService historyService;
 
 
     final String OPTIMAL_SCRIPT = "python/optimal_params.py";
@@ -71,87 +70,88 @@ public class HierarchicalService {
 
     }
 
-
-    public ResponseEntity<Optimal.ProjectOptimal> getOptimalParams(String filename, AccessType accessType, int maxClusters, String attributes, boolean isSample, String jwt) {
+    public Optimal.ProjectOptimal getOptimalParams(OptimalRequest request, String jwt) {
 
         User user = userService.getUserFromJwt(jwt);
 
-        Dataset dataset = datasetService.getDataset(filename, accessType, user);
+        Dataset dataset = datasetService.getDataset(request.getFilename(), request.getAccessType(), user);
 
         if (dataset == null)
             throw new NotFoundException("Dataset not found");
 
-        if (invalidParams(dataset, maxClusters, attributes))
+        if (invalidParams(dataset, request.getMaxClusters(), request.getAttributes()))
             throw new BadRequestException("Invalid attributes selected");
 
-        Optional<Optimal.ProjectOptimal> reRun = optimalService.getOptimalReRun(user, dataset , maxClusters, isSample, DatasetUtils.sortAttributes(attributes));
+        Optional<Optimal.ProjectOptimal> reRun = optimalService.getOptimalReRun(user, dataset , request.getMaxClusters(),
+                request.isSample(), DatasetUtils.sortAttributes(request.getAttributes()));
 
         if(reRun.isPresent())
-            return ResponseEntity.ok(reRun.get());
+            return reRun.get();
 
-        Optimal optimal = optimalService.createOptimal(new Optimal(user, dataset, maxClusters , isSample , DatasetUtils.sortAttributes(attributes), ResultStatus.RUNNING));
+        Optimal optimal = optimalService.createOptimal(new Optimal(user, dataset, request.getMaxClusters(),
+                request.isSample(), DatasetUtils.sortAttributes(request.getAttributes()), ResultStatus.RUNNING));
 
-        History history = new History(LocalDateTime.now(), user, optimal);
-        historyRepository.save(history);
+        historyService.keepHistory(user, optimal);
 
         String command = "python " +
                 getPythonScriptPath(OPTIMAL_SCRIPT) + " " +
                 getBaseResultPathByPythonScript(optimal) + " " +
                 dataset.getPath() +  " " +
-                maxClusters +  " " +
-                (isSample ? "--sampling " : "") +
-                attributes;
+                request.getMaxClusters() +  " " +
+                (request.isSample() ? "--sampling " : "") +
+                request.getAttributes().replace(","," ");
 
 
         maybeCreateResultDirectory(optimal);
         asyncPythonService.runScript(optimal, command);
 
-        return ResponseEntity.ok(optimalService.refresh(optimal.getId()));
+        return optimalService.refresh(optimal.getId());
     }
 
 
     private boolean invalidParams(Dataset dataset, int maxClusters, String attributes) {
         String[] numericColumns = dataset.getNumericCols().split(",");
-        String[] selectedAttributes = attributes.split(" ");
+        String[] selectedAttributes = attributes.split(",");
 
         return maxClusters < 0  || !DatasetUtils.areAllElementsInArray(selectedAttributes, numericColumns);
     }
 
-    public ResponseEntity<Analysis.ProjectAnalysis> getAnalysis(String filename, AccessType accessType, Linkage linkage, int numClusters, String attributes, boolean isSample, String jwt) {
+    public Analysis.ProjectAnalysis getAnalysis(AnalysisRequest request, String jwt) {
         User user = userService.getUserFromJwt(jwt);
 
-        Dataset dataset = datasetService.getDataset(filename, accessType, user);
+        Dataset dataset = datasetService.getDataset(request.getFilename(), request.getAccessType(), user);
 
         if (dataset == null)
             throw new NotFoundException("Dataset not found");
 
-        if (invalidParams(dataset, numClusters, attributes))
+        if (invalidParams(dataset, request.getNumClusters(), request.getAttributes()))
             throw new BadRequestException("Invalid attributes selected");
 
+        Optional<Analysis.ProjectAnalysis> reRun = analysisService.getAnalysisReRun(user, dataset, request.getLinkage(),
+                request.getNumClusters(), request.isSample(), DatasetUtils.sortAttributes(request.getAttributes()));
 
-        Optional<Analysis.ProjectAnalysis> reRun = analysisService.getAnalysisReRun(user, dataset , linkage, numClusters, isSample, DatasetUtils.sortAttributes(attributes));
         if(reRun.isPresent())
-            return ResponseEntity.ok(reRun.get());
+            return reRun.get();
 
-        Analysis analysis = analysisService.createAnalysis( new Analysis(user, dataset, linkage, numClusters , isSample , DatasetUtils.sortAttributes(attributes), ResultStatus.RUNNING));
+        Analysis analysis = analysisService.createAnalysis(new Analysis(user, dataset, request.getLinkage(), request.getNumClusters(),
+                request.isSample(), DatasetUtils.sortAttributes(request.getAttributes()), ResultStatus.RUNNING));
 
-        History history = new History(LocalDateTime.now(), user, analysis);
-        historyRepository.save(history);
+        historyService.keepHistory(user, analysis);
 
         String command = "python " +
                 getPythonScriptPath(ANALYSIS_SCRIPT) + " " +
                 getBaseResultPathByPythonScript(analysis) + " " +
                 dataset.getPath() +  " " +
-                linkage +  " " +
-                numClusters +  " " +
-                (isSample ? "--sampling " : "") +
-                attributes;
+                request.getLinkage() +  " " +
+                request.getNumClusters() +  " " +
+                (request.isSample() ? "--sampling " : "") +
+                request.getAttributes().replace(","," ");
 
         maybeCreateResultDirectory(analysis);
 
         asyncPythonService.runScript(analysis, command);
 
-        return ResponseEntity.ok(analysisService.refresh(analysis.getId()));
+        return analysisService.refresh(analysis.getId());
 
     }
 

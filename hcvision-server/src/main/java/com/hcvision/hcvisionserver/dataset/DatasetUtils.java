@@ -202,9 +202,9 @@ public class DatasetUtils {
     }
 
     public static String sortAttributes(String attributeSequence) {
-        String[] attributes = attributeSequence.split("\\s+");
+        String[] attributes = attributeSequence.split(",");
         Arrays.sort(attributes);
-        return String.join(" ", attributes);
+        return String.join(",", attributes);
     }
 
     public static void deleteUserDirectory(File userDirectory) {

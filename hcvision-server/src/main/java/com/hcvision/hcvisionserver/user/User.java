@@ -1,5 +1,6 @@
 package com.hcvision.hcvisionserver.user;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hcvision.hcvisionserver.user.dto.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -67,4 +68,20 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    public interface ProjectUser {
+
+        @JsonProperty("firstname")
+        String getFirstName();
+
+        @JsonProperty("lastname")
+        String getLastName();
+
+        @JsonProperty("email")
+        String getEmail();
+
+        @JsonProperty("role")
+        String getRole();
+    }
+
 }

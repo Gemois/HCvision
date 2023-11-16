@@ -8,4 +8,5 @@ public class HcvisionServerApplication {
     public static void main(String[] args) {
         SpringApplication.run(HcvisionServerApplication.class, args);
     }
+
 }

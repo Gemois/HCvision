@@ -8,6 +8,7 @@ import com.hcvision.hcvisionserver.auth.dto.RegisterResponse;
 import com.hcvision.hcvisionserver.auth.token.ConfirmationToken;
 import com.hcvision.hcvisionserver.auth.token.dto.ConfirmationTokenResponse;
 import com.hcvision.hcvisionserver.auth.token.ConfirmationTokenService;
+import com.hcvision.hcvisionserver.auth.token.dto.TokenType;
 import com.hcvision.hcvisionserver.config.JwtService;
 import com.hcvision.hcvisionserver.exception.BadRequestException;
 import com.hcvision.hcvisionserver.exception.InternalServerErrorException;
@@ -29,7 +30,7 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
-    private final UserRepository repository;
+    private final UserRepository userRepository;
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -41,7 +42,7 @@ public class AuthenticationService {
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-        var user = repository.findByEmail(request.getEmail()).orElseThrow();
+        var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
         var jwtToken = jwtService.generateToken(user);
         return AuthenticationResponse.builder()
                 .name(user.getFirstName())
@@ -55,7 +56,7 @@ public class AuthenticationService {
 
 
     public RegisterResponse register(RegisterRequest request) {
-        boolean userExists = repository.findByEmail(request.getEmail()).isPresent();
+        boolean userExists = userRepository.findByEmail(request.getEmail()).isPresent();
 
         if (userExists) {
             throw new BadRequestException("email already taken");
@@ -74,7 +75,7 @@ public class AuthenticationService {
                 .role(Role.USER)
                 .build();
 
-        repository.save(user);
+        userRepository.save(user);
         String token = confirmationTokenService.createConfirmationToken(user);
 
         try {
@@ -83,7 +84,7 @@ public class AuthenticationService {
                     emailService.buildVerificationEmail(request.getFirstname(), link),
                     EmailService.EMAIL_VERIFICATION_SUBJECT);
         } catch (Exception ignored) {
-
+            // TODO: logging
         }
 
         return RegisterResponse.builder()
@@ -92,14 +93,16 @@ public class AuthenticationService {
                 .role(user.getRole())
                 .confirmed(user.isActivated())
                 .registeredAt(LocalDateTime.now())
-                .msg("Welcome to HCvision!")
                 .build();
     }
 
 
     public ConfirmationTokenResponse confirmToken(String token) {
         ConfirmationToken confirmationToken = confirmationTokenService.getToken(token)
-                .orElseThrow(() -> new NotFoundException("token not found"));
+                .orElseThrow(() -> new BadRequestException("token not valid"));
+
+        if (!confirmationToken.getType().equals(TokenType.UUID))
+            throw new BadRequestException("token is not valid");
 
         if (confirmationToken.getConfirmedAt() != null) {
             throw new BadRequestException("email already confirmed");
@@ -121,7 +124,7 @@ public class AuthenticationService {
 
 
     public void sendConfirmationEmail(String jwt) {
-        User user = repository.findByEmail(jwtService.extractUsername(jwt.substring(7)))
+        User user = userRepository.findByEmail(jwtService.extractUsername(jwt.substring(7)))
                 .orElseThrow(() -> new NotFoundException("User does not exist"));
 
         if (user.isActivated()) throw new BadRequestException("user is already activated!");
@@ -129,14 +132,10 @@ public class AuthenticationService {
         confirmationTokenService.retireTokens(user);
         String token = confirmationTokenService.createConfirmationToken(user);
 
-        try {
             String link = "http://localhost:8080/api/v1/auth/confirm?token=" + token;
             emailService.send(user.getEmail(),
                     emailService.buildVerificationEmail(user.getFirstName(), link),
                     EmailService.EMAIL_VERIFICATION_SUBJECT);
-        } catch (Exception exception) {
-            throw new InternalServerErrorException("Verification Email couldn't be send");
-        }
     }
 
 }

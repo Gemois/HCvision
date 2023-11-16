@@ -10,6 +10,7 @@ import com.hcvision.hcvisionserver.dataset.DatasetRepository;
 import com.hcvision.hcvisionserver.dataset.DatasetService;
 import com.hcvision.hcvisionserver.dataset.DatasetUtils;
 import com.hcvision.hcvisionserver.dataset.dto.AccessType;
+import com.hcvision.hcvisionserver.exception.BadRequestException;
 import com.hcvision.hcvisionserver.exception.NotFoundException;
 import com.hcvision.hcvisionserver.hierarchical.HierarchicalService;
 import com.hcvision.hcvisionserver.hierarchical.script.Optimal.Optimal;
@@ -31,9 +32,6 @@ import java.io.File;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
-
-
 
 @Service
 @AllArgsConstructor
@@ -51,56 +49,72 @@ public class UserService implements UserDetailsService {
 
     private static final SecureRandom secureRandom = new SecureRandom();
 
-    private final static String USER_NOT_FOUND_MSG = "user with email %s not found";
-
     public User findUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException(String.format(USER_NOT_FOUND_MSG, email)));
+                .orElseThrow(() -> new NotFoundException("User not found"));
+    }
+
+    public User.ProjectUser getUserByEmail(String jwt) {
+        String email = jwtService.extractUsername(jwt.substring(7));
+        return userRepository.getUserByEmail(email)
+                .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException(String.format(USER_NOT_FOUND_MSG, email)));
+                .orElseThrow(() -> new NotFoundException("User not found"));
     }
+
 
     public void enableUser(String email) {
         userRepository.enableUser(email);
     }
 
-    public void resetPassword(ResetPasswordRequest resetPasswordRequest) {
-        ConfirmationToken confirmationToken = confirmationTokenService.getToken(resetPasswordRequest.getToken())
-                .orElseThrow(() -> new IllegalStateException("token not found"));
+    public String resetPassword(ResetPasswordRequest request) {
+        ConfirmationToken confirmationToken = confirmationTokenService.getToken(request.getToken())
+                .orElseThrow(() -> new BadRequestException("token not valid"));
 
-        if (confirmationToken.getConfirmedAt() != null) {
-            throw new IllegalStateException("email already confirmed");
-        }
+        if (!confirmationToken.getType().equals(TokenType.OTP))
+            throw new BadRequestException("token not valid");
+
+        if (confirmationToken.getConfirmedAt() != null)
+            throw new BadRequestException("email already confirmed");
+
 
         LocalDateTime expiredAt = confirmationToken.getExpiresAt();
 
         if (expiredAt.isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("token expired");
+            throw new BadRequestException("token expired");
         }
 
-        confirmationTokenService.setConfirmedAt(resetPasswordRequest.getToken());
-        userRepository.changePassword(confirmationToken.getUser().getEmail(), passwordEncoder.encode(resetPasswordRequest.getPassword()));
-        emailService.send(confirmationToken.getUser().getEmail(),
-                emailService.buildPasswordChangedEmail(confirmationToken.getUser().getFirstName()),
-                EmailService.PASSWORD_CHANGE_NOTIFICATION_SUBJECT);
+        confirmationTokenService.setConfirmedAt(request.getToken());
+        userRepository.changePassword(confirmationToken.getUser().getEmail(), passwordEncoder.encode(request.getPassword()));
+        try {
+            emailService.send(confirmationToken.getUser().getEmail(),
+                    emailService.buildPasswordChangedEmail(confirmationToken.getUser().getFirstName()),
+                    EmailService.PASSWORD_CHANGE_NOTIFICATION_SUBJECT);
+        } catch (Exception e) {
+            //TODO logging
+        }
+        return msg("Password was reset successfully");
     }
 
-    public void forgotPassword(ForgotPasswordRequest request) {
-        Optional<User> _user = userRepository.findByEmail(request.getEmail());
-        if (_user.isPresent()) {
-            User user = _user.get();
+
+
+    public String forgotPassword(ForgotPasswordRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new NotFoundException("User not found"));
+
             String otp = generateOTP();
             ConfirmationToken confirmationToken = new ConfirmationToken(otp, LocalDateTime.now(), LocalDateTime.now().plusMinutes(5), user);
             confirmationToken.setType(TokenType.OTP);
             confirmationTokenService.saveConfirmationToken(confirmationToken);
-            emailService.send(request.getEmail(),
-                    emailService.buildOtpEmail(user.getFirstName(), otp),
-                    EmailService.RESET_PASSWORD_OTP_SUBJECT);
-        }
+                emailService.send(request.getEmail(),
+                        emailService.buildOtpEmail(user.getFirstName(), otp),
+                        EmailService.RESET_PASSWORD_OTP_SUBJECT);
+
+        return msg("Email with password reset token has been send");
     }
 
     private static final String CHARACTERS = "0123456789";
@@ -120,16 +134,16 @@ public class UserService implements UserDetailsService {
     }
 
 
-    public void deleteUser(String jwt) {
+    public String deleteUser(String jwt) {
         User user = getUserFromJwt(jwt);
 
-        List<Optimal> userOptimalResults = optimalRepository.findByUser(user);
-        userOptimalResults.forEach(optimal -> {
-            File optimalDir = new File(HierarchicalService.getBaseResultPathByPythonScript(optimal));
-            if (optimalDir.exists())
-                DatasetUtils.deleteUserDirectory(optimalDir);
-        });
-        optimalRepository.deleteAllUserOptimal(user);
+            List<Optimal> userOptimalResults = optimalRepository.findByUser(user);
+            userOptimalResults.forEach(optimal -> {
+                File optimalDir = new File(HierarchicalService.getBaseResultPathByPythonScript(optimal));
+                if (optimalDir.exists())
+                    DatasetUtils.deleteUserDirectory(optimalDir);
+            });
+            optimalRepository.deleteAllUserOptimal(user);
 
         List<Analysis> userAnalysisResults = analysisRepository.findByUser(user);
         userAnalysisResults.forEach(analysis -> {
@@ -154,28 +168,31 @@ public class UserService implements UserDetailsService {
         confirmationTokenRepository.deleteAllUserConfirmationTokens(user);
 
         userRepository.deleteById(user.getId());
+
+        return msg("User deleted along with all his information.");
+
     }
 
-    public void updateUser(EditUserRequest editUserRequest, String jwt) {
+    public String updateUserDetails(EditUserRequest request, String jwt) {
         boolean emailChanged = false;
         User user = getUserFromJwt(jwt);
 
-        if (!editUserRequest.getNewEmail().equals(user.getEmail())) {
-            user.setEmail(editUserRequest.getNewEmail());
+        if (!request.getNewEmail().equals(user.getEmail())) {
+            user.setEmail(request.getNewEmail());
             user.setActivated(false);
             emailChanged = true;
         }
 
-        if (!editUserRequest.getNewFirstName().equals(user.getFirstName())) {
-            user.setFirstName(editUserRequest.getNewFirstName());
+        if (!request.getNewFirstName().equals(user.getFirstName())) {
+            user.setFirstName(request.getNewFirstName());
         }
 
-        if (!editUserRequest.getNewLastName().equals(user.getLastName())) {
-            user.setLastName(editUserRequest.getNewLastName());
+        if (!request.getNewLastName().equals(user.getLastName())) {
+            user.setLastName(request.getNewLastName());
         }
 
-        if (!passwordEncoder.encode(editUserRequest.getNewPassword()).equals(user.getPassword())) {
-            user.setPassword(passwordEncoder.encode(editUserRequest.getNewPassword()));
+        if (!passwordEncoder.encode(request.getNewPassword()).equals(user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         }
         userRepository.save(user);
         if (emailChanged) {
@@ -186,8 +203,17 @@ public class UserService implements UserDetailsService {
                 emailService.send(user.getEmail(),
                         emailService.buildVerificationEmail(user.getFirstName(), link),
                         EmailService.EMAIL_VERIFICATION_SUBJECT);
-            } catch (Exception ignored) { }
+            } catch (Exception ignored) {
+                //TODO logging
+            }
 
         }
+
+        return msg("User profile updated successfully.");
     }
+
+    public String msg(String msg) {
+        return "{\"success_msg\": \"" + msg + "\"}";
+    }
+
 }

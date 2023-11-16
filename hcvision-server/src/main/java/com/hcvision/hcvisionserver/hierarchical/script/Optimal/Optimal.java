@@ -1,5 +1,6 @@
 package com.hcvision.hcvisionserver.hierarchical.script.Optimal;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hcvision.hcvisionserver.dataset.Dataset;
 import com.hcvision.hcvisionserver.hierarchical.script.ResultStatus;
 import com.hcvision.hcvisionserver.hierarchical.script.PythonScript;
@@ -9,6 +10,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @Builder
@@ -30,15 +33,6 @@ public class Optimal implements PythonScript {
 
     private int maxClusters;
 
-    public Optimal(User user, Dataset dataset, int maxClusters, boolean sample, String attributes, ResultStatus status) {
-        this.user = user;
-        this.dataset = dataset;
-        this.maxClusters = maxClusters;
-        this.sample = sample;
-        this.attributes = attributes;
-        this.status = status;
-    }
-
     private boolean sample;
 
     private String attributes;
@@ -47,6 +41,15 @@ public class Optimal implements PythonScript {
     private ResultStatus status;
 
     private String result;
+
+    public Optimal(User user, Dataset dataset, int maxClusters, boolean isSample, String attributes, ResultStatus status) {
+        this.user = user;
+        this.dataset = dataset;
+        this.maxClusters = maxClusters;
+        this.sample = isSample;
+        this.attributes = attributes;
+        this.status = status;
+    }
 
     @Override
     public String getScriptDirName() {
@@ -57,12 +60,30 @@ public class Optimal implements PythonScript {
         return "optimal_params.json";
     }
 
+    public List<String> getAttributes() {
+        return List.of(attributes.split(","));
+    }
+
     public interface ProjectOptimal {
+        @JsonProperty("id")
+        Long getId();
+
+        @JsonProperty("status")
         ResultStatus getStatus();
+
+        @JsonProperty("dataset")
         Dataset.ProjectNameAndAccessType getDataset();
+
+        @JsonProperty("max_clusters")
         int getMaxClusters();
-        boolean getSample();
-        String getAttributes();
+
+        @JsonProperty("sample")
+        boolean isSample();
+
+        @JsonProperty("attributes")
+        List<String> getAttributes();
+
+        @JsonProperty("silhouette")
         String getResult();
     }
 

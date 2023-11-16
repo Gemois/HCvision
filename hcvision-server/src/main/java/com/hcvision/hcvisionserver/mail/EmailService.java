@@ -1,5 +1,6 @@
 package com.hcvision.hcvisionserver.mail;
 
+import com.hcvision.hcvisionserver.exception.InternalServerErrorException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.AllArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -31,7 +32,7 @@ public class EmailService {
             helper.setFrom("auth@hcvision.com");
             mailSender.send(mimeMessage);
         } catch (jakarta.mail.MessagingException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Email service is not responding");
         }
     }
 

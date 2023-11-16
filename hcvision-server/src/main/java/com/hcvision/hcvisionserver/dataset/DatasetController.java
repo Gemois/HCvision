@@ -12,42 +12,44 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/dataset")
+@RequestMapping("/api/v1/datasets")
 @RequiredArgsConstructor
 public class DatasetController {
 
     private final DatasetService service;
 
-    @PostMapping(value = "/upload", produces = { MediaType.APPLICATION_JSON_VALUE }, consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity<String> upload(@ModelAttribute UploadDatasetRequest uploadDatasetRequest,
-                                         @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
-        return service.saveFile(uploadDatasetRequest, jwt);
+    @PostMapping(value = "/upload",consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> uploadDataset(@ModelAttribute UploadDatasetRequest request,
+                                                @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
+        return ResponseEntity.ok(service.saveDataset(request, jwt));
     }
 
     @GetMapping(value = "/download")
-    public ResponseEntity<UrlResource> download(@RequestParam("filename") String filename,
-                                                @RequestParam("type") AccessType accessType,
-                                                @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
-        return service.findFile(filename, accessType, jwt);
+    public ResponseEntity<UrlResource> downloadDataset(@RequestParam("dataset") String filename,
+                                                       @RequestParam("access_type") AccessType accessType,
+                                                       @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+                .body(service.getDatasetFile(filename, accessType, jwt));
     }
 
-    @DeleteMapping(value = "/delete", produces = { MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity<String> delete(@RequestParam("filename") String filename,
-                                         @RequestParam("type") AccessType accessType,
-                                         @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
-        return service.deleteFile(filename, accessType, jwt);
+    @DeleteMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> deleteDataset(@RequestParam("dataset") String filename,
+                                           @RequestParam("access_type") AccessType accessType,
+                                           @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
+        return ResponseEntity.ok(service.deleteDataset(filename, accessType, jwt));
     }
 
-    @GetMapping(produces="application/json")
-    public ResponseEntity<String> readDataset(@RequestParam("filename") String filename,
-                                              @RequestParam("type") AccessType accessType,
-                                              @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
-        return service.getDatasetInJson(filename, accessType, jwt);
+    @GetMapping(value = "/read", produces="application/json")
+    public ResponseEntity<?> getDataset(@RequestParam("dataset") String filename,
+                                        @RequestParam("access_type") AccessType accessType,
+                                        @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
+        return ResponseEntity.ok(service.getDataset(filename, accessType, jwt));
     }
 
-    @GetMapping(value = "/list", produces = { MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity<List<Dataset.ProjectNameAndAccessType>> getDatasets(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
-        return ResponseEntity.ok(service.getDatasets(jwt));
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Dataset.ProjectNameAndAccessType>> getDatasetList(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
+        return ResponseEntity.ok(service.getDatasetList(jwt));
     }
 
 }

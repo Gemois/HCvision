@@ -5,6 +5,7 @@ import com.hcvision.hcvisionserver.hierarchical.script.analysis.AnalysisService;
 import com.hcvision.hcvisionserver.hierarchical.script.Optimal.Optimal;
 import com.hcvision.hcvisionserver.hierarchical.script.Optimal.OptimalService;
 import com.hcvision.hcvisionserver.hierarchical.script.PythonScript;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -15,20 +16,21 @@ import java.io.InputStreamReader;
 import java.util.concurrent.ExecutorService;
 
 @Service
+@AllArgsConstructor
 public class PythonExecutorService {
 
     private final ExecutorService service;
     private final OptimalService optimalService;
     private final AnalysisService analysisService;
 
-    @Autowired
-    public PythonExecutorService(@Qualifier("pythonExecutor") ExecutorService service,
-                                 OptimalService optimalService,
-                                 AnalysisService analysisService) {
-        this.service = service;
-        this.optimalService = optimalService;
-        this.analysisService = analysisService;
-    }
+//    @Autowired
+//    public PythonExecutorService(@Qualifier("pythonExecutor") ExecutorService service,
+//                                 OptimalService optimalService,
+//                                 AnalysisService analysisService) {
+//        this.service = service;
+//        this.optimalService = optimalService;
+//        this.analysisService = analysisService;
+//    }
 
     protected void runScript(PythonScript pythonScript, String command) {
         Runnable script;

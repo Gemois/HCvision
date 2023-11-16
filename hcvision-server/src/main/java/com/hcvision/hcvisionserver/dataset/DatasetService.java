@@ -11,7 +11,6 @@ import com.hcvision.hcvisionserver.user.UserService;
 import lombok.AllArgsConstructor;
 import org.json.simple.JSONArray;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -43,35 +42,35 @@ public class DatasetService {
         return CWD + File.separator + DATASETS_DIRECTORY + File.separator + accessType;
     }
 
-    public ResponseEntity<String> saveFile(UploadDatasetRequest uploadDatasetRequest, String jwt) {
+    public String saveDataset(UploadDatasetRequest request, String jwt) {
 
-        if (uploadDatasetRequest.getFile() == null || uploadDatasetRequest.getType() == null)
+        if (request.getFile() == null || request.getAccess_type() == null)
             throw new BadRequestException("Provide both dataset file and type parameters.");
 
-        if (!DatasetUtils.isValidFileFormat(uploadDatasetRequest.getFile()))
+        if (!DatasetUtils.isValidFileFormat(request.getFile()))
             throw new BadRequestException("File format not supported.");
 
         User user = userService.getUserFromJwt(jwt);
-        String fileName = uploadDatasetRequest.getFile().getOriginalFilename();
+        String fileName = request.getFile().getOriginalFilename();
 
 
-        if (fileExists(fileName, uploadDatasetRequest.getType(), user))
+        if (fileExists(fileName, request.getAccess_type(), user))
            throw new BadRequestException("File with the same name already exists.");
 
-        maybeCreateUserDirectory(uploadDatasetRequest.getType(), user);
+        maybeCreateUserDirectory(request.getAccess_type(), user);
 
         try {
-            String filePath = getFilePathByUserIdAndType(uploadDatasetRequest.getFile().getOriginalFilename(), uploadDatasetRequest.getType(), user);
-            uploadDatasetRequest.getFile().transferTo(new File(filePath));
-            Dataset dataset = new Dataset(user, fileName, uploadDatasetRequest.getType(), filePath, DatasetUtils.getNumericColumns(filePath));
+            String filePath = getFilePathByUserIdAndType(request.getFile().getOriginalFilename(), request.getAccess_type(), user);
+            request.getFile().transferTo(new File(filePath));
+            Dataset dataset = new Dataset(user, fileName, request.getAccess_type(), filePath, DatasetUtils.getNumericColumns(filePath));
             datasetRepository.save(dataset);
-            return ResponseEntity.ok("File uploaded successfully.");
+            return msg("File uploaded successfully.");
         } catch (Exception e) {
             throw new InternalServerErrorException("File was not uploaded due to internal error.");
         }
     }
 
-    public ResponseEntity<UrlResource> findFile(String fileName, AccessType accessType, String jwt) {
+    public UrlResource getDatasetFile(String fileName, AccessType accessType, String jwt) {
         User user = userService.getUserFromJwt(jwt);
 
         try {
@@ -79,7 +78,7 @@ public class DatasetService {
             UrlResource resource = new UrlResource(filePath.toUri());
 
             if (resource.exists() && resource.isReadable()) {
-                return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName).body(resource);
+                return resource;
             } else {
                 throw new NotFoundException("Dataset does not exist");
             }
@@ -88,7 +87,7 @@ public class DatasetService {
         }
     }
 
-    public ResponseEntity<String> deleteFile(String fileName, AccessType accessType, String jwt) {
+    public String deleteDataset(String fileName, AccessType accessType, String jwt) {
         User user = userService.getUserFromJwt(jwt);
         Dataset dataset = getDataset(fileName, accessType, user);
 
@@ -101,7 +100,7 @@ public class DatasetService {
         if (file.exists() && file.isFile()) {
             if (file.delete()) {
                 datasetRepository.delete(dataset);
-                return ResponseEntity.ok().build();
+                return msg("Dataset deleted");
             } else throw new InternalServerErrorException("File not deleted due to internal error.");
         } else {
             throw new NotFoundException("Dataset does not exist");
@@ -135,12 +134,12 @@ public class DatasetService {
         else return datasetRepository.findByAccessTypeAndFileName(AccessType.PUBLIC, fileName);
     }
 
-    public List<Dataset.ProjectNameAndAccessType> getDatasets(String jwt) {
+    public List<Dataset.ProjectNameAndAccessType> getDatasetList(String jwt) {
         User user = userService.getUserFromJwt(jwt);
         return datasetRepository.findAllByUser(user);
     }
 
-    public ResponseEntity<String> getDatasetInJson(String fileName, AccessType accessType, String jwt) {
+    public String getDataset(String fileName, AccessType accessType, String jwt) {
         User user = userService.getUserFromJwt(jwt);
         Dataset dataset = getDataset(fileName, accessType, user);
 
@@ -152,7 +151,10 @@ public class DatasetService {
         if (jsonDataset == null)
             throw new InternalServerErrorException("There was an error while processing the file.");
 
-        return ResponseEntity.ok(DatasetUtils.mergeJsonStrings(jsonDataset, dataset.getNumericCols()));
+        return DatasetUtils.mergeJsonStrings(jsonDataset, dataset.getNumericCols());
     }
 
+    public String msg(String msg) {
+        return "{\"success_msg\": \"" + msg + "\"}";
+    }
 }

@@ -15,20 +15,17 @@ public class HistoryController {
 
     private final HistoryService service;
 
-    @GetMapping(value = "/{historyId}", produces = { MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity<History.ProjectHistory> getHistoryById(@PathVariable() long historyId,
-                                                  @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt ) {
-        return service.findHistoryById(historyId, jwt);
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<History.ProjectHistory> getHistoryById(@PathVariable long id, @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt ) {
+        return ResponseEntity.ok(service.getHistoryById(id, jwt));
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<String> deleteHistory(@RequestParam("history") long historyId,
-                                                @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
-        service.deleteHistory(historyId, jwt);
-        return ResponseEntity.ok("User deleted along with all his information.");
+    public ResponseEntity<?> deleteHistory(@RequestBody long id, @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
+        return ResponseEntity.ok(service.deleteHistory(id, jwt));
     }
 
-    @GetMapping("/list")
+    @GetMapping()
     public ResponseEntity<List<History.ProjectHistoryList>> getAllHistory(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
         return ResponseEntity.ok(service.getAllHistory(jwt));
     }

@@ -1,5 +1,6 @@
 package com.hcvision.hcvisionserver.config;
 
+import com.hcvision.hcvisionserver.exception.NotFoundException;
 import com.hcvision.hcvisionserver.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -25,7 +26,7 @@ public class ApplicationConfiguration {
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> repository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
     @Bean

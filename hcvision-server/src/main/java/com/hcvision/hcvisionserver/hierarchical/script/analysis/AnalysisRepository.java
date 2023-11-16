@@ -14,17 +14,10 @@ import java.util.Optional;
 @Repository
 public interface AnalysisRepository extends JpaRepository<Analysis, Long> {
 
-    @Override
-    Optional<Analysis> findById(Long id);
-
     Analysis.ProjectAnalysis getAnalysisById(Long id);
 
-    Optional<Analysis.ProjectAnalysis> findByDatasetAndUserAndLinkageAndNumClustersAndSampleAndAttributes(Dataset dataset,
-                                                                                                          User user,
-                                                                                                          Linkage linkage,
-                                                                                                          int numClusters,
-                                                                                                          boolean sample,
-                                                                                                          String attributes);
+    Optional<Analysis.ProjectAnalysis> findByDatasetAndUserAndLinkageAndNumClustersAndSampleAndAttributes(
+            Dataset dataset, User user, Linkage linkage, int numClusters, boolean sample, String attributes);
 
     @Transactional
     @Modifying

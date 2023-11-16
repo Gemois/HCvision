@@ -13,6 +13,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
 
+    Optional<User.ProjectUser> getUserByEmail(String email);
+
     @Transactional
     @Modifying
     @Query("UPDATE User a " + "SET a.activated = TRUE WHERE a.email = ?1")

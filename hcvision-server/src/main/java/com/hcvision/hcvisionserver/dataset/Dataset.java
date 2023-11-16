@@ -1,5 +1,6 @@
 package com.hcvision.hcvisionserver.dataset;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hcvision.hcvisionserver.dataset.dto.AccessType;
 import com.hcvision.hcvisionserver.user.User;
 import jakarta.persistence.*;
@@ -22,7 +23,7 @@ public class Dataset {
     @JoinColumn(nullable = false, name = "_user_id")
     private User user;
     private String fileName;
-    private com.hcvision.hcvisionserver.dataset.dto.AccessType accessType;
+    private AccessType accessType;
     private String path;
     private String numericCols;
 
@@ -35,7 +36,10 @@ public class Dataset {
     }
 
     public interface ProjectNameAndAccessType {
+        @JsonProperty("dataset")
         String getFileName();
+
+        @JsonProperty("access_type")
         String getAccessType();
     }
 
