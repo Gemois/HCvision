@@ -57,6 +57,7 @@ public class Analysis implements PythonScript {
         this.attributes = attributes;
         this.status = status;
     }
+
     @Override
     public String getScriptDirName() {
         return "analysis";

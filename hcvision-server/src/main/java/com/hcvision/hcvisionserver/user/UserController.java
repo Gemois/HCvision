@@ -21,23 +21,23 @@ public class UserController {
         return ResponseEntity.ok(service.getUserByEmail(jwt));
     }
 
-    @PostMapping(value = "/password/reset", consumes = MediaType.APPLICATION_JSON_VALUE , produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/password/reset", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
-            return ResponseEntity.ok(service.resetPassword(request));
+        return ResponseEntity.ok(service.resetPassword(request));
     }
 
-    @PostMapping(value = "/password/forgot", consumes =  MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/password/forgot", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordRequest request) {
         return ResponseEntity.ok(service.forgotPassword(request));
     }
 
     @PostMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> deleteUser(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
-        return ResponseEntity.ok(  service.deleteUser(jwt));
+        return ResponseEntity.ok(service.deleteUser(jwt));
     }
 
     @PostMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateUserDetails(@RequestBody EditUserRequest request, @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
-        return ResponseEntity.ok( service.updateUserDetails(request, jwt));
+        return ResponseEntity.ok(service.updateUserDetails(request, jwt));
     }
 }

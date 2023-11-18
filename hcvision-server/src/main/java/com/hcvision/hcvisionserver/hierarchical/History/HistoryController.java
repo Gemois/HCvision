@@ -16,7 +16,7 @@ public class HistoryController {
     private final HistoryService service;
 
     @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<History.ProjectHistory> getHistoryById(@PathVariable long id, @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt ) {
+    public ResponseEntity<History.ProjectHistory> getHistoryById(@PathVariable long id, @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
         return ResponseEntity.ok(service.getHistoryById(id, jwt));
     }
 
@@ -29,5 +29,4 @@ public class HistoryController {
     public ResponseEntity<List<History.ProjectHistoryList>> getAllHistory(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
         return ResponseEntity.ok(service.getAllHistory(jwt));
     }
-
 }

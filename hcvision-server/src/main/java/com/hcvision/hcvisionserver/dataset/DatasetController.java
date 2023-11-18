@@ -18,7 +18,7 @@ public class DatasetController {
 
     private final DatasetService service;
 
-    @PostMapping(value = "/upload",consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> uploadDataset(@ModelAttribute UploadDatasetRequest request,
                                                 @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
         return ResponseEntity.ok(service.saveDataset(request, jwt));
@@ -40,7 +40,7 @@ public class DatasetController {
         return ResponseEntity.ok(service.deleteDataset(filename, accessType, jwt));
     }
 
-    @GetMapping(value = "/read", produces="application/json")
+    @GetMapping(value = "/read", produces = "application/json")
     public ResponseEntity<?> getDataset(@RequestParam("dataset") String filename,
                                         @RequestParam("access_type") AccessType accessType,
                                         @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {

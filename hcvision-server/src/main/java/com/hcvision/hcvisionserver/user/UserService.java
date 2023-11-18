@@ -22,6 +22,8 @@ import com.hcvision.hcvisionserver.user.dto.EditUserRequest;
 import com.hcvision.hcvisionserver.user.dto.ForgotPasswordRequest;
 import com.hcvision.hcvisionserver.user.dto.ResetPasswordRequest;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -47,29 +49,30 @@ public class UserService implements UserDetailsService {
     private final AnalysisRepository analysisRepository;
     private final ConfirmationTokenRepository confirmationTokenRepository;
 
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private static final SecureRandom secureRandom = new SecureRandom();
 
     public User findUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+        return userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("User not found"));
     }
+
 
     public User.ProjectUser getUserByEmail(String jwt) {
         String email = jwtService.extractUsername(jwt.substring(7));
-        return userRepository.getUserByEmail(email)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+        return userRepository.getUserByEmail(email).orElseThrow(() -> new NotFoundException("User not found"));
     }
+
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+        return userRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("User not found"));
     }
 
 
     public void enableUser(String email) {
         userRepository.enableUser(email);
     }
+
 
     public String resetPassword(ResetPasswordRequest request) {
         ConfirmationToken confirmationToken = confirmationTokenService.getToken(request.getToken())
@@ -81,9 +84,7 @@ public class UserService implements UserDetailsService {
         if (confirmationToken.getConfirmedAt() != null)
             throw new BadRequestException("email already confirmed");
 
-
         LocalDateTime expiredAt = confirmationToken.getExpiresAt();
-
         if (expiredAt.isBefore(LocalDateTime.now())) {
             throw new BadRequestException("token expired");
         }
@@ -95,29 +96,33 @@ public class UserService implements UserDetailsService {
                     emailService.buildPasswordChangedEmail(confirmationToken.getUser().getFirstName()),
                     EmailService.PASSWORD_CHANGE_NOTIFICATION_SUBJECT);
         } catch (Exception e) {
-            //TODO logging
+            logger.warn("Failed to send changed password notification to user {}: {}", confirmationToken.getUser(), e.getMessage());
         }
+        logger.info("User had his password reset : userId: " + confirmationToken.getUser().getId() + ", email: " + confirmationToken.getUser().getEmail());
         return msg("Password was reset successfully");
     }
-
 
 
     public String forgotPassword(ForgotPasswordRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-            String otp = generateOTP();
-            ConfirmationToken confirmationToken = new ConfirmationToken(otp, LocalDateTime.now(), LocalDateTime.now().plusMinutes(5), user);
-            confirmationToken.setType(TokenType.OTP);
-            confirmationTokenService.saveConfirmationToken(confirmationToken);
-                emailService.send(request.getEmail(),
-                        emailService.buildOtpEmail(user.getFirstName(), otp),
-                        EmailService.RESET_PASSWORD_OTP_SUBJECT);
+        String otp = generateOTP();
+        ConfirmationToken confirmationToken = new ConfirmationToken(otp, LocalDateTime.now(), LocalDateTime.now().plusMinutes(5), user);
+        confirmationToken.setType(TokenType.OTP);
+        confirmationTokenService.saveConfirmationToken(confirmationToken);
 
+        emailService.send(request.getEmail(),
+                emailService.buildOtpEmail(user.getFirstName(), otp),
+                EmailService.RESET_PASSWORD_OTP_SUBJECT);
+
+        logger.info("Forgot password request processed successfully - Email: {}", request.getEmail());
         return msg("Email with password reset token has been send");
     }
 
+
     private static final String CHARACTERS = "0123456789";
+
 
     public static String generateOTP() {
         StringBuilder token = new StringBuilder(8);
@@ -128,6 +133,7 @@ public class UserService implements UserDetailsService {
         return token.toString();
     }
 
+
     public User getUserFromJwt(String jwt) {
         return userRepository.findByEmail(jwtService.extractUsername(jwt.substring(7)))
                 .orElseThrow(() -> new NotFoundException("User not found"));
@@ -137,41 +143,41 @@ public class UserService implements UserDetailsService {
     public String deleteUser(String jwt) {
         User user = getUserFromJwt(jwt);
 
+        try {
             List<Optimal> userOptimalResults = optimalRepository.findByUser(user);
             userOptimalResults.forEach(optimal -> {
                 File optimalDir = new File(HierarchicalService.getBaseResultPathByPythonScript(optimal));
-                if (optimalDir.exists())
-                    DatasetUtils.deleteUserDirectory(optimalDir);
+                if (optimalDir.exists()) DatasetUtils.deleteAllRecursively(optimalDir);
             });
             optimalRepository.deleteAllUserOptimal(user);
 
-        List<Analysis> userAnalysisResults = analysisRepository.findByUser(user);
-        userAnalysisResults.forEach(analysis -> {
-            File analysisDir = new File(HierarchicalService.getBaseResultPathByPythonScript(analysis));
-            if (analysisDir.exists())
-                DatasetUtils.deleteUserDirectory(analysisDir);
-        });
-        analysisRepository.deleteAllUserAnalysis(user);
+            List<Analysis> userAnalysisResults = analysisRepository.findByUser(user);
+            userAnalysisResults.forEach(analysis -> {
+                File analysisDir = new File(HierarchicalService.getBaseResultPathByPythonScript(analysis));
+                if (analysisDir.exists()) DatasetUtils.deleteAllRecursively(analysisDir);
+            });
+            analysisRepository.deleteAllUserAnalysis(user);
 
-        List<Dataset> userPublicDatasetList = datasetRepository.findByUserAndAccessType(user, AccessType.PUBLIC);
-        userPublicDatasetList.forEach(dataset -> {
-            File publicDataset = new File(dataset.getPath());
-            if (publicDataset.exists())
-                DatasetUtils.deleteUserDirectory(publicDataset);
-        });
-        datasetRepository.deleteAllUserDatasets(user);
+            List<Dataset> userPublicDatasetList = datasetRepository.findByUserAndAccessType(user, AccessType.PUBLIC);
+            userPublicDatasetList.forEach(dataset -> {
+                File publicDataset = new File(dataset.getPath());
+                if (publicDataset.exists()) DatasetUtils.deleteAllRecursively(publicDataset);
+            });
+            datasetRepository.deleteAllUserDatasets(user);
 
-        File userDir = new File(DatasetService.getUserDirectoryPathByType(AccessType.PRIVATE, user));
-        if (userDir.exists())
-            DatasetUtils.deleteUserDirectory(userDir);
+            File userDir = new File(DatasetService.getUserDirectoryPathByType(AccessType.PRIVATE, user));
+            if (userDir.exists()) DatasetUtils.deleteAllRecursively(userDir);
 
-        confirmationTokenRepository.deleteAllUserConfirmationTokens(user);
+            confirmationTokenRepository.deleteAllUserConfirmationTokens(user);
+            userRepository.deleteById(user.getId());
+        } catch (Exception e) {
+            logger.error("Error deleting user - UserId: {}, Email: {}. Error: {}", user.getId(), user.getEmail(), e.getMessage());
+        }
 
-        userRepository.deleteById(user.getId());
-
+        logger.info("User deleted successfully - UserId: {}, Email: {}", user.getId(), user.getEmail());
         return msg("User deleted along with all his information.");
-
     }
+
 
     public String updateUserDetails(EditUserRequest request, String jwt) {
         boolean emailChanged = false;
@@ -183,18 +189,17 @@ public class UserService implements UserDetailsService {
             emailChanged = true;
         }
 
-        if (!request.getNewFirstName().equals(user.getFirstName())) {
+        if (!request.getNewFirstName().equals(user.getFirstName()))
             user.setFirstName(request.getNewFirstName());
-        }
 
-        if (!request.getNewLastName().equals(user.getLastName())) {
+        if (!request.getNewLastName().equals(user.getLastName()))
             user.setLastName(request.getNewLastName());
-        }
 
-        if (!passwordEncoder.encode(request.getNewPassword()).equals(user.getPassword())) {
+        if (!passwordEncoder.encode(request.getNewPassword()).equals(user.getPassword()))
             user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        }
+
         userRepository.save(user);
+
         if (emailChanged) {
             String token = confirmationTokenService.createConfirmationToken(user);
 
@@ -203,17 +208,19 @@ public class UserService implements UserDetailsService {
                 emailService.send(user.getEmail(),
                         emailService.buildVerificationEmail(user.getFirstName(), link),
                         EmailService.EMAIL_VERIFICATION_SUBJECT);
-            } catch (Exception ignored) {
-                //TODO logging
+                logger.info("Verification email sent after successful email change - UserId: {}, Email: {}", user.getId(), user.getEmail());
+            } catch (Exception e) {
+                logger.warn("Could not send verification email after successful email change - UserId: {}, Email: {}. Error: {}", user.getId(), user.getEmail(), e.getMessage());
             }
 
         }
 
+        logger.info("User profile updated successfully - UserId: {}, Email: {}", user.getId(), user.getEmail());
         return msg("User profile updated successfully.");
     }
+
 
     public String msg(String msg) {
         return "{\"success_msg\": \"" + msg + "\"}";
     }
-
 }

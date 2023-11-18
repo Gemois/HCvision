@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -36,11 +37,12 @@ public class History {
     @JoinColumn(name = "analysis_id")
     private Analysis analysis;
 
-        public History(LocalDateTime timeStarted, User user, Optimal optimal) {
+    public History(LocalDateTime timeStarted, User user, Optimal optimal) {
         this.timeStarted = timeStarted;
         this.user = user;
         this.optimal = optimal;
     }
+
     public History(LocalDateTime timeStarted, User user, Analysis analysis) {
         this.timeStarted = timeStarted;
         this.user = user;
@@ -64,6 +66,7 @@ public class History {
     public interface ProjectHistoryList {
         @JsonProperty("id")
         String getId();
+
         @JsonProperty("start_time")
         LocalDateTime getTimeStarted();
     }

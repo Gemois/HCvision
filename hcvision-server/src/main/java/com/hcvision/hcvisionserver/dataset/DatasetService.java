@@ -10,8 +10,9 @@ import com.hcvision.hcvisionserver.user.User;
 import com.hcvision.hcvisionserver.user.UserService;
 import lombok.AllArgsConstructor;
 import org.json.simple.JSONArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.UrlResource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -24,6 +25,8 @@ import java.util.List;
 @AllArgsConstructor
 public class DatasetService {
 
+    private static final Logger logger = LoggerFactory.getLogger(DatasetService.class);
+
     private static final String CWD = System.getProperty("user.dir");
     private static final String DATASETS_DIRECTORY = "DATASETS";
 
@@ -31,11 +34,13 @@ public class DatasetService {
     private final DatasetRepository datasetRepository;
 
     private static String getFilePathByUserIdAndType(String fileName, AccessType accessType, User user) {
-        return CWD + File.separator + DATASETS_DIRECTORY + File.separator + accessType + (accessType.equals(AccessType.PRIVATE) ? File.separator + user.getId() : "") + File.separator + fileName;
+        return CWD + File.separator + DATASETS_DIRECTORY + File.separator + accessType +
+                (accessType.equals(AccessType.PRIVATE) ? File.separator + user.getId() : "") + File.separator + fileName;
     }
 
     public static String getUserDirectoryPathByType(AccessType accessType, User user) {
-        return CWD + File.separator + DATASETS_DIRECTORY + File.separator + accessType + (accessType.equals(AccessType.PRIVATE) ? File.separator + user.getId() : "");
+        return CWD + File.separator + DATASETS_DIRECTORY + File.separator + accessType +
+                (accessType.equals(AccessType.PRIVATE) ? File.separator + user.getId() : "");
     }
 
     private static String getAccessTypePath(AccessType accessType) {
@@ -55,7 +60,7 @@ public class DatasetService {
 
 
         if (fileExists(fileName, request.getAccess_type(), user))
-           throw new BadRequestException("File with the same name already exists.");
+            throw new BadRequestException("File with the same name already exists.");
 
         maybeCreateUserDirectory(request.getAccess_type(), user);
 
@@ -64,8 +69,10 @@ public class DatasetService {
             request.getFile().transferTo(new File(filePath));
             Dataset dataset = new Dataset(user, fileName, request.getAccess_type(), filePath, DatasetUtils.getNumericColumns(filePath));
             datasetRepository.save(dataset);
+            logger.info("Dataset saved successfully - User: {}, FileName: {}", user.getId(), fileName);
             return msg("File uploaded successfully.");
         } catch (Exception e) {
+            logger.error("Error saving dataset - Error: {}", e.getMessage());
             throw new InternalServerErrorException("File was not uploaded due to internal error.");
         }
     }
@@ -78,12 +85,15 @@ public class DatasetService {
             UrlResource resource = new UrlResource(filePath.toUri());
 
             if (resource.exists() && resource.isReadable()) {
+                logger.info("Dataset file retrieved successfully - User: {}, FileName: {}", user.getId(), fileName);
                 return resource;
             } else {
+                logger.warn("Dataset file does not exist or is not readable - User: {}, FileName: {}", user.getId(), fileName);
                 throw new NotFoundException("Dataset does not exist");
             }
         } catch (IOException e) {
-           throw new InternalServerErrorException("Something went wrong");
+            logger.error("Error getting dataset file - User: {}, FileName: {}. Error: {}", user.getId(), fileName, e.getMessage());
+            throw new InternalServerErrorException("Something went wrong");
         }
     }
 
@@ -97,23 +107,29 @@ public class DatasetService {
             throw new ForbiddenException("You dont have permission to delete this dataset.");
 
         File file = new File(dataset.getPath());
-        if (file.exists() && file.isFile()) {
-            if (file.delete()) {
-                datasetRepository.delete(dataset);
-                return msg("Dataset deleted");
-            } else throw new InternalServerErrorException("File not deleted due to internal error.");
-        } else {
-            throw new NotFoundException("Dataset does not exist");
+        try {
+            if (file.exists() && file.isFile()) {
+                if (file.delete()) {
+                    datasetRepository.delete(dataset);
+                    logger.info("Dataset deleted - User: {}, FileName: {}", user.getId(), fileName);
+                    return msg("Dataset deleted");
+                } else throw new IllegalStateException("dummy");
+            }
+            throw new IllegalStateException("dummy");
+        } catch (Exception e) {
+            logger.error("Error deleting dataset - User: {}, FileName: {}. Error: {}", user.getId(), fileName, e.getMessage());
+            throw new InternalServerErrorException("Error deleting dataset");
         }
     }
 
     private void maybeCreateUserDirectory(AccessType accessType, User user) {
         if (!userDirectoryExists(accessType, user)) {
-            File accessTypeDir = new File(getAccessTypePath(accessType) + (accessType.equals(AccessType.PRIVATE) ? File.separator + user.getId() : File.separator));
+            File accessTypeDir = new File(getAccessTypePath(accessType) +
+                    (accessType.equals(AccessType.PRIVATE) ? File.separator + user.getId() : File.separator));
             if (accessTypeDir.mkdirs()) {
-                System.out.println("User directory created for user " + user.getId());
+                logger.info("User directory created for user {}", user.getId());
             } else {
-                System.err.println("Failed to create user directory for user " + user.getId());
+                logger.error("Failed to create user directory for user {}", user.getId());
             }
         }
     }
@@ -141,17 +157,19 @@ public class DatasetService {
 
     public String getDataset(String fileName, AccessType accessType, String jwt) {
         User user = userService.getUserFromJwt(jwt);
-        Dataset dataset = getDataset(fileName, accessType, user);
 
-        if (dataset == null)
-            throw new NotFoundException("Dataset does not exist");
+        Dataset dataset = getDataset(fileName, accessType, user);
+        if (dataset == null) throw new NotFoundException("Dataset does not exist");
 
         JSONArray jsonDataset = DatasetUtils.convertDatasetToJson(dataset.getPath());
-
         if (jsonDataset == null)
             throw new InternalServerErrorException("There was an error while processing the file.");
 
-        return DatasetUtils.mergeJsonStrings(jsonDataset, dataset.getNumericCols());
+        String response = DatasetUtils.mergeJsonStrings(jsonDataset, dataset.getNumericCols());
+        if (response == null) throw new InternalServerErrorException("There was an error while processing the file.");
+
+        logger.info("Conversion and merging successful - File: {}", dataset.getPath());
+        return response;
     }
 
     public String msg(String msg) {

@@ -16,7 +16,8 @@ public interface OptimalRepository extends JpaRepository<Optimal, Long> {
 
     Optimal.ProjectOptimal getOptimalById(Long id);
 
-    Optional<Optimal.ProjectOptimal> findByDatasetAndUserAndMaxClustersAndSampleAndAttributes(Dataset dataset, User user, int maxClusters, boolean sample, String attributes);
+    Optional<Optimal.ProjectOptimal> findByDatasetAndUserAndMaxClustersAndSampleAndAttributes
+            (Dataset dataset, User user, int maxClusters, boolean sample, String attributes);
 
     @Transactional
     @Modifying

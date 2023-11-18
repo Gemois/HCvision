@@ -18,24 +18,23 @@ public class AuthenticationController {
 
     private final AuthenticationService service;
 
-    @PostMapping(value = "/register", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE })
+    @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest request) {
         return ResponseEntity.ok(service.register(request));
     }
 
-    @PostMapping(value = "/authenticate", consumes = { MediaType.APPLICATION_JSON_VALUE }, produces = { MediaType.APPLICATION_JSON_VALUE })
+    @PostMapping(value = "/authenticate", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
         return ResponseEntity.ok(service.authenticate(request));
     }
 
-    @GetMapping(value = "confirm", produces = { MediaType.APPLICATION_JSON_VALUE })
+    @GetMapping(value = "confirm", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ConfirmationTokenResponse> confirm(@RequestParam("token") String token) {
         return ResponseEntity.ok(service.confirmToken(token));
     }
 
-    @GetMapping(value = "confirmation-link", produces = { MediaType.APPLICATION_JSON_VALUE })
+    @GetMapping(value = "confirmation-link", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> sendConfirmationLink(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
-        service.sendConfirmationEmail(jwt);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(service.sendConfirmationEmail(jwt));
     }
 }

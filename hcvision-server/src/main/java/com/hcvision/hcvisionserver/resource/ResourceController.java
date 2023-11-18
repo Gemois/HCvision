@@ -7,7 +7,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.*;
 
 @RestController
 @RequestMapping("/api/v1/resources")
@@ -16,7 +15,7 @@ public class ResourceController {
 
     private final ResourceService service;
 
-    @GetMapping(value = "/logo-light", produces = {MediaType.IMAGE_PNG_VALUE})
+    @GetMapping(value = "/logo-light", produces = MediaType.IMAGE_PNG_VALUE)
     public ResponseEntity<?> getLightLogo() {
         return service.getLogo();
     }
@@ -25,7 +24,7 @@ public class ResourceController {
     @GetMapping(value = "/{scriptType}/{id}", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.IMAGE_PNG_VALUE })
     public ResponseEntity<?> getResult(@PathVariable ScriptType scriptType,
                                        @PathVariable long id,
-                                       @RequestParam("resource") ResourceType resourceType) throws IOException {
+                                       @RequestParam("resource") ResourceType resourceType) {
         return ResponseEntity.ok(service.getResource(scriptType, id, resourceType));
     }
 

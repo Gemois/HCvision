@@ -21,7 +21,7 @@ public class HierarchicalController {
     @PostMapping(value = "/optimal", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Optimal.ProjectOptimal> predict(@RequestBody OptimalRequest request,
                                                           @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
-            return ResponseEntity.ok(service.getOptimalParams(request, jwt));
+        return ResponseEntity.ok(service.getOptimalParams(request, jwt));
 
     }
 

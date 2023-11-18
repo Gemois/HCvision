@@ -12,18 +12,15 @@ import java.util.Optional;
 
 @Service
 @AllArgsConstructor
-public class AnalysisService  {
+public class AnalysisService {
 
     private final AnalysisRepository analysisRepository;
 
 
     public void saveResults(Analysis analysis) {
-        analysis.setParallelCoordinatesResultPath(HierarchicalService.getResultPathByPythonScript(analysis,
-                analysis.getParallelCoordinatesResultFileName()));
-        analysis.setClusterAssignmentResultPath(HierarchicalService.getResultPathByPythonScript(analysis,
-                analysis.getClusterAssignmentResultFileName()));
-        analysis.setDendrogramResultPath(HierarchicalService.getResultPathByPythonScript(analysis,
-                analysis.getDendrogramResultFileName()));
+        analysis.setParallelCoordinatesResultPath(HierarchicalService.getResultPathByPythonScript(analysis, analysis.getParallelCoordinatesResultFileName()));
+        analysis.setClusterAssignmentResultPath(HierarchicalService.getResultPathByPythonScript(analysis, analysis.getClusterAssignmentResultFileName()));
+        analysis.setDendrogramResultPath(HierarchicalService.getResultPathByPythonScript(analysis, analysis.getDendrogramResultFileName()));
         analysis.setStatus(ResultStatus.FINISHED);
         analysisRepository.save(analysis);
     }
@@ -34,16 +31,12 @@ public class AnalysisService  {
         analysisRepository.save(analysis);
     }
 
-    public Analysis createAnalysis(Analysis analysis) {
-        return analysisRepository.save(analysis);
-    }
+    public Analysis createAnalysis(Analysis analysis) { return analysisRepository.save(analysis); }
 
     public Optional<Analysis.ProjectAnalysis> getAnalysisReRun(User user, Dataset dataset, Linkage linkage, int numClusters, boolean isSample, String attributes) {
         return analysisRepository.findByDatasetAndUserAndLinkageAndNumClustersAndSampleAndAttributes(dataset, user, linkage, numClusters, isSample, attributes);
     }
 
-    public Analysis.ProjectAnalysis refresh(long id) {
-        return analysisRepository.getAnalysisById(id);
-    }
+    public Analysis.ProjectAnalysis refresh(long id) { return analysisRepository.getAnalysisById(id); }
 
 }

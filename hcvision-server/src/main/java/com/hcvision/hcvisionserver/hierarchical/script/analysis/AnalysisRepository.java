@@ -11,13 +11,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+
 @Repository
 public interface AnalysisRepository extends JpaRepository<Analysis, Long> {
 
     Analysis.ProjectAnalysis getAnalysisById(Long id);
 
-    Optional<Analysis.ProjectAnalysis> findByDatasetAndUserAndLinkageAndNumClustersAndSampleAndAttributes(
-            Dataset dataset, User user, Linkage linkage, int numClusters, boolean sample, String attributes);
+    Optional<Analysis.ProjectAnalysis> findByDatasetAndUserAndLinkageAndNumClustersAndSampleAndAttributes
+            (Dataset dataset, User user, Linkage linkage, int numClusters, boolean sample, String attributes);
 
     @Transactional
     @Modifying

@@ -31,3 +31,14 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+### appmap ###
+tmp/
+
+### logging  ###
+appmap.yml
+/logs
+
+### testing ###
+/DATASETS

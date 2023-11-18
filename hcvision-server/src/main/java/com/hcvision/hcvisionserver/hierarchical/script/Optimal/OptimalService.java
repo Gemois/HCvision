@@ -1,6 +1,7 @@
 package com.hcvision.hcvisionserver.hierarchical.script.Optimal;
 
 import com.hcvision.hcvisionserver.dataset.Dataset;
+import com.hcvision.hcvisionserver.hierarchical.HierarchicalService;
 import com.hcvision.hcvisionserver.hierarchical.script.ResultStatus;
 import com.hcvision.hcvisionserver.user.User;
 import lombok.AllArgsConstructor;
@@ -16,7 +17,7 @@ public class OptimalService {
 
     public void saveResults(Optimal optimal, String result) {
         optimal.setStatus(ResultStatus.FINISHED);
-        optimal.setResult(result);
+        optimal.setResult(HierarchicalService.getResultPathByPythonScript(optimal, optimal.getOptimalParamsResultFileName()));
         optimalRepository.save(optimal);
     }
 

@@ -8,6 +8,8 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
@@ -15,6 +17,8 @@ import java.util.*;
 
 @UtilityClass
 public class DatasetUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(DatasetUtils.class);
 
     public static boolean isValidFileFormat(MultipartFile multipartFile) {
         try (InputStream inputStream = multipartFile.getInputStream(); BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream))) {
@@ -26,19 +30,21 @@ public class DatasetUtils {
                     CSVParser csvParser = new CSVParser(bufferedReader, CSVFormat.DEFAULT);
                     return csvParser.getRecords().size() > 1;
                 } catch (IOException e) {
-                    return false;
+                    logger.error("Error validating CSV file format. File: {}. Error: {}", originalFileName, e.getMessage());
                 }
             } else if (fileExtension.equals("xlsx")) {
                 try {
                     Workbook workbook = WorkbookFactory.create(inputStream);
                     return workbook != null;
                 } catch (IOException e) {
-                    return false;
+                    logger.error("Error validating Excel file format. File: {}. Error: {}", originalFileName, e.getMessage());
                 }
             }
         } catch (IOException e) {
-            return false;
+            logger.error("Error processing file format validation. Error: {}", e.getMessage());
         }
+
+        logger.error("Error processing file format validation.");
         return false;
     }
 
@@ -59,7 +65,8 @@ public class DatasetUtils {
                         }
                     }
                 }
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                logger.error("Error reading CSV file for extracting numeric columns. File: {}. Error: {}", filePath, e.getMessage());
             }
 
         } else if (filePath.endsWith(".xlsx")) {
@@ -76,7 +83,8 @@ public class DatasetUtils {
                         numericColumnNames.add(removeDoubleQuotes(dataFormatter.formatCellValue(headerRow.getCell(i))));
                     }
                 }
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                logger.error("Error reading Excel file for extracting numeric columns. File: {}. Error: {}", filePath, e.getMessage());
             }
         }
 
@@ -108,9 +116,7 @@ public class DatasetUtils {
     }
 
     public static JSONArray convertCsvToJson(String csvFilePath) {
-        try (FileReader fileReader = new FileReader(csvFilePath);
-             StringWriter stringWriter = new StringWriter();
-             CSVParser csvParser = CSVFormat.DEFAULT.withHeader().parse(fileReader)) {
+        try (FileReader fileReader = new FileReader(csvFilePath); StringWriter stringWriter = new StringWriter(); CSVParser csvParser = CSVFormat.DEFAULT.withHeader().parse(fileReader)) {
             List<String> headers = csvParser.getHeaderNames();
             JSONArray jsonArray = new JSONArray();
 
@@ -124,13 +130,13 @@ public class DatasetUtils {
 
             return jsonArray;
         } catch (IOException e) {
+            logger.error("Error converting - File: {}. Error: {}", csvFilePath, e.getMessage());
             return null;
         }
     }
 
     private static JSONArray convertXlsxToJson(String xlsxFilePath) {
-        try (Workbook workbook = new XSSFWorkbook(new FileInputStream(xlsxFilePath));
-             StringWriter stringWriter = new StringWriter()) {
+        try (Workbook workbook = new XSSFWorkbook(new FileInputStream(xlsxFilePath)); StringWriter stringWriter = new StringWriter()) {
             Sheet sheet = workbook.getSheetAt(0);
             JSONArray jsonArray = new JSONArray();
 
@@ -158,6 +164,7 @@ public class DatasetUtils {
 
             return jsonArray;
         } catch (IOException e) {
+            logger.error("Error converting - File: {}. Error: {}", xlsxFilePath, e.getMessage());
             return null;
         }
     }
@@ -181,17 +188,23 @@ public class DatasetUtils {
     }
 
     public static String mergeJsonStrings(JSONArray dataset, String attributes) {
-        String[] attributesArray = attributes.split(",");
-        JSONArray jsonArray = new JSONArray();
-        for (String attribute : attributesArray) {
-            jsonArray.add(attribute.trim());
-        }
+        try {
+            String[] attributesArray = attributes.split(",");
+            JSONArray jsonArray = new JSONArray();
+            for (String attribute : attributesArray) {
+                jsonArray.add(attribute.trim());
+            }
 
-        JSONObject result = new JSONObject();
-        result.put("dataset", dataset);
-        result.put("attributes", jsonArray);
-        return result.toJSONString();
+            JSONObject result = new JSONObject();
+            result.put("dataset", dataset);
+            result.put("attributes", jsonArray);
+            return result.toJSONString();
+        } catch (Exception e) {
+            logger.error("Error merging -  Error: {}", e.getMessage());
+            return null;
+        }
     }
+
 
     public static boolean areAllElementsInArray(String[] selected, String[] numeric) {
 
@@ -207,20 +220,32 @@ public class DatasetUtils {
         return String.join(",", attributes);
     }
 
-    public static void deleteUserDirectory(File userDirectory) {
-        File[] allFiles = userDirectory.listFiles();
+    public static void deleteAllRecursively(File userDirectory) {
+        try {
+            File[] allFiles = userDirectory.listFiles();
 
-        if (allFiles != null) {
-            for (File file : allFiles) {
-                if (file.isDirectory()) {
-                    deleteUserDirectory(file);
-                } else {
-                    file.delete();
+            if (allFiles != null) {
+                for (File file : allFiles) {
+                    if (file.isDirectory()) {
+                        deleteAllRecursively(file);
+                    } else {
+                        if (file.delete()) {
+                            logger.info("File deleted: {}", file.getAbsolutePath());
+                        } else {
+                            logger.warn("Failed to delete file: {}", file.getAbsolutePath());
+                        }
+                    }
                 }
             }
-        }
 
-        userDirectory.delete();
+            if (userDirectory.delete()) {
+                logger.info("User directory deleted: {}", userDirectory.getAbsolutePath());
+            } else {
+                logger.warn("Failed to delete user directory: {}", userDirectory.getAbsolutePath());
+            }
+        } catch (Exception e) {
+            logger.error("Error deleting user directory: {}. Error: {}", userDirectory.getAbsolutePath(), e.getMessage());
+        }
     }
 
 }
