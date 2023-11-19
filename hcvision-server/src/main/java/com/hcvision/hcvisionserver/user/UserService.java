@@ -13,6 +13,7 @@ import com.hcvision.hcvisionserver.dataset.dto.AccessType;
 import com.hcvision.hcvisionserver.exception.BadRequestException;
 import com.hcvision.hcvisionserver.exception.NotFoundException;
 import com.hcvision.hcvisionserver.hierarchical.HierarchicalService;
+import com.hcvision.hcvisionserver.hierarchical.History.HistoryRepository;
 import com.hcvision.hcvisionserver.hierarchical.script.Optimal.Optimal;
 import com.hcvision.hcvisionserver.hierarchical.script.Optimal.OptimalRepository;
 import com.hcvision.hcvisionserver.hierarchical.script.analysis.Analysis;
@@ -22,8 +23,7 @@ import com.hcvision.hcvisionserver.user.dto.EditUserRequest;
 import com.hcvision.hcvisionserver.user.dto.ForgotPasswordRequest;
 import com.hcvision.hcvisionserver.user.dto.ResetPasswordRequest;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -37,6 +37,7 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
@@ -48,8 +49,8 @@ public class UserService implements UserDetailsService {
     private final OptimalRepository optimalRepository;
     private final AnalysisRepository analysisRepository;
     private final ConfirmationTokenRepository confirmationTokenRepository;
+    private final HistoryRepository historyRepository;
 
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private static final SecureRandom secureRandom = new SecureRandom();
 
     public User findUserByEmail(String email) {
@@ -96,9 +97,9 @@ public class UserService implements UserDetailsService {
                     emailService.buildPasswordChangedEmail(confirmationToken.getUser().getFirstName()),
                     EmailService.PASSWORD_CHANGE_NOTIFICATION_SUBJECT);
         } catch (Exception e) {
-            logger.warn("Failed to send changed password notification to user {}: {}", confirmationToken.getUser(), e.getMessage());
+            log.warn("Failed to send changed password notification to user {}: {}", confirmationToken.getUser(), e.getMessage());
         }
-        logger.info("User had his password reset : userId: " + confirmationToken.getUser().getId() + ", email: " + confirmationToken.getUser().getEmail());
+        log.info("User had his password reset : userId: " + confirmationToken.getUser().getId() + ", email: " + confirmationToken.getUser().getEmail());
         return msg("Password was reset successfully");
     }
 
@@ -116,7 +117,7 @@ public class UserService implements UserDetailsService {
                 emailService.buildOtpEmail(user.getFirstName(), otp),
                 EmailService.RESET_PASSWORD_OTP_SUBJECT);
 
-        logger.info("Forgot password request processed successfully - Email: {}", request.getEmail());
+        log.info("Forgot password request processed successfully - Email: {}", request.getEmail());
         return msg("Email with password reset token has been send");
     }
 
@@ -147,14 +148,21 @@ public class UserService implements UserDetailsService {
             List<Optimal> userOptimalResults = optimalRepository.findByUser(user);
             userOptimalResults.forEach(optimal -> {
                 File optimalDir = new File(HierarchicalService.getBaseResultPathByPythonScript(optimal));
-                if (optimalDir.exists()) DatasetUtils.deleteAllRecursively(optimalDir);
+                if (optimalDir.exists()) {
+                    DatasetUtils.deleteAllRecursively(optimalDir);
+                    historyRepository.deleteByOptimal(optimal);
+
+                }
             });
             optimalRepository.deleteAllUserOptimal(user);
 
             List<Analysis> userAnalysisResults = analysisRepository.findByUser(user);
             userAnalysisResults.forEach(analysis -> {
                 File analysisDir = new File(HierarchicalService.getBaseResultPathByPythonScript(analysis));
-                if (analysisDir.exists()) DatasetUtils.deleteAllRecursively(analysisDir);
+                if (analysisDir.exists()) {
+                    DatasetUtils.deleteAllRecursively(analysisDir);
+                    historyRepository.deleteByAnalysis(analysis);
+                }
             });
             analysisRepository.deleteAllUserAnalysis(user);
 
@@ -171,10 +179,10 @@ public class UserService implements UserDetailsService {
             confirmationTokenRepository.deleteAllUserConfirmationTokens(user);
             userRepository.deleteById(user.getId());
         } catch (Exception e) {
-            logger.error("Error deleting user - UserId: {}, Email: {}. Error: {}", user.getId(), user.getEmail(), e.getMessage());
+            log.error("Error deleting user - UserId: {}, Email: {}. Error: {}", user.getId(), user.getEmail(), e.getMessage());
         }
 
-        logger.info("User deleted successfully - UserId: {}, Email: {}", user.getId(), user.getEmail());
+        log.info("User deleted successfully - UserId: {}, Email: {}", user.getId(), user.getEmail());
         return msg("User deleted along with all his information.");
     }
 
@@ -208,14 +216,14 @@ public class UserService implements UserDetailsService {
                 emailService.send(user.getEmail(),
                         emailService.buildVerificationEmail(user.getFirstName(), link),
                         EmailService.EMAIL_VERIFICATION_SUBJECT);
-                logger.info("Verification email sent after successful email change - UserId: {}, Email: {}", user.getId(), user.getEmail());
+                log.info("Verification email sent after successful email change - UserId: {}, Email: {}", user.getId(), user.getEmail());
             } catch (Exception e) {
-                logger.warn("Could not send verification email after successful email change - UserId: {}, Email: {}. Error: {}", user.getId(), user.getEmail(), e.getMessage());
+                log.warn("Could not send verification email after successful email change - UserId: {}, Email: {}. Error: {}", user.getId(), user.getEmail(), e.getMessage());
             }
 
         }
 
-        logger.info("User profile updated successfully - UserId: {}, Email: {}", user.getId(), user.getEmail());
+        log.info("User profile updated successfully - UserId: {}, Email: {}", user.getId(), user.getEmail());
         return msg("User profile updated successfully.");
     }
 

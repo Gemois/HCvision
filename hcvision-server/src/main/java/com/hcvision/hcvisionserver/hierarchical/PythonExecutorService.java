@@ -6,24 +6,23 @@ import com.hcvision.hcvisionserver.hierarchical.script.Optimal.Optimal;
 import com.hcvision.hcvisionserver.hierarchical.script.Optimal.OptimalService;
 import com.hcvision.hcvisionserver.hierarchical.script.PythonScript;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.LocalDateTime;
 import java.util.concurrent.ExecutorService;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class PythonExecutorService {
 
     private final ExecutorService service;
     private final OptimalService optimalService;
     private final AnalysisService analysisService;
-
-    private static final Logger logger = LoggerFactory.getLogger(PythonExecutorService.class);
 
     protected void runScript(PythonScript pythonScript, String command) {
         Runnable script;
@@ -32,6 +31,7 @@ public class PythonExecutorService {
 
             script = () -> {
                 try {
+                    ((Optimal) pythonScript).setStartedAt(LocalDateTime.now());
                     ProcessBuilder processBuilder = new ProcessBuilder(command.split(" "));
                     processBuilder.redirectErrorStream(true);
                     Process process = processBuilder.start();
@@ -45,14 +45,15 @@ public class PythonExecutorService {
 
                     int exitCode = process.waitFor();
                     if (exitCode != 0) {
-                        logger.error("Python script execution failed for Optimal script - ScriptID: {}. Exit code: {}. Output: {}", pythonScript.getId(), exitCode, output);
+                        log.error("Python script execution failed for Optimal script - ScriptID: {}. Exit code: {}. Output: {}", pythonScript.getId(), exitCode, output);
                         throw new IOException("Python script execution failed with exit code " + exitCode);
                     } else {
-                        logger.info("Python script executed successfully for Optimal script - ScriptID: {}", pythonScript.getId());
+                        log.info("Python script executed successfully for Optimal script - ScriptID: {}", pythonScript.getId());
                     }
-                    optimalService.saveResults((Optimal) pythonScript, output.toString());
+                    optimalService.saveResults((Optimal) pythonScript);
+
                 } catch (IOException | InterruptedException e) {
-                    logger.error("Error executing Python script for Optimal script - ScriptID: {}. Error: {}", pythonScript.getId(), e.getMessage());
+                    log.error("Error executing Python script for Optimal script - ScriptID: {}. Error: {}", pythonScript.getId(), e.getMessage());
                     optimalService.informError((Optimal) pythonScript);
                 }
 
@@ -61,20 +62,21 @@ public class PythonExecutorService {
         } else {
             script = () -> {
                 try {
+                    ((Analysis) pythonScript).setStartedAt(LocalDateTime.now());
                     ProcessBuilder processBuilder = new ProcessBuilder(command.split(" "));
                     processBuilder.redirectErrorStream(true);
                     Process process = processBuilder.start();
 
                     int exitCode = process.waitFor();
                     if (exitCode != 0) {
-                        logger.error("Command execution failed for Analysis script - ScriptID: {}. Exit code: {}", pythonScript.getId(), exitCode);
+                        log.error("Command execution failed for Analysis script - ScriptID: {}. Exit code: {}", pythonScript.getId(), exitCode);
                         throw new IOException("Command execution failed with exit code " + exitCode);
                     } else {
-                        logger.info("Python script executed successfully for Optimal script - ScriptID: {}", pythonScript.getId());
+                        log.info("Python script executed successfully for Optimal script - ScriptID: {}", pythonScript.getId());
                     }
                     analysisService.saveResults((Analysis) pythonScript);
                 } catch (InterruptedException | IOException e) {
-                    logger.error("Error executing command for Analysis script - ScriptID: {}. Error: {}", pythonScript.getId(), e.getMessage());
+                    log.error("Error executing command for Analysis script - ScriptID: {}. Error: {}", pythonScript.getId(), e.getMessage());
                     analysisService.informError((Analysis) pythonScript);
                 }
             };

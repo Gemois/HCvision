@@ -2,23 +2,22 @@ package com.hcvision.hcvisionserver.dataset;
 
 
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.util.*;
 
 @UtilityClass
+@Slf4j
 public class DatasetUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(DatasetUtils.class);
 
     public static boolean isValidFileFormat(MultipartFile multipartFile) {
         try (InputStream inputStream = multipartFile.getInputStream(); BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream))) {
@@ -30,21 +29,21 @@ public class DatasetUtils {
                     CSVParser csvParser = new CSVParser(bufferedReader, CSVFormat.DEFAULT);
                     return csvParser.getRecords().size() > 1;
                 } catch (IOException e) {
-                    logger.error("Error validating CSV file format. File: {}. Error: {}", originalFileName, e.getMessage());
+                    log.error("Error validating CSV file format. File: {}. Error: {}", originalFileName, e.getMessage());
                 }
             } else if (fileExtension.equals("xlsx")) {
                 try {
                     Workbook workbook = WorkbookFactory.create(inputStream);
                     return workbook != null;
                 } catch (IOException e) {
-                    logger.error("Error validating Excel file format. File: {}. Error: {}", originalFileName, e.getMessage());
+                    log.error("Error validating Excel file format. File: {}. Error: {}", originalFileName, e.getMessage());
                 }
             }
         } catch (IOException e) {
-            logger.error("Error processing file format validation. Error: {}", e.getMessage());
+            log.error("Error processing file format validation. Error: {}", e.getMessage());
         }
 
-        logger.error("Error processing file format validation.");
+        log.error("Error processing file format validation.");
         return false;
     }
 
@@ -66,7 +65,7 @@ public class DatasetUtils {
                     }
                 }
             } catch (IOException e) {
-                logger.error("Error reading CSV file for extracting numeric columns. File: {}. Error: {}", filePath, e.getMessage());
+                log.error("Error reading CSV file for extracting numeric columns. File: {}. Error: {}", filePath, e.getMessage());
             }
 
         } else if (filePath.endsWith(".xlsx")) {
@@ -84,7 +83,7 @@ public class DatasetUtils {
                     }
                 }
             } catch (IOException e) {
-                logger.error("Error reading Excel file for extracting numeric columns. File: {}. Error: {}", filePath, e.getMessage());
+                log.error("Error reading Excel file for extracting numeric columns. File: {}. Error: {}", filePath, e.getMessage());
             }
         }
 
@@ -130,7 +129,7 @@ public class DatasetUtils {
 
             return jsonArray;
         } catch (IOException e) {
-            logger.error("Error converting - File: {}. Error: {}", csvFilePath, e.getMessage());
+            log.error("Error converting - File: {}. Error: {}", csvFilePath, e.getMessage());
             return null;
         }
     }
@@ -164,7 +163,7 @@ public class DatasetUtils {
 
             return jsonArray;
         } catch (IOException e) {
-            logger.error("Error converting - File: {}. Error: {}", xlsxFilePath, e.getMessage());
+            log.error("Error converting - File: {}. Error: {}", xlsxFilePath, e.getMessage());
             return null;
         }
     }
@@ -200,7 +199,7 @@ public class DatasetUtils {
             result.put("attributes", jsonArray);
             return result.toJSONString();
         } catch (Exception e) {
-            logger.error("Error merging -  Error: {}", e.getMessage());
+            log.error("Error merging -  Error: {}", e.getMessage());
             return null;
         }
     }
@@ -230,21 +229,21 @@ public class DatasetUtils {
                         deleteAllRecursively(file);
                     } else {
                         if (file.delete()) {
-                            logger.info("File deleted: {}", file.getAbsolutePath());
+                            log.info("File deleted: {}", file.getAbsolutePath());
                         } else {
-                            logger.warn("Failed to delete file: {}", file.getAbsolutePath());
+                            log.warn("Failed to delete file: {}", file.getAbsolutePath());
                         }
                     }
                 }
             }
 
             if (userDirectory.delete()) {
-                logger.info("User directory deleted: {}", userDirectory.getAbsolutePath());
+                log.info("User directory deleted: {}", userDirectory.getAbsolutePath());
             } else {
-                logger.warn("Failed to delete user directory: {}", userDirectory.getAbsolutePath());
+                log.warn("Failed to delete user directory: {}", userDirectory.getAbsolutePath());
             }
         } catch (Exception e) {
-            logger.error("Error deleting user directory: {}. Error: {}", userDirectory.getAbsolutePath(), e.getMessage());
+            log.error("Error deleting user directory: {}. Error: {}", userDirectory.getAbsolutePath(), e.getMessage());
         }
     }
 

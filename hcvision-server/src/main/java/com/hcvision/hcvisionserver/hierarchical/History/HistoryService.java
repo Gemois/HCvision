@@ -7,8 +7,7 @@ import com.hcvision.hcvisionserver.hierarchical.script.analysis.Analysis;
 import com.hcvision.hcvisionserver.user.User;
 import com.hcvision.hcvisionserver.user.UserService;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -16,12 +15,11 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class HistoryService {
 
     private final UserService userService;
     private final HistoryRepository historyRepository;
-
-    private static final Logger logger = LoggerFactory.getLogger(HistoryService.class);
 
     public void keepHistory(User user, PythonScript script) {
         try {
@@ -29,7 +27,7 @@ public class HistoryService {
                 historyRepository.save(new History(LocalDateTime.now(), user, (Optimal) script));
             else historyRepository.save(new History(LocalDateTime.now(), user, (Analysis) script));
         } catch (Exception e) {
-            logger.error("Error saving history. User: {}, Script ID: {}. Error: {}", user.getId(), script.getId(), e.getMessage());
+            log.error("Error saving history. User: {}, Script ID: {}. Error: {}", user.getId(), script.getId(), e.getMessage());
         }
     }
 

@@ -48,3 +48,13 @@ logging:
     pattern: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
 executors:
   thread-number: ${THREADS}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+    base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+

@@ -11,14 +11,14 @@ import com.hcvision.hcvisionserver.hierarchical.script.Optimal.OptimalRequest;
 import com.hcvision.hcvisionserver.hierarchical.script.Optimal.OptimalService;
 import com.hcvision.hcvisionserver.hierarchical.script.PythonScript;
 import com.hcvision.hcvisionserver.hierarchical.script.ResultStatus;
+import com.hcvision.hcvisionserver.hierarchical.script.ScriptType;
 import com.hcvision.hcvisionserver.hierarchical.script.analysis.Analysis;
 import com.hcvision.hcvisionserver.hierarchical.script.analysis.AnalysisRequest;
 import com.hcvision.hcvisionserver.hierarchical.script.analysis.AnalysisService;
 import com.hcvision.hcvisionserver.user.User;
 import com.hcvision.hcvisionserver.user.UserService;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -27,6 +27,7 @@ import java.util.Optional;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class HierarchicalService {
 
     private final UserService userService;
@@ -35,8 +36,6 @@ public class HierarchicalService {
     private final AnalysisService analysisService;
     private final OptimalService optimalService;
     private final HistoryService historyService;
-
-    private static final Logger logger = LoggerFactory.getLogger(HierarchicalService.class);
 
     public static final String RESULT_DIR = "RESULTS";
     final String OPTIMAL_SCRIPT = "python/optimal_params.py";
@@ -63,9 +62,9 @@ public class HierarchicalService {
     private void maybeCreateResultDirectory(PythonScript pythonScript) {
         File resultDirectory = new File(getBaseResultPathByPythonScript(pythonScript));
         if (resultDirectory.mkdirs()) {
-            logger.info("Result directory created for script: {}", pythonScript.getId());
+            log.info("Result directory created for script: {}", pythonScript.getId());
         } else {
-            logger.error("Failed to create result directory for script: {}", pythonScript.getId());
+            log.error("Failed to create result directory for script: {}", pythonScript.getId());
         }
     }
 
@@ -99,7 +98,7 @@ public class HierarchicalService {
         maybeCreateResultDirectory(optimal);
         asyncPythonService.runScript(optimal, command);
 
-        logger.info("Python script execution started - ScriptID: {}", optimal.getId());
+        log.info("Python script execution started - ScriptID: {}", optimal.getId());
         return optimalService.refresh(optimal.getId());
     }
 
@@ -141,7 +140,18 @@ public class HierarchicalService {
         maybeCreateResultDirectory(analysis);
         asyncPythonService.runScript(analysis, command);
 
-        logger.info("Python script execution started - ScriptID: {}", analysis.getId());
+        log.info("Python script execution started - ScriptID: {}", analysis.getId());
         return analysisService.refresh(analysis.getId());
+    }
+
+    public Object getScriptStatus(ScriptType scriptType, long id, String jwt) {
+        User user = userService.getUserFromJwt(jwt);
+
+        if (scriptType.equals(ScriptType.optimal)) {
+            return  optimalService.getOptimalStatus(id, user)
+                    .orElseThrow(() -> new  NotFoundException("No status found"));
+        } else
+            return analysisService.getOptimalStatus(id, user)
+                    .orElseThrow(() -> new NotFoundException("No status found"));
     }
 }

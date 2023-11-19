@@ -20,10 +20,21 @@ public interface AnalysisRepository extends JpaRepository<Analysis, Long> {
     Optional<Analysis.ProjectAnalysis> findByDatasetAndUserAndLinkageAndNumClustersAndSampleAndAttributes
             (Dataset dataset, User user, Linkage linkage, int numClusters, boolean sample, String attributes);
 
+    @Query("SELECT o FROM Analysis o WHERE o.id = ?1 AND o.user = ?2")
+    Optional<Analysis.ProjectAnalysisStatus> getStatus(Long id, User user);
+
     @Transactional
     @Modifying
     @Query("DELETE FROM Analysis s WHERE s.user = ?1")
     void deleteAllUserAnalysis(User user);
 
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM Analysis o WHERE o.dataset = ?1")
+    void deleteAllDatasetAnalysis(Dataset dataset);
+
     List<Analysis> findByUser(User user);
+
+    List<Analysis> findByDataset(Dataset dataset);
+
 }

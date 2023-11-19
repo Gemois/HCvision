@@ -1,6 +1,7 @@
 package com.hcvision.hcvisionserver.dataset;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.hcvision.hcvisionserver.dataset.dto.AccessType;
 import com.hcvision.hcvisionserver.user.User;
 import jakarta.persistence.*;
@@ -35,6 +36,7 @@ public class Dataset {
         this.numericCols = numericCols;
     }
 
+    @JsonPropertyOrder({"dataset", "accessType"})
     public interface ProjectNameAndAccessType {
         @JsonProperty("dataset")
         String getFileName();

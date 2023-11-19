@@ -1,6 +1,7 @@
 package com.hcvision.hcvisionserver.hierarchical.script.analysis;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.hcvision.hcvisionserver.dataset.Dataset;
 import com.hcvision.hcvisionserver.hierarchical.script.Linkage;
 import com.hcvision.hcvisionserver.hierarchical.script.ResultStatus;
@@ -12,6 +13,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -39,6 +42,12 @@ public class Analysis implements PythonScript {
 
     private String attributes;
 
+    private LocalDateTime startedAt;
+
+    private LocalDateTime endedAt;
+
+    private long duration;
+
     @Enumerated
     private ResultStatus status;
 
@@ -58,34 +67,35 @@ public class Analysis implements PythonScript {
         this.status = status;
     }
 
+    public void calcDuration() {
+        this.duration = Duration.between(startedAt, endedAt).getSeconds();
+    }
+
     @Override
     public String getScriptDirName() {
         return "analysis";
     }
 
-    public String getDendrogramResultFileName() {
+    public static String getDendrogramResultFileName() {
         return "dendrogram.png";
     }
 
-    public String getParallelCoordinatesResultFileName() {
+    public static String getParallelCoordinatesResultFileName() {
         return "parallel_coordinates.png";
     }
 
-    public String getClusterAssignmentResultFileName() {
-        return "cluster_assignments.png";
+    public static String getClusterAssignmentResultFileName() {
+        return "cluster_assignments.json";
     }
-
 
     public List<String> getAttributes() {
         return List.of(attributes.split(","));
     }
 
+    @JsonPropertyOrder({"id", "dataset", "linkage", "n_clusters", "attributes", "sample", "status", "duration", "dendrogram", "parallel_coordinates", "cluster_assignment"})
     public interface ProjectAnalysis {
         @JsonProperty("id")
         Long getId();
-
-        @JsonProperty("status")
-        ResultStatus getStatus();
 
         @JsonProperty("dataset")
         Dataset.ProjectNameAndAccessType getDataset();
@@ -96,11 +106,17 @@ public class Analysis implements PythonScript {
         @JsonProperty("n_clusters")
         int getNumClusters();
 
-        @JsonProperty("sampling")
-        boolean isSample();
-
         @JsonProperty("attributes")
         List<String> getAttributes();
+
+        @JsonProperty("sample")
+        boolean isSample();
+
+        @JsonProperty("status")
+        ResultStatus getStatus();
+
+        @JsonProperty("duration")
+        long getDuration();
 
         @JsonProperty("dendrogram")
         String getDendrogramResultPath();
@@ -110,6 +126,15 @@ public class Analysis implements PythonScript {
 
         @JsonProperty("cluster_assignment")
         String getClusterAssignmentResultPath();
+    }
+
+    @JsonPropertyOrder({"id", "status"})
+    public interface ProjectAnalysisStatus {
+        @JsonProperty("id")
+        Long getId();
+
+        @JsonProperty("status")
+        ResultStatus getStatus();
     }
 
 }

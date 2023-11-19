@@ -19,10 +19,21 @@ public interface OptimalRepository extends JpaRepository<Optimal, Long> {
     Optional<Optimal.ProjectOptimal> findByDatasetAndUserAndMaxClustersAndSampleAndAttributes
             (Dataset dataset, User user, int maxClusters, boolean sample, String attributes);
 
+    @Query("SELECT o FROM Optimal o WHERE o.id = ?1 AND o.user = ?2")
+    Optional<Optimal.ProjectOptimalStatus> getStatus(Long id, User user);
+
     @Transactional
     @Modifying
     @Query("DELETE FROM Optimal o WHERE o.user = ?1")
     void deleteAllUserOptimal(User user);
 
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM Optimal o WHERE o.dataset = ?1")
+    void deleteAllDatasetOptimal(Dataset dataset);
+
+
     List<Optimal> findByUser(User user);
+
+    List<Optimal> findByDataset(Dataset dataset);
 }

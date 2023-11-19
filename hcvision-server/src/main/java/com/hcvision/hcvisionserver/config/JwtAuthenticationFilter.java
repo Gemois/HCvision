@@ -1,6 +1,7 @@
 package com.hcvision.hcvisionserver.config;
 
 import com.hcvision.hcvisionserver.user.UserService;
+import com.hcvision.hcvisionserver.user.dto.Role;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -33,6 +35,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+
+
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String userEmail;
@@ -44,10 +48,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         jwt = authHeader.substring(7);
         userEmail = jwtService.extractUsername(jwt);
         boolean isActivated = userService.findUserByEmail(userEmail).isActivated();
-       // if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null && isActivated) {
+        //if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null && isActivated) {
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null ) {
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
-                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+            boolean isAdmin = userDetails.getAuthorities().contains(new SimpleGrantedAuthority(Role.ADMIN.name()));
+            if (request.getServletPath().contains("/actuator") && !isAdmin) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
             if (jwtService.isTokenValid(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
                         null, userDetails.getAuthorities());

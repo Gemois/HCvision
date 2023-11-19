@@ -7,6 +7,7 @@ import com.hcvision.hcvisionserver.user.User;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -15,9 +16,11 @@ public class OptimalService {
 
     private OptimalRepository optimalRepository;
 
-    public void saveResults(Optimal optimal, String result) {
+    public void saveResults(Optimal optimal) {
         optimal.setStatus(ResultStatus.FINISHED);
-        optimal.setResult(HierarchicalService.getResultPathByPythonScript(optimal, optimal.getOptimalParamsResultFileName()));
+        optimal.setEndedAt(LocalDateTime.now());
+        optimal.calcDuration();
+        optimal.setSilhouette(HierarchicalService.getResultPathByPythonScript(optimal, Optimal.getOptimalParamsResultFileName()));
         optimalRepository.save(optimal);
     }
 
@@ -32,6 +35,10 @@ public class OptimalService {
 
     public Optional<Optimal.ProjectOptimal> getOptimalReRun(User user, Dataset dataset, int maxClusters, boolean isSample, String attributes) {
         return optimalRepository.findByDatasetAndUserAndMaxClustersAndSampleAndAttributes(dataset, user, maxClusters, isSample, attributes);
+    }
+
+    public Optional<Optimal.ProjectOptimalStatus> getOptimalStatus(long id, User user) {
+        return optimalRepository.getStatus(id, user);
     }
 
     public Optimal.ProjectOptimal refresh(long id) {

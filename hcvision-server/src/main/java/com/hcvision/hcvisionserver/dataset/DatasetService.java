@@ -6,12 +6,17 @@ import com.hcvision.hcvisionserver.exception.BadRequestException;
 import com.hcvision.hcvisionserver.exception.ForbiddenException;
 import com.hcvision.hcvisionserver.exception.InternalServerErrorException;
 import com.hcvision.hcvisionserver.exception.NotFoundException;
+import com.hcvision.hcvisionserver.hierarchical.HierarchicalService;
+import com.hcvision.hcvisionserver.hierarchical.History.HistoryRepository;
+import com.hcvision.hcvisionserver.hierarchical.script.Optimal.Optimal;
+import com.hcvision.hcvisionserver.hierarchical.script.Optimal.OptimalRepository;
+import com.hcvision.hcvisionserver.hierarchical.script.analysis.Analysis;
+import com.hcvision.hcvisionserver.hierarchical.script.analysis.AnalysisRepository;
 import com.hcvision.hcvisionserver.user.User;
 import com.hcvision.hcvisionserver.user.UserService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 
@@ -23,15 +28,17 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class DatasetService {
-
-    private static final Logger logger = LoggerFactory.getLogger(DatasetService.class);
 
     private static final String CWD = System.getProperty("user.dir");
     private static final String DATASETS_DIRECTORY = "DATASETS";
 
     private final UserService userService;
     private final DatasetRepository datasetRepository;
+    private final OptimalRepository optimalRepository;
+    private final AnalysisRepository analysisRepository;
+    private final HistoryRepository historyRepository;
 
     private static String getFilePathByUserIdAndType(String fileName, AccessType accessType, User user) {
         return CWD + File.separator + DATASETS_DIRECTORY + File.separator + accessType +
@@ -69,10 +76,10 @@ public class DatasetService {
             request.getFile().transferTo(new File(filePath));
             Dataset dataset = new Dataset(user, fileName, request.getAccess_type(), filePath, DatasetUtils.getNumericColumns(filePath));
             datasetRepository.save(dataset);
-            logger.info("Dataset saved successfully - User: {}, FileName: {}", user.getId(), fileName);
+            log.info("Dataset saved successfully - User: {}, FileName: {}", user.getId(), fileName);
             return msg("File uploaded successfully.");
         } catch (Exception e) {
-            logger.error("Error saving dataset - Error: {}", e.getMessage());
+            log.error("Error saving dataset - Error: {}", e.getMessage());
             throw new InternalServerErrorException("File was not uploaded due to internal error.");
         }
     }
@@ -85,14 +92,14 @@ public class DatasetService {
             UrlResource resource = new UrlResource(filePath.toUri());
 
             if (resource.exists() && resource.isReadable()) {
-                logger.info("Dataset file retrieved successfully - User: {}, FileName: {}", user.getId(), fileName);
+                log.info("Dataset file retrieved successfully - User: {}, FileName: {}", user.getId(), fileName);
                 return resource;
             } else {
-                logger.warn("Dataset file does not exist or is not readable - User: {}, FileName: {}", user.getId(), fileName);
+                log.warn("Dataset file does not exist or is not readable - User: {}, FileName: {}", user.getId(), fileName);
                 throw new NotFoundException("Dataset does not exist");
             }
         } catch (IOException e) {
-            logger.error("Error getting dataset file - User: {}, FileName: {}. Error: {}", user.getId(), fileName, e.getMessage());
+            log.error("Error getting dataset file - User: {}, FileName: {}. Error: {}", user.getId(), fileName, e.getMessage());
             throw new InternalServerErrorException("Something went wrong");
         }
     }
@@ -110,14 +117,34 @@ public class DatasetService {
         try {
             if (file.exists() && file.isFile()) {
                 if (file.delete()) {
+                    List<Optimal> datasetOptimalsResults = optimalRepository.findByDataset(dataset);
+                    datasetOptimalsResults.forEach(optimal -> {
+                        File optimalDir = new File(HierarchicalService.getBaseResultPathByPythonScript(optimal));
+                        if (optimalDir.exists()) {
+                            DatasetUtils.deleteAllRecursively(optimalDir);
+                            historyRepository.deleteByOptimal(optimal);
+
+                        }
+                    });
+                    optimalRepository.deleteAllDatasetOptimal(dataset);
+
+                    List<Analysis> datasetAnalysisResults = analysisRepository.findByDataset(dataset);
+                    datasetAnalysisResults.forEach(analysis -> {
+                        File analysisDir = new File(HierarchicalService.getBaseResultPathByPythonScript(analysis));
+                        if (analysisDir.exists()) {
+                            DatasetUtils.deleteAllRecursively(analysisDir);
+                            historyRepository.deleteByAnalysis(analysis);
+                        }
+                    });
+                    analysisRepository.deleteAllDatasetAnalysis(dataset);
                     datasetRepository.delete(dataset);
-                    logger.info("Dataset deleted - User: {}, FileName: {}", user.getId(), fileName);
+                    log.info("Dataset deleted - User: {}, FileName: {}", user.getId(), fileName);
                     return msg("Dataset deleted");
                 } else throw new IllegalStateException("dummy");
             }
             throw new IllegalStateException("dummy");
         } catch (Exception e) {
-            logger.error("Error deleting dataset - User: {}, FileName: {}. Error: {}", user.getId(), fileName, e.getMessage());
+            log.error("Error deleting dataset - User: {}, FileName: {}. Error: {}", user.getId(), fileName, e.getMessage());
             throw new InternalServerErrorException("Error deleting dataset");
         }
     }
@@ -127,9 +154,9 @@ public class DatasetService {
             File accessTypeDir = new File(getAccessTypePath(accessType) +
                     (accessType.equals(AccessType.PRIVATE) ? File.separator + user.getId() : File.separator));
             if (accessTypeDir.mkdirs()) {
-                logger.info("User directory created for user {}", user.getId());
+                log.info("User directory created for user {}", user.getId());
             } else {
-                logger.error("Failed to create user directory for user {}", user.getId());
+                log.error("Failed to create user directory for user {}", user.getId());
             }
         }
     }
@@ -168,7 +195,7 @@ public class DatasetService {
         String response = DatasetUtils.mergeJsonStrings(jsonDataset, dataset.getNumericCols());
         if (response == null) throw new InternalServerErrorException("There was an error while processing the file.");
 
-        logger.info("Conversion and merging successful - File: {}", dataset.getPath());
+        log.info("Conversion and merging successful - File: {}", dataset.getPath());
         return response;
     }
 

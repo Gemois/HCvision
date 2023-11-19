@@ -4,8 +4,7 @@ import com.hcvision.hcvisionserver.exception.InternalServerErrorException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -16,6 +15,7 @@ import java.time.LocalDateTime;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class EmailService {
 
     private final JavaMailSender mailSender;
@@ -23,8 +23,6 @@ public class EmailService {
     public static final String EMAIL_VERIFICATION_SUBJECT = "Mail Confirmation";
     public static final String RESET_PASSWORD_OTP_SUBJECT = "Reset Password";
     public static final String PASSWORD_CHANGE_NOTIFICATION_SUBJECT = "Password Changed";
-
-    private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
     @Async
     public void send(String to, String content, String subject) {
@@ -38,7 +36,7 @@ public class EmailService {
             helper.setFrom("auth@hcvision.com");
             mailSender.send(mimeMessage);
         } catch (MailSendException | MessagingException e) {
-            logger.error("Failed to send email - Destination: {}, Subject: '{}'. Error: {}", to, subject, e.getMessage(), e);
+            log.error("Failed to send email - Destination: {}, Subject: '{}'. Error: {}", to, subject, e.getMessage(), e);
             throw new InternalServerErrorException("Email service is not responding");
         }
     }

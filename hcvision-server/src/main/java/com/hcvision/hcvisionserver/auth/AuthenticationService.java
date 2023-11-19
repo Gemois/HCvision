@@ -19,8 +19,7 @@ import com.hcvision.hcvisionserver.user.User;
 import com.hcvision.hcvisionserver.user.UserRepository;
 import com.hcvision.hcvisionserver.user.UserService;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,6 +29,7 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthenticationService {
 
     private final UserRepository userRepository;
@@ -41,18 +41,16 @@ public class AuthenticationService {
     private final ConfirmationTokenService confirmationTokenService;
     private final EmailService emailService;
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
-
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> {
-                    logger.warn("Authentication failed user - username: {}", request.getEmail());
+                    log.warn("Authentication failed user - username: {}", request.getEmail());
                     return new NotFoundException("User not found");
                 });
 
         String jwtToken = jwtService.generateToken(user);
-        logger.info("User authenticated successfully - username: {}", user.getUsername());
+        log.info("User authenticated successfully - username: {}", user.getUsername());
         return AuthenticationResponse.builder()
                 .name(user.getFirstName())
                 .email(user.getEmail())
@@ -91,10 +89,10 @@ public class AuthenticationService {
             emailService.send(request.getEmail(), emailService.buildVerificationEmail(request.getFirstname(), link),
                     EmailService.EMAIL_VERIFICATION_SUBJECT);
         } catch (Exception e) {
-            logger.warn("Failed to send verification email to user {}: {}", user.getUsername(), e.getMessage());
+            log.warn("Failed to send verification email to user {}: {}", user.getUsername(), e.getMessage());
         }
 
-        logger.info("User registered - username: {}, email: {}", user.getUsername(), user.getEmail());
+        log.info("User registered - username: {}, email: {}", user.getUsername(), user.getEmail());
         return RegisterResponse.builder()
                 .name(user.getFirstName())
                 .email(user.getEmail())
@@ -121,7 +119,7 @@ public class AuthenticationService {
 
         confirmationTokenService.setConfirmedAt(token);
         userService.enableUser(confirmationToken.getUser().getEmail());
-        logger.info("User {} has been successfully activated.", confirmationToken.getUser().getUsername());
+        log.info("User {} has been successfully activated.", confirmationToken.getUser().getUsername());
         return ConfirmationTokenResponse.builder()
                 .confirmed(true)
                 .confirmedAt(LocalDateTime.now())
@@ -139,7 +137,7 @@ public class AuthenticationService {
         confirmationTokenService.retireTokens(user);
         String token = confirmationTokenService.createConfirmationToken(user);
 
-        logger.info("Sending verification email to {} ", user.getEmail());
+        log.info("Sending verification email to {} ", user.getEmail());
         String link = "http://localhost:8080/api/v1/auth/confirm?token=" + token;
         emailService.send(user.getEmail(),
                 emailService.buildVerificationEmail(user.getFirstName(), link),

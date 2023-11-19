@@ -1,6 +1,7 @@
 package com.hcvision.hcvisionserver.hierarchical.script.Optimal;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.hcvision.hcvisionserver.dataset.Dataset;
 import com.hcvision.hcvisionserver.hierarchical.script.ResultStatus;
 import com.hcvision.hcvisionserver.hierarchical.script.PythonScript;
@@ -11,6 +12,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -37,10 +40,16 @@ public class Optimal implements PythonScript {
 
     private String attributes;
 
+    private LocalDateTime startedAt;
+
+    private LocalDateTime endedAt;
+
+    private long duration;
+
     @Enumerated
     private ResultStatus status;
 
-    private String result;
+    private String silhouette;
 
     public Optimal(User user, Dataset dataset, int maxClusters, boolean isSample, String attributes, ResultStatus status) {
         this.user = user;
@@ -51,12 +60,16 @@ public class Optimal implements PythonScript {
         this.status = status;
     }
 
+    public void calcDuration() {
+        this.duration = Duration.between(startedAt, endedAt).getSeconds();
+    }
+
     @Override
     public String getScriptDirName() {
         return "optimal";
     }
 
-    public String getOptimalParamsResultFileName() {
+    public static String getOptimalParamsResultFileName() {
         return "optimal_params.json";
     }
 
@@ -64,12 +77,10 @@ public class Optimal implements PythonScript {
         return List.of(attributes.split(","));
     }
 
+    @JsonPropertyOrder({"id", "dataset", "max_clusters", "attributes", "sample", "status", "duration", "silhouette"})
     public interface ProjectOptimal {
         @JsonProperty("id")
         Long getId();
-
-        @JsonProperty("status")
-        ResultStatus getStatus();
 
         @JsonProperty("dataset")
         Dataset.ProjectNameAndAccessType getDataset();
@@ -77,14 +88,28 @@ public class Optimal implements PythonScript {
         @JsonProperty("max_clusters")
         int getMaxClusters();
 
-        @JsonProperty("sample")
-        boolean isSample();
-
         @JsonProperty("attributes")
         List<String> getAttributes();
 
+        @JsonProperty("sample")
+        boolean isSample();
+
+        @JsonProperty("status")
+        ResultStatus getStatus();
+
+        @JsonProperty("duration")
+        long getDuration();
+
         @JsonProperty("silhouette")
-        String getResult();
+        String getSilhouette();
     }
 
+    @JsonPropertyOrder({"id", "status"})
+    public interface ProjectOptimalStatus {
+        @JsonProperty("id")
+        Long getId();
+
+        @JsonProperty("status")
+        ResultStatus getStatus();
+    }
 }
