@@ -17,6 +17,10 @@ import {MatButtonModule} from "@angular/material/button";
 import {RouterLink, RouterOutlet} from "@angular/router";
 import {AppRoutingModule} from "./modules/AppRoutingModule";
 import {MatCardModule} from "@angular/material/card";
+import {MatIconModule} from "@angular/material/icon";
+import {MatInputModule} from "@angular/material/input";
+import {FormsModule} from "@angular/forms";
+import {HttpClientModule} from "@angular/common/http";
 
 @NgModule({
   declarations: [
@@ -39,7 +43,11 @@ import {MatCardModule} from "@angular/material/card";
     MatButtonModule,
     RouterOutlet,
     AppRoutingModule,
-    MatCardModule
+    MatCardModule,
+    MatIconModule,
+    MatInputModule,
+    FormsModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]

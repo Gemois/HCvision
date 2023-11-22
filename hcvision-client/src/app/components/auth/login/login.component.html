@@ -1,1 +1,31 @@
-<p>login works!</p>
+<div class="background-container">
+
+  <div class="card-container">
+    <mat-card>
+      <mat-card-content class="card-content">
+        <form>
+          <div class="title">
+            <mat-card-title>Login</mat-card-title>
+          </div>
+          <div>
+            <mat-form-field>
+              <mat-icon matPrefix>email</mat-icon>
+              <mat-label>Email:</mat-label>
+              <input matInput placeholder="Email" [(ngModel)]="email" name="email" type="email" required>
+            </mat-form-field>
+          </div>
+          <div>
+            <mat-form-field>
+              <mat-icon matPrefix>lock</mat-icon>
+              <mat-label>Password:</mat-label>
+              <input matInput placeholder="Password" [(ngModel)]="password" name="password" type="password" required>
+            </mat-form-field>
+          </div>
+          <div class="button-container">
+            <button mat-raised-button color="primary" (click)="login()">Login</button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

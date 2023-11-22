@@ -1,0 +1,43 @@
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.card-container {
+  width: 400px;
+  box-shadow: 0 200px 100px rgba(0, 0, 0, 0.1);
+
+}
+
+.card-content {
+  text-align: center;
+}
+
+.title {
+  font-size: 1.5em;
+  margin-bottom: 20px;
+}
+
+.button-container {
+  margin-top: 20px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+button {
+  width: 100%;
+}
+
+.background-container {
+  background-color: rgb(245, 245, 245);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+

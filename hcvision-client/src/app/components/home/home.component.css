@@ -7,7 +7,8 @@
 
 .title {
   text-align: center;
-  margin-bottom: 70px;
+  margin-bottom: 20px;
+  font-size: 25px;
 }
 
 .algorithm-info {
@@ -27,4 +28,12 @@
 img {
   max-width: 50%;
   height: 100%;
+}
+.background-container {
+  background-color: rgb(245, 245, 245);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
 }
