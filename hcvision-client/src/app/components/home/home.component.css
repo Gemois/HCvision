@@ -1,0 +1,30 @@
+.home-container {
+  max-width: 50%;
+  margin: 0 auto;
+  padding: 20px;
+  color: #333;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 70px;
+}
+
+.algorithm-info {
+  margin-bottom: 20px;
+}
+
+.results-section {
+  display: flex;
+  justify-content: space-between;
+}
+
+.result-image {
+  width: 48%;
+  margin-bottom: 20px;
+}
+
+img {
+  max-width: 50%;
+  height: 100%;
+}

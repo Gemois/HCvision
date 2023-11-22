@@ -1,0 +1,27 @@
+.mat-toolbar {
+  display: flex;
+  justify-content: space-between;
+}
+
+.mat-toolbar-row button {
+  font-size: 17px;
+}
+
+.mat-toolbar-row button:hover {
+  background-color: -moz-default-background-color;
+  color: #333;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.title {
+  font-size: 40px;
+}
+
+.logo {
+  height: 90%;
+  margin-right: 10px;
+}
+
