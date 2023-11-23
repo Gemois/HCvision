@@ -1,0 +1,24 @@
+
+.split-container {
+  display: flex;
+  height: 100vh;
+}
+
+.left-panel {
+  flex: 1;
+  padding: 20px;
+}
+
+.right-panel {
+  flex: 2;
+  padding: 20px;
+}
+
+.button-container {
+  margin-bottom: 10px;
+}
+
+.button-container button {
+  margin-right: 10px;
+}
+

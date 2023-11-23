@@ -8,17 +8,19 @@ import {HistoryComponent} from "../components/history/history.component";
 import {ProfileComponent} from "../components/profile/profile.component";
 import {LoginComponent} from "../components/auth/login/login.component";
 import {RegisterComponent} from "../components/auth/register/register.component";
+import {AuthGuard} from "../services/auth/auth.guard";
 
 
 const routes: Routes = [
-  {path: '', component: HomeComponent},
-  {path: 'about', component: AboutComponent},
-  {path: 'dataset', component: DatasetComponent},
-  {path: 'hierarchical', component: HierarchicalComponent},
-  {path: 'history', component: HistoryComponent},
-  {path: 'profile', component: ProfileComponent},
-  {path: 'login', component: LoginComponent},
-  {path: 'register', component: RegisterComponent}
+  { path: '', component: HomeComponent },
+  { path: 'about', component: AboutComponent },
+  { path: 'dataset', component: DatasetComponent, canActivate: [AuthGuard] },
+  { path: 'hierarchical', component: HierarchicalComponent, canActivate: [AuthGuard] },
+  { path: 'history', component: HistoryComponent, canActivate: [AuthGuard] },
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
+  { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+
 ];
 
 @NgModule({

@@ -1,0 +1,9 @@
+
+<div *ngFor="let dataset of datasets; let i = index">
+  <app-dataset-list-item
+    [datasetName]="dataset.dataset"
+    [accessType]="dataset.access_type"
+    [isSelected]="dataset.isSelected"
+    (itemClick)="handleDatasetItemClick(i, dataset)"
+  ></app-dataset-list-item>
+</div>

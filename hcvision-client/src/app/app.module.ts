@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import {CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 
 import {AppComponent} from './app.component';
@@ -21,6 +21,22 @@ import {MatIconModule} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
 import {FormsModule} from "@angular/forms";
 import {HttpClientModule} from "@angular/common/http";
+import {DatasetListComponent} from './components/dataset/dataset-list/dataset-list.component';
+import {
+  DatasetListItemComponent
+} from './components/dataset/dataset-list/dataset-list-item/dataset-list-item.component';
+import {DatasetPreviewComponent} from './components/dataset/dataset-preview/dataset-preview.component';
+import {UploadDialogComponent} from './components/dataset/upload-dialog/upload-dialog.component';
+import {
+  MatDialogActions,
+  MatDialogClose,
+  MatDialogContent,
+  MatDialogModule,
+  MatDialogTitle
+} from "@angular/material/dialog";
+import {MatSelectModule} from "@angular/material/select";
+import {MatChipsModule} from "@angular/material/chips";
+import {MatListModule} from "@angular/material/list";
 
 @NgModule({
   declarations: [
@@ -33,7 +49,11 @@ import {HttpClientModule} from "@angular/common/http";
     HierarchicalComponent,
     ProfileComponent,
     DatasetComponent,
-    NavbarComponent
+    NavbarComponent,
+    DatasetListComponent,
+    DatasetListItemComponent,
+    DatasetPreviewComponent,
+    UploadDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -47,7 +67,15 @@ import {HttpClientModule} from "@angular/common/http";
     MatIconModule,
     MatInputModule,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatSelectModule,
+    MatDialogActions,
+    MatDialogClose,
+    MatDialogModule,
+    MatChipsModule,
+    MatListModule
   ],
   providers: [],
   bootstrap: [AppComponent]

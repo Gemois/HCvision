@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 import {AuthService} from "../../../services/auth/auth.service";
 
 
@@ -15,7 +15,6 @@ export class RegisterComponent {
 
   constructor(private authService: AuthService) {
   }
-
 
   register() {
     const userData = {

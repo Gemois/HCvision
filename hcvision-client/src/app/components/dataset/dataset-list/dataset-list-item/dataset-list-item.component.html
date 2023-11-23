@@ -1,0 +1,7 @@
+<mat-card class="dataset-item" [class.selected]="isSelected" (click)="handleItemClick()">
+  <mat-card-content>
+    <mat-card-title>{{ datasetName }}
+      <mat-chip color="primary">{{ accessType }}</mat-chip>
+    </mat-card-title>
+  </mat-card-content>
+</mat-card>

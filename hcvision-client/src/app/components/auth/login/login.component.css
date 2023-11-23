@@ -38,3 +38,10 @@ button {
   height: 100%;
   width: 100%;
 }
+.btn-separator {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.forgot-password {
+  text-align: right;
+}

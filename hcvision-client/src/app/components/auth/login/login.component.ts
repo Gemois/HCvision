@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 import {AuthService} from "../../../services/auth/auth.service";
 
 @Component({
@@ -15,8 +15,7 @@ export class LoginComponent {
   login() {
     this.authService.login({ email: this.email, password: this.password })
       .subscribe(response => {
-        const accessToken = response.access_token;
-        this.authService.setToken(accessToken);
+        this.authService.setToken(response.access_token);
       });
   }
 }

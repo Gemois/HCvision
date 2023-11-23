@@ -1,5 +1,4 @@
 <div class="background-container">
-
   <div class="card-container">
     <mat-card>
       <mat-card-content class="card-content">
@@ -20,9 +19,14 @@
               <mat-label>Password:</mat-label>
               <input matInput placeholder="Password" [(ngModel)]="password" name="password" type="password" required>
             </mat-form-field>
+            <span class="forgot-password">
+                <a routerLink="/forgot-password">Forgot your password?</a>
+              </span>
           </div>
           <div class="button-container">
             <button mat-raised-button color="primary" (click)="login()">Login</button>
+            <span class="btn-separator">Don't have an account?</span>
+            <button mat-raised-button color="accent" routerLink="/register">Register</button>
           </div>
         </form>
       </mat-card-content>
