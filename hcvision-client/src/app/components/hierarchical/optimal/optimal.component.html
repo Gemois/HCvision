@@ -1,0 +1,74 @@
+<div class="form-container">
+  <mat-card>
+    <mat-card-content>
+      <h2>Select parameters</h2>
+
+      <form class="horizontal-form">
+        <div class="form-row">
+          <mat-form-field class="form-field">
+            <mat-label>Dataset</mat-label>
+            <mat-select placeholder="Select Dataset" [(ngModel)]="selectedDataset" name="selectedDataset"
+                        (selectionChange)="onDatasetSelect()">
+              <mat-option *ngFor="let dataset of datasets" [value]="dataset">
+                {{ dataset.dataset }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field class="form-field">
+            <input matInput type="number" placeholder="Max Clusters" [(ngModel)]="maxClusters" name="maxClusters">
+          </mat-form-field>
+
+          <mat-slide-toggle class="form-field" [(ngModel)]="sampleToggle" name="sampleToggle">Sample
+          </mat-slide-toggle>
+          <div *ngIf="availableAttributes.length > 0" class="checkbox-options">
+            <h4>Attributes</h4>
+            <div *ngFor="let option of availableAttributes; let i = index" class="checkbox-option">
+              <mat-checkbox [(ngModel)]="selectedAttributes[i]" name="options">{{ option }}</mat-checkbox>
+            </div>
+          </div>
+
+          <button mat-raised-button color="primary" class="form-field run-button" (click)="runAlgorithm()">Run
+          </button>
+        </div>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<div *ngIf="runPressed">
+  <mat-card class="results-card">
+    <mat-card-title>Results</mat-card-title>
+    <mat-card-content>
+      <div *ngIf="loadingResults">
+        <mat-spinner class="spinner"></mat-spinner>
+      </div>
+
+      <div *ngIf="!loadingResults && chartData">
+        <canvas baseChart
+                [datasets]="chartData"
+                [labels]="chartLabels"
+                [chartType]="'line'"
+                [options]="chartOptions"
+        ></canvas>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="recommended-params-card">
+    <mat-card-title>Recommended Parameters</mat-card-title>
+    <mat-card-content>
+      <div *ngIf="loadingParams">
+        <mat-spinner></mat-spinner>
+      </div>
+
+      <div *ngIf="!loadingParams && recommendedLinkage && recommendedNumClusters">
+        <div>
+          <p><strong>Linkage:</strong> {{ recommendedLinkage }}</p>
+          <p><strong>Number of Clusters:</strong> {{ recommendedNumClusters }}</p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

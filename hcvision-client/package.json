@@ -22,10 +22,12 @@
     "@angular/platform-browser-dynamic": "^17.0.0",
     "@angular/router": "^17.0.0",
     "angular-datatables": "^17.0.0",
+    "chart.js": "^4.4.0",
     "datatables": "^1.10.18",
     "datatables.net": "^1.13.8",
     "datatables.net-dt": "^1.13.8",
     "jquery": "^3.7.1",
+    "ng2-charts": "^5.0.3",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.2"

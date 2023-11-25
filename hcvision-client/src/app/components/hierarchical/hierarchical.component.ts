@@ -7,4 +7,11 @@ import { Component } from '@angular/core';
 })
 export class HierarchicalComponent {
 
+  selectedTab: string = 'first';
+
+  selectTab(tab: string): void {
+    this.selectedTab = tab;
+  }
+
+
 }

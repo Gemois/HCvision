@@ -1,0 +1,57 @@
+.form-container {
+  max-width: 600px;
+  margin: auto;
+}
+
+.horizontal-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  flex-direction: row;
+
+}
+
+.form-field {
+  flex: 0 0 calc(30% - 10px);
+  margin-bottom: 10px;
+}
+
+.checkbox-options {
+  flex: 0 0 100%;
+}
+
+.checkbox-option {
+  margin-right: 10px;
+}
+
+.run-button {
+  flex: 0 0 calc(30% - 10px);
+  margin-left: auto;
+}
+
+.results-card {
+  max-width: 600px;
+  margin: auto;
+  margin-top: 20px;
+}
+
+.recommended-params-card {
+  max-width: 600px;
+  margin: auto;
+  margin-top: 20px;
+}
+
+
+.spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+

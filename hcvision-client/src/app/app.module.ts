@@ -42,6 +42,12 @@ import {MatPaginatorModule} from "@angular/material/paginator";
 import {MatSortModule} from "@angular/material/sort";
 import {AuthInterceptor} from "./services/auth/auth.interceptor";
 import { ConfirmationDialogComponent } from './components/profile/confirmation-dialog/confirmation-dialog.component';
+import {MatTabsModule} from "@angular/material/tabs";
+import { OptimalComponent } from './components/hierarchical/optimal/optimal.component';
+import {MatSlideToggleModule} from "@angular/material/slide-toggle";
+import {MatCheckboxModule} from "@angular/material/checkbox";
+import {NgChartsModule} from "ng2-charts";
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 
 @NgModule({
   declarations: [
@@ -60,6 +66,7 @@ import { ConfirmationDialogComponent } from './components/profile/confirmation-d
     DatasetPreviewComponent,
     UploadDialogComponent,
     ConfirmationDialogComponent,
+    OptimalComponent,
   ],
   imports: [
     BrowserModule,
@@ -85,7 +92,12 @@ import { ConfirmationDialogComponent } from './components/profile/confirmation-d
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    MatTabsModule,
+    MatSlideToggleModule,
+    MatCheckboxModule,
+    NgChartsModule,
+    MatProgressSpinnerModule
   ],
   providers: [{
     provide: HTTP_INTERCEPTORS,

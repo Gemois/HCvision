@@ -1,1 +1,8 @@
-<p>hierarchical works!</p>
+<mat-tab-group>
+  <mat-tab label="Optimal Parameters" (click)="selectTab('first')">
+    <app-optimal *ngIf="selectedTab === 'first'"></app-optimal>
+  </mat-tab>
+  <mat-tab label="Analysis" (click)="selectTab('second')">
+    <app-second *ngIf="selectedTab === 'second'"></app-second>
+  </mat-tab>
+</mat-tab-group>
