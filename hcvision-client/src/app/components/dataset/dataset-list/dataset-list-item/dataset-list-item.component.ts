@@ -8,7 +8,7 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 export class DatasetListItemComponent {
   @Input() datasetName: string = '';
   @Input() accessType: string = '';
-  @Input() isSelected: boolean = false;  // Input to determine selection state
+  @Input() isSelected: boolean = false;
   @Output() itemClick: EventEmitter<void> = new EventEmitter<void>();
 
   handleItemClick() {

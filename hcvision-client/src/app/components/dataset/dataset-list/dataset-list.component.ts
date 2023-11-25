@@ -16,21 +16,22 @@ export class DatasetListComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadFileList();
+    this.showDatasetList();
   }
 
-  loadFileList() {
-    this.datasetService.getDatasets().subscribe(
-      (response: Dataset[]) => {
-        this.datasets = response;
-      },
-      (error: any) => {
-        console.error('Error fetching file list:', error);
+  showDatasetList() {
+    this.datasetService.getDatasetList().subscribe({
+        next: (response) => {
+          this.datasets = response;
+        },
+        error: (error: any) => {
+          console.error('Error fetching file list:', error);
+        }
       }
     );
   }
 
-  handleDatasetItemClick(index: number, dataset: Dataset) {
+  onDatasetSelect(index: number, dataset: Dataset) {
     console.log(dataset);
     this.itemSelected.emit(dataset);
     this.datasets.forEach((dataset, i) => {

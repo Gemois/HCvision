@@ -1,24 +1,26 @@
 
+
+.button-container {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.button-container button {
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
 .split-container {
   display: flex;
   height: 100vh;
 }
 
 .left-panel {
-  flex: 1;
-  padding: 20px;
+  flex: 0 0 30%;
+  overflow-y: auto;
 }
 
 .right-panel {
-  flex: 2;
-  padding: 20px;
+  flex: 1;
+  overflow-y: auto;
 }
-
-.button-container {
-  margin-bottom: 10px;
-}
-
-.button-container button {
-  margin-right: 10px;
-}
-

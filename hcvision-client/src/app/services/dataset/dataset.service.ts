@@ -16,37 +16,34 @@ export class DatasetService {
               private authService: AuthService) {
   }
 
-  getDataset(dataset: Dataset): Observable<DatasetResponse> {
+  readDataset(dataset: Dataset): Observable<DatasetResponse> {
     const url = `${this.baseUrl}/read?dataset=${dataset.dataset}&access_type=${dataset.access_type}`;
-    const headers = this.createHeaders();
-    return this.http.get<DatasetResponse>(url, {headers});
+    return this.http.get<DatasetResponse>(url);
   }
 
-  getDatasets(): Observable<Dataset[]> {
+  getDatasetList(): Observable<Dataset[]> {
     const url = `${this.baseUrl}`;
-    const headers = this.createHeaders();
-    return this.http.get<Dataset[]>(url, {headers});
+    return this.http.get<Dataset[]>(url);
   }
 
-  uploadFile(file: File, accessType: String): Observable<any> {
+  uploadDataset(file: File, accessType: String): Observable<any> {
     const formData = new FormData();
     formData.append('file', file);
     // @ts-ignore
     formData.append('access_type', accessType);
     const url = `${this.baseUrl}/upload`;
-    const headers = this.createHeaders();
-    return this.http.post(url, formData, {headers});
+    return this.http.post(url, formData);
   }
 
-  deleteDataset(datasetId: string): Observable<void> {
-    const url = `${this.baseUrl}/delete?datasetId=${datasetId}`;
+  deleteDataset(dataset: Dataset): Observable<void> {
+    const url = `${this.baseUrl}/delete?dataset=${dataset.dataset}&access_type=${dataset.access_type}`;
     return this.http.delete<void>(url);
   }
 
-  private createHeaders(): HttpHeaders {
-    const token = this.authService.getToken();
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
+
+  downloadDataset(dataset: Dataset): Observable<Blob> {
+    const url = `${this.baseUrl}/download?dataset=${dataset.dataset}&access_type=${dataset.access_type}`;
+    return this.http.get(url, {responseType: 'blob'});
   }
+
 }

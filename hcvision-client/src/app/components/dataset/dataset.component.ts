@@ -1,9 +1,9 @@
-import {Component, Output} from '@angular/core';
+import {Component} from '@angular/core';
 import {Dataset} from "../../models/Dataset";
 import {UploadDialogComponent} from "./upload-dialog/upload-dialog.component";
 import {DatasetService} from "../../services/dataset/dataset.service";
 import {MatDialog} from "@angular/material/dialog";
-import {DatasetResponse} from "../../models/DatasetResponse";
+import {CustomSnackbarService} from "../../services/custom-snackbar.service";
 
 @Component({
   selector: 'app-dataset',
@@ -11,27 +11,31 @@ import {DatasetResponse} from "../../models/DatasetResponse";
   styleUrl: './dataset.component.css'
 })
 export class DatasetComponent {
-  @Output() jsonData: any[] = [];
+  jsonData: any[] = [];
+  selectedDataset: Dataset;
 
-  constructor(private dialog: MatDialog, private datasetService: DatasetService) {
+  constructor(private dialog: MatDialog,
+              private datasetService: DatasetService,
+              private customSnackbarService: CustomSnackbarService) {
   }
-
 
   previewDataset(dataset: Dataset) {
     if (dataset) {
-      console.log(dataset)
-      this.datasetService.getDataset(dataset).subscribe(
-        (response: DatasetResponse) => {
-          this.jsonData = response.dataset;
-        },
-        (error) => {
-          console.error('Error fetching JSON data:', error);
+      this.selectedDataset = dataset;
+      this.datasetService.readDataset(dataset).subscribe({
+          next: (response) => {
+            this.jsonData = response.dataset;
+            console.error('fetched JSON data successfully');
+          },
+          error: (error) => {
+            console.error('Error fetching JSON data:', error);
+          }
         }
       );
     }
   }
 
-  uploadFile() {
+  uploadDataset() {
     const dialogRef = this.dialog.open(UploadDialogComponent, {
       width: '400px',
       data: {accessType: 'PRIVATE'}
@@ -40,14 +44,15 @@ export class DatasetComponent {
     dialogRef.afterClosed().subscribe({
       next: (result) => {
         if (result) {
-          this.datasetService.uploadFile(result.file, result.accessType).subscribe({
+          this.datasetService.uploadDataset(result.file, result.accessType).subscribe({
             next: (response) => {
-              console.log('File uploaded successfully:', response);
+              this.customSnackbarService.open('File uploaded successfully', 'Close', {});
+              console.error('File uploaded successfully');
               window.location.reload();
-
             },
             error: (error) => {
               console.error('Error uploading file:', error);
+              this.customSnackbarService.open('Error uploading file', 'Close', {});
             }
           });
         }
@@ -58,9 +63,47 @@ export class DatasetComponent {
     });
   }
 
-  downloadFile() {
+  downloadDataset() {
+    if (this.selectedDataset) {
+      this.datasetService.downloadDataset(this.selectedDataset).subscribe(
+        (data: Blob) => {
+          const downloadLink = document.createElement('a');
+          const blob = new Blob([data], {type: 'application/octet-stream'});
+          const url = window.URL.createObjectURL(blob);
+
+          downloadLink.href = url;
+          downloadLink.download = this.selectedDataset.dataset;
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          document.body.removeChild(downloadLink);
+          window.URL.revokeObjectURL(url);
+
+          console.error('File downloaded successfully');
+          this.customSnackbarService.open('File downloaded successfully', 'Close', {});
+        },
+        (error) => {
+          console.error('Error downloading dataset:', error);
+          this.customSnackbarService.open('Error downloading dataset', 'Close', {});
+        }
+      );
+    }
   }
 
   deleteDataset() {
+    if (this.selectedDataset) {
+      this.datasetService.deleteDataset(this.selectedDataset).subscribe({
+          next: () => {
+            window.location.reload();
+            this.customSnackbarService.open('Dataset deleted successfully', 'Close', {});
+            console.error('Dataset deleted successfully');
+          },
+          error: (error) => {
+            this.customSnackbarService.open('Dataset deleted successfully', 'Close', {});
+            console.error('Error deleting dataset:', error);
+          }
+        }
+      );
+    }
   }
+
 }

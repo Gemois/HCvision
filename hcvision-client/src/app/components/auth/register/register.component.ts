@@ -1,5 +1,7 @@
 import {Component} from '@angular/core';
 import {AuthService} from "../../../services/auth/auth.service";
+import {CustomSnackbarService} from "../../../services/custom-snackbar.service";
+import {Router} from "@angular/router";
 
 
 @Component({
@@ -13,7 +15,8 @@ export class RegisterComponent {
   email: string = '';
   password: string = '';
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService,
+              private customSnackbarService: CustomSnackbarService, private router: Router) {
   }
 
   register() {
@@ -25,9 +28,16 @@ export class RegisterComponent {
     };
 
     this.authService.register(userData)
-      .subscribe(response => {
-        const accessToken = response.access_token;
-        this.authService.setToken(accessToken);
+      .subscribe({
+        next: () => {
+          this.customSnackbarService.open('Registration complete', 'Close', {});
+          console.error('User successfully registered');
+          this.router.navigate(['/login']);
+        },
+        error: (error) => {
+          this.customSnackbarService.open('Register failed', 'Close', {});
+          console.error('Error registering user:', error);
+        }
       });
   }
 }

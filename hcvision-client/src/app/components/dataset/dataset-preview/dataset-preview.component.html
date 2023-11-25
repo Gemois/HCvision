@@ -1,7 +1,17 @@
 <div style="display: flex; flex-direction: column; height: 100%;">
-  <mat-card style="flex: 1;">
+  <mat-card [style.display]="isHidden ? 'none' : 'block'">
     <mat-card-content>
-      preview works!
+      <div>
+        <mat-table style="overflow: auto;" [dataSource]="dataSource" matSort>
+          <ng-container *ngFor="let col of displayedColumns" matColumnDef="{{col}}">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>{{col}}</mat-header-cell>
+            <mat-cell *matCellDef="let element">{{element[col]}}</mat-cell>
+          </ng-container>
+          <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+        </mat-table>
+        <mat-paginator [pageSizeOptions]="[20, 50, 100]" showFirstLastButtons></mat-paginator>
+      </div>
     </mat-card-content>
   </mat-card>
 </div>

@@ -19,8 +19,8 @@ import {AppRoutingModule} from "./modules/AppRoutingModule";
 import {MatCardModule} from "@angular/material/card";
 import {MatIconModule} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
-import {FormsModule} from "@angular/forms";
-import {HttpClientModule} from "@angular/common/http";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {DatasetListComponent} from './components/dataset/dataset-list/dataset-list.component';
 import {
   DatasetListItemComponent
@@ -37,6 +37,11 @@ import {
 import {MatSelectModule} from "@angular/material/select";
 import {MatChipsModule} from "@angular/material/chips";
 import {MatListModule} from "@angular/material/list";
+import {MatTableModule} from "@angular/material/table";
+import {MatPaginatorModule} from "@angular/material/paginator";
+import {MatSortModule} from "@angular/material/sort";
+import {AuthInterceptor} from "./services/auth/auth.interceptor";
+import { ConfirmationDialogComponent } from './components/profile/confirmation-dialog/confirmation-dialog.component';
 
 @NgModule({
   declarations: [
@@ -54,6 +59,7 @@ import {MatListModule} from "@angular/material/list";
     DatasetListItemComponent,
     DatasetPreviewComponent,
     UploadDialogComponent,
+    ConfirmationDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -75,9 +81,17 @@ import {MatListModule} from "@angular/material/list";
     MatDialogClose,
     MatDialogModule,
     MatChipsModule,
-    MatListModule
+    MatListModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    ReactiveFormsModule
   ],
-  providers: [],
+  providers: [{
+    provide: HTTP_INTERCEPTORS,
+    useClass: AuthInterceptor,
+    multi: true
+  }],
   bootstrap: [AppComponent]
 })
 export class AppModule {

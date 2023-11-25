@@ -15,7 +15,7 @@ export class UploadDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: { file:File,accessType : String }
   ) {}
 
-  onNoClick(): void {
+  onDialogClose(): void {
     this.dialogRef.close({ file: this.selectedFile, accessType: this.data.accessType });
   }
 
