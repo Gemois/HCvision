@@ -9,7 +9,7 @@ import {
 @Injectable({
   providedIn: 'root'
 })
-export class CustomSnackbarService {
+export class SnackbarService {
 
   constructor(private snackBar: MatSnackBar) {}
 

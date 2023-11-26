@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {AuthService} from "../../../services/auth/auth.service";
-import {CustomSnackbarService} from "../../../services/custom-snackbar.service";
+import {SnackbarService} from "../../../services/snackbar.service";
 import {Router} from "@angular/router";
 
 
@@ -16,7 +16,7 @@ export class RegisterComponent {
   password: string = '';
 
   constructor(private authService: AuthService,
-              private customSnackbarService: CustomSnackbarService, private router: Router) {
+              private customSnackbarService: SnackbarService, private router: Router) {
   }
 
   register() {

@@ -1,6 +1,6 @@
 <mat-toolbar color="primary">
   <mat-toolbar-row>
-    <img class="logo" src="assets/navbar_icon.png" alt="Logo">
+    <img class="logo" src="../../../assets/home/navbar_icon.png" alt="Logo">
     <span class="title">HCvision</span>
     <span class="spacer"></span>
     <button mat-button routerLink="/">Home</button>
@@ -11,6 +11,5 @@
     <button mat-button routerLink="/profile">Profile</button>
     <button *ngIf="!isAuthenticated();" mat-button routerLink="/login">Login</button>
     <button *ngIf="isAuthenticated();" mat-button (click)="logout()">Logout</button>
-<!--    <button mat-button routerLink="/register">Register</button>-->
   </mat-toolbar-row>
 </mat-toolbar>

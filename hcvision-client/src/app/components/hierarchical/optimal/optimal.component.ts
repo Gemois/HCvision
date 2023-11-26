@@ -1,10 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {Dataset} from "../../../models/Dataset";
 import {HierarchicalService} from "../../../services/hierarchical.service";
-import {DatasetService} from "../../../services/dataset/dataset.service";
+import {DatasetService} from "../../../services/dataset.service";
 import {ResourceService} from "../../../services/resource.service";
 import {SilhouetteCombo} from "../../../models/SilhouetteCombo";
-import {CustomSnackbarService} from "../../../services/custom-snackbar.service";
+import {SnackbarService} from "../../../services/snackbar.service";
 
 @Component({
   selector: 'app-optimal',
@@ -16,7 +16,7 @@ export class OptimalComponent implements OnInit {
   datasets: Dataset[] = [];
   selectedDataset: Dataset | null = null;
   maxClusters: number = 0;
-  sampleToggle: boolean = false;
+  sampleToggle: boolean = true;
   availableAttributes: any[] = [];
   selectedAttributes: any[] = [];
 
@@ -36,7 +36,7 @@ export class OptimalComponent implements OnInit {
   constructor(private hierarchicalService: HierarchicalService,
               private datasetService: DatasetService,
               private resourceService: ResourceService,
-              private customSnackbarService: CustomSnackbarService) {
+              private customSnackbarService: SnackbarService) {
   }
 
   ngOnInit(): void {
@@ -47,8 +47,6 @@ export class OptimalComponent implements OnInit {
   }
 
   onDatasetSelect(): void {
-    console.log(this.selectedDataset);
-    console.log(this.maxClusters);
     if (this.selectedDataset) {
       const readDataset$ = this.datasetService.readDataset(this.selectedDataset);
 
@@ -106,7 +104,7 @@ export class OptimalComponent implements OnInit {
 
 
   private getOptimalResult(id: number): void {
-    this.resourceService.getOptimalResult(id).subscribe({
+    this.resourceService.getOptimalResults(id).subscribe({
         next: (result) => {
           this.transformChartData(result.all_results);
           this.recommendedLinkage = result.best_linkage;

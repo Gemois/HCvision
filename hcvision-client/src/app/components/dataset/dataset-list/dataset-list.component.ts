@@ -1,5 +1,5 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {DatasetService} from "../../../services/dataset/dataset.service";
+import {DatasetService} from "../../../services/dataset.service";
 import {Dataset} from "../../../models/Dataset";
 
 @Component({

@@ -63,7 +63,7 @@ public class ResourceService {
             } else {
                 byte[] imageBytes = Files.readAllBytes(result.toPath());
                 log.info("Successfully retrieved image resource for script id {}", script.getId());
-                return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(imageBytes);
+                return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(imageBytes);
             }
         } catch (IOException e) {
             log.error("Error processing the resource file for script id {}", id);

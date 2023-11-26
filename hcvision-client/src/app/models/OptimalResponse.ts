@@ -1,6 +1,6 @@
 import {SilhouetteCombo} from "./SilhouetteCombo";
 
-export class OptimalResponce {
+export class OptimalResponse {
   constructor(
     public all_results: SilhouetteCombo[],
     public best_linkage: string,

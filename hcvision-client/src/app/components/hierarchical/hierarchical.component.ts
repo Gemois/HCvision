@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 
 @Component({
   selector: 'app-hierarchical',
@@ -7,11 +7,13 @@ import { Component } from '@angular/core';
 })
 export class HierarchicalComponent {
 
+  constructor() {}
+
   selectedTab: string = 'first';
 
   selectTab(tab: string): void {
+    console.log(tab)
     this.selectedTab = tab;
   }
-
 
 }

@@ -13,4 +13,9 @@ export class HierarchicalService {
   runOptimal(data:any): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/optimal`, data);
   }
+
+  runAnalysis(data:any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/analysis`, data);
+  }
+
 }

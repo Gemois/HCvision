@@ -1,0 +1,77 @@
+<div class="form-container">
+  <mat-card>
+    <mat-card-content>
+      <h2>Analysis Parameters</h2>
+
+      <form class="horizontal-form">
+        <div class="form-row">
+          <mat-form-field class="form-field">
+            <mat-label>Dataset</mat-label>
+            <mat-select placeholder="Select Dataset" [(ngModel)]="selectedDataset" name="selectedDataset"
+                        (selectionChange)="onDatasetSelect()">
+              <mat-option *ngFor="let dataset of datasets" [value]="dataset">
+                {{ dataset.dataset }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field class="form-field">
+            <mat-label>Linkage</mat-label>
+            <mat-select placeholder="Select Linkage" [(ngModel)]="selectedLinkage" name="selectedLinkage">
+              <mat-option value="single">Single</mat-option>
+              <mat-option value="complete">Complete</mat-option>
+              <mat-option value="average">Average</mat-option>
+              <mat-option value="ward">Ward</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field class="form-field">
+            <input matInput type="number" placeholder="Number of Clusters" [(ngModel)]="numClusters" name="numClusters">
+          </mat-form-field>
+
+          <mat-slide-toggle class="form-field" [(ngModel)]="sampleToggle" name="sampleToggle">Sample</mat-slide-toggle>
+          <div *ngIf="availableAttributes.length > 0" class="checkbox-options">
+            <h4>Attributes</h4>
+            <div *ngFor="let option of availableAttributes; let i = index" class="checkbox-option">
+              <mat-checkbox [(ngModel)]="selectedAttributes[i]" name="options">{{ option }}</mat-checkbox>
+            </div>
+          </div>
+
+          <button mat-raised-button color="primary" class="form-field run-button" (click)="runAnalysis()">Run</button>
+        </div>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>
+<div *ngIf="runPressed">
+
+  <mat-card class="results-card">
+    <mat-card-title>Results</mat-card-title>
+    <mat-card-content>
+      <div *ngIf="loadingResults" class="result-container">
+        <mat-spinner class="spinner"></mat-spinner>
+      </div>
+      <div *ngIf="!loadingResults" class="result-container">
+        <h2>Analysis Results</h2>
+        <img [src]="dendrogram" alt="Dendrogram" (click)="openImageDialog(dendrogram)">
+        <img [src]="pararrelCoordinates" alt="Parallel Coordinates" (click)="openImageDialog(pararrelCoordinates)">
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="results-card" [style.display]="loadingResults ? 'none' : 'block'">
+    <button mat-raised-button color="primary" class="download-button" (click)="downloadCsv()">Download CSV</button>
+    <mat-table style="overflow: auto;" [dataSource]="dataSource" matSort>
+      <ng-container *ngFor="let col of displayedColumns" matColumnDef="{{col}}">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>{{col}}</mat-header-cell>
+        <mat-cell *matCellDef="let element">{{element[col]}}</mat-cell>
+      </ng-container>
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+    </mat-table>
+    <mat-paginator [pageSizeOptions]="[20, 50, 100]" showFirstLastButtons></mat-paginator>
+  </mat-card>
+
+
+</div>
+

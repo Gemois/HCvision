@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Observable} from "rxjs";
-import {Dataset} from "../../models/Dataset";
-import {AuthService} from "../auth/auth.service";
-import {DatasetResponse} from "../../models/DatasetResponse";
+import {Dataset} from "../models/Dataset";
+import {AuthService} from "./auth/auth.service";
+import {DatasetResponse} from "../models/DatasetResponse";
 
 @Injectable({
   providedIn: 'root'

@@ -1,9 +1,9 @@
 import {Component} from '@angular/core';
 import {Dataset} from "../../models/Dataset";
 import {UploadDialogComponent} from "./upload-dialog/upload-dialog.component";
-import {DatasetService} from "../../services/dataset/dataset.service";
+import {DatasetService} from "../../services/dataset.service";
 import {MatDialog} from "@angular/material/dialog";
-import {CustomSnackbarService} from "../../services/custom-snackbar.service";
+import {SnackbarService} from "../../services/snackbar.service";
 
 @Component({
   selector: 'app-dataset',
@@ -16,7 +16,7 @@ export class DatasetComponent {
 
   constructor(private dialog: MatDialog,
               private datasetService: DatasetService,
-              private customSnackbarService: CustomSnackbarService) {
+              private customSnackbarService: SnackbarService) {
   }
 
   previewDataset(dataset: Dataset) {

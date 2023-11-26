@@ -3,7 +3,7 @@ import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {UserService} from "../../services/user.service";
 import {AuthService} from "../../services/auth/auth.service";
 import {Router} from "@angular/router";
-import {CustomSnackbarService} from "../../services/custom-snackbar.service";
+import {SnackbarService} from "../../services/snackbar.service";
 import {MatDialog} from "@angular/material/dialog";
 import {ConfirmationDialogComponent} from "./confirmation-dialog/confirmation-dialog.component";
 
@@ -22,7 +22,7 @@ export class ProfileComponent implements OnInit {
               private userService: UserService,
               private fb: FormBuilder,
               private router: Router,
-              private customSnackbar: CustomSnackbarService,
+              private customSnackbar: SnackbarService,
               private dialog: MatDialog) {
 
     this.userForm = this.fb.group({

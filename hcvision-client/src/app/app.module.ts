@@ -15,7 +15,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatButtonModule} from "@angular/material/button";
 import {RouterLink, RouterOutlet} from "@angular/router";
-import {AppRoutingModule} from "./modules/AppRoutingModule";
+import {RoutingModule} from "./modules/routing.module";
 import {MatCardModule} from "@angular/material/card";
 import {MatIconModule} from "@angular/material/icon";
 import {MatInputModule} from "@angular/material/input";
@@ -48,6 +48,8 @@ import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {NgChartsModule} from "ng2-charts";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
+import { AnalysisComponent } from './components/hierarchical/analysis/analysis.component';
+import { ImageDialogComponent } from './components/hierarchical/analysis/image-dialog/image-dialog.component';
 
 @NgModule({
   declarations: [
@@ -67,6 +69,8 @@ import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
     UploadDialogComponent,
     ConfirmationDialogComponent,
     OptimalComponent,
+    AnalysisComponent,
+    ImageDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -75,7 +79,7 @@ import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
     MatToolbarModule,
     MatButtonModule,
     RouterOutlet,
-    AppRoutingModule,
+    RoutingModule,
     MatCardModule,
     MatIconModule,
     MatInputModule,

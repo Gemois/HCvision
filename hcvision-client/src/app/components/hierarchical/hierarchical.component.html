@@ -1,8 +1,8 @@
 <mat-tab-group>
   <mat-tab label="Optimal Parameters" (click)="selectTab('first')">
-    <app-optimal *ngIf="selectedTab === 'first'"></app-optimal>
+    <app-optimal></app-optimal>
   </mat-tab>
   <mat-tab label="Analysis" (click)="selectTab('second')">
-    <app-second *ngIf="selectedTab === 'second'"></app-second>
+    <app-analysis></app-analysis>
   </mat-tab>
 </mat-tab-group>
