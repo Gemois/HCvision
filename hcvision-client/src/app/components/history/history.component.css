@@ -1,0 +1,33 @@
+.center-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.history-card {
+  width: 80%;
+  justify-content: center;
+  max-width: 600px;
+  max-width: 600px;
+  margin: auto;
+  margin-top: 20px;
+}
+
+.panel-card {
+  margin-bottom: 16px;
+}
+
+
+.center-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Adjust as needed */
+}
+
+.custom-title {
+  font-size: 24px; /* Adjust the font size as needed */
+  text-align: center;
+  font-family: 'Your Preferred Font', sans-serif; /* Specify your preferred font */
+}

@@ -1,10 +1,12 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {Dataset} from "../../../models/Dataset";
 import {HierarchicalService} from "../../../services/hierarchical.service";
 import {DatasetService} from "../../../services/dataset.service";
 import {ResourceService} from "../../../services/resource.service";
 import {SilhouetteCombo} from "../../../models/SilhouetteCombo";
 import {SnackbarService} from "../../../services/snackbar.service";
+import {forkJoin, of, switchMap} from "rxjs";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-optimal',
@@ -12,6 +14,12 @@ import {SnackbarService} from "../../../services/snackbar.service";
   styleUrl: './optimal.component.css'
 })
 export class OptimalComponent implements OnInit {
+  @Input() param_script: string;
+  @Input() param_dataset: string;
+  @Input() param_accessType: string;
+  @Input() param_maxClusters: number;
+  @Input() param_attributes: string;
+  @Input() param_sample: boolean;
 
   datasets: Dataset[] = [];
   selectedDataset: Dataset | null = null;
@@ -36,15 +44,53 @@ export class OptimalComponent implements OnInit {
   constructor(private hierarchicalService: HierarchicalService,
               private datasetService: DatasetService,
               private resourceService: ResourceService,
-              private customSnackbarService: SnackbarService) {
+              private customSnackbarService: SnackbarService, private router:Router) {
   }
 
   ngOnInit(): void {
-    this.datasetService.getDatasetList().subscribe((datasets) => {
-      this.datasets = datasets;
-    });
-
+    if (!(this.param_script === 'Optimal')) {
+      this.datasetService.getDatasetList().subscribe((datasets) => {
+        this.datasets = datasets;
+        this.runPressed = false;
+      });
+    } else {
+      this.historyPreview();
+    }
   }
+
+  historyPreview() {
+    const getDatasetList$ = this.datasetService.getDatasetList();
+
+    forkJoin([getDatasetList$]).subscribe(([datasets]) => {
+      this.datasets = datasets;
+      this.selectedDataset = this.datasets.find(dataset =>
+        dataset.dataset === this.param_dataset && dataset.access_type === this.param_accessType
+      );
+
+      this.maxClusters = this.param_maxClusters;
+      this.sampleToggle = this.param_sample;
+
+      const readDataset$ = this.datasetService.readDataset(this.selectedDataset);
+
+      readDataset$.pipe(
+        switchMap((response) => {
+          this.availableAttributes = [...response.attributes];
+          this.selectedAttributes = new Array(this.availableAttributes.length).fill(false);
+          this.param_attributes.split(",").forEach(attribute => {
+            const index = this.availableAttributes.indexOf(attribute);
+            if (index !== -1) {
+              this.selectedAttributes[index] = true;
+            }
+          });
+
+          return of(response);
+        })
+      ).subscribe(() => {
+        this.runAlgorithm();
+      });
+    });
+  }
+
 
   onDatasetSelect(): void {
     if (this.selectedDataset) {
@@ -149,5 +195,27 @@ export class OptimalComponent implements OnInit {
     this.chartData = this.silhouetteCombos;
     this.chartLabels = clusters;
   }
+
+
+  redirectToAnalysis(): void {
+
+    const selectedAttributes = this.availableAttributes
+      .filter((option, index) => this.selectedAttributes[index]);
+    const analysisQueryParams = {
+      script: "Analysis",
+      dataset: this.selectedDataset.dataset,
+      accessType: this.selectedDataset.access_type,
+      linkage: this.recommendedLinkage,
+      numClusters: this.recommendedNumClusters,
+      attributes: selectedAttributes.join(','),
+      sample: this.sampleToggle,
+    };
+
+    this.router.navigate(['/hierarchical'], {
+      queryParams: analysisQueryParams
+    });
+  }
+
+
 
 }

@@ -40,7 +40,7 @@ import {MatListModule} from "@angular/material/list";
 import {MatTableModule} from "@angular/material/table";
 import {MatPaginatorModule} from "@angular/material/paginator";
 import {MatSortModule} from "@angular/material/sort";
-import {AuthInterceptor} from "./services/auth/auth.interceptor";
+import {AuthInterceptor} from "./modules/auth.interceptor";
 import { ConfirmationDialogComponent } from './components/profile/confirmation-dialog/confirmation-dialog.component';
 import {MatTabsModule} from "@angular/material/tabs";
 import { OptimalComponent } from './components/hierarchical/optimal/optimal.component';
@@ -50,6 +50,10 @@ import {NgChartsModule} from "ng2-charts";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 import { AnalysisComponent } from './components/hierarchical/analysis/analysis.component';
 import { ImageDialogComponent } from './components/hierarchical/analysis/image-dialog/image-dialog.component';
+import {MatExpansionModule} from "@angular/material/expansion";
+import { HistoryPreviewComponent } from './components/history/history-preview/history-preview.component';
+import {MatProgressBarModule} from "@angular/material/progress-bar";
+import {MatSidenavModule} from "@angular/material/sidenav";
 
 @NgModule({
   declarations: [
@@ -71,38 +75,42 @@ import { ImageDialogComponent } from './components/hierarchical/analysis/image-d
     OptimalComponent,
     AnalysisComponent,
     ImageDialogComponent,
+    HistoryPreviewComponent,
   ],
-  imports: [
-    BrowserModule,
-    RouterLink,
-    BrowserAnimationsModule,
-    MatToolbarModule,
-    MatButtonModule,
-    RouterOutlet,
-    RoutingModule,
-    MatCardModule,
-    MatIconModule,
-    MatInputModule,
-    FormsModule,
-    HttpClientModule,
-    MatDialogTitle,
-    MatDialogContent,
-    MatSelectModule,
-    MatDialogActions,
-    MatDialogClose,
-    MatDialogModule,
-    MatChipsModule,
-    MatListModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    ReactiveFormsModule,
-    MatTabsModule,
-    MatSlideToggleModule,
-    MatCheckboxModule,
-    NgChartsModule,
-    MatProgressSpinnerModule
-  ],
+    imports: [
+        BrowserModule,
+        RouterLink,
+        BrowserAnimationsModule,
+        MatToolbarModule,
+        MatButtonModule,
+        RouterOutlet,
+        RoutingModule,
+        MatCardModule,
+        MatIconModule,
+        MatInputModule,
+        FormsModule,
+        HttpClientModule,
+        MatDialogTitle,
+        MatDialogContent,
+        MatSelectModule,
+        MatDialogActions,
+        MatDialogClose,
+        MatDialogModule,
+        MatChipsModule,
+        MatListModule,
+        MatTableModule,
+        MatPaginatorModule,
+        MatSortModule,
+        ReactiveFormsModule,
+        MatTabsModule,
+        MatSlideToggleModule,
+        MatCheckboxModule,
+        NgChartsModule,
+        MatProgressSpinnerModule,
+        MatExpansionModule,
+        MatProgressBarModule,
+        MatSidenavModule
+    ],
   providers: [{
     provide: HTTP_INTERCEPTORS,
     useClass: AuthInterceptor,

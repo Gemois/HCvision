@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {DatasetService} from "../../../services/dataset.service";
 import {Dataset} from "../../../models/Dataset";
 import {HierarchicalService} from "../../../services/hierarchical.service";
@@ -8,6 +8,8 @@ import {MatDialog} from "@angular/material/dialog";
 import {ImageDialogComponent} from "./image-dialog/image-dialog.component";
 import {MatTableDataSource} from "@angular/material/table";
 import {MatPaginator} from "@angular/material/paginator";
+import {forkJoin, of, switchMap} from "rxjs";
+import {NavigationEnd, Router} from "@angular/router";
 
 @Component({
   selector: 'app-analysis',
@@ -15,6 +17,14 @@ import {MatPaginator} from "@angular/material/paginator";
   styleUrl: './analysis.component.css'
 })
 export class AnalysisComponent implements OnInit {
+  @Input() param_script: string;
+  @Input() param_dataset: string;
+  @Input() param_accessType: string;
+  @Input() param_linkage: string;
+  @Input() param_numClusters: number;
+  @Input() param_attributes: string;
+  @Input() param_sample: boolean;
+
   datasets: Dataset[] = [];
   selectedDataset: Dataset | null = null;
   selectedLinkage: string = 'single';
@@ -23,13 +33,13 @@ export class AnalysisComponent implements OnInit {
   availableAttributes: any[] = [];
   selectedAttributes: any[] = [];
 
-
+  script: string = null;
   runPressed: boolean = false;
   loadingResults: boolean = true;
   loadingParams: boolean = true;
 
   dendrogram: string;
-  pararrelCoordinates: string;
+  parallelCoordinates: string;
   clusterAssignments: any[]
 
   dataSource: MatTableDataSource<any>;
@@ -39,7 +49,8 @@ export class AnalysisComponent implements OnInit {
   constructor(private hierarchicalService: HierarchicalService,
               private datasetService: DatasetService,
               private resourceService: ResourceService,
-              private customSnackbarService: SnackbarService, private dialog: MatDialog) {
+              private customSnackbarService: SnackbarService, private dialog: MatDialog, private router:Router) {
+
   }
 
   openImageDialog(imageUrl: string): void {
@@ -50,18 +61,77 @@ export class AnalysisComponent implements OnInit {
     });
   }
 
+
   ngOnInit(): void {
-    this.datasetService.getDatasetList().subscribe((datasets) => {
+
+
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+
+        this.historyPreview();
+      }
+    });
+
+
+
+
+    console.log(this.script);
+    console.log(this.selectedLinkage);
+    console.log(this.numClusters);
+    if (!(this.param_script === 'Analysis')) {
+      this.datasetService.getDatasetList().subscribe((datasets) => {
+        this.datasets = datasets;
+        this.runPressed = false;
+        this.script = this.param_script;
+
+      });
+    } else {
+      this.historyPreview();
+    }
+  }
+
+
+  historyPreview() {
+    const getDatasetList$ = this.datasetService.getDatasetList();
+
+    forkJoin([getDatasetList$]).subscribe(([datasets]) => {
       this.datasets = datasets;
+      this.selectedDataset = this.datasets.find(dataset =>
+        dataset.dataset === this.param_dataset && dataset.access_type === this.param_accessType
+      );
+      this.numClusters = this.param_numClusters;
+      this.selectedLinkage = this.param_linkage;
+      this.sampleToggle = this.param_sample;
+
+      const readDataset$ = this.datasetService.readDataset(this.selectedDataset);
+
+      readDataset$.pipe(
+        switchMap((response) => {
+          this.availableAttributes = [...response.attributes];
+          this.selectedAttributes = new Array(this.availableAttributes.length).fill(false);
+
+          return of(response);
+        })
+      ).subscribe((response) => {
+        this.param_attributes.split(",").forEach(attribute => {
+          const index = this.availableAttributes.indexOf(attribute);
+          console.log(index)
+          if (index !== -1) {
+            this.selectedAttributes[index] = true;
+            console.log(this.availableAttributes);
+          }
+        });
+        this.runAnalysis();
+      });
     });
   }
+
 
   onDatasetSelect(): void {
     if (this.selectedDataset) {
       const readDataset$ = this.datasetService.readDataset(this.selectedDataset);
 
       readDataset$.subscribe((response) => {
-        console.log(response);
         this.availableAttributes = [...response.attributes];
         this.selectedAttributes = new Array(this.availableAttributes.length).fill(false);
       });
@@ -122,7 +192,7 @@ export class AnalysisComponent implements OnInit {
           if (type === 'dendrogram') {
             this.dendrogram = imageUrl;
           } else if (type === 'parallel_coordinates') {
-            this.pararrelCoordinates = imageUrl;
+            this.parallelCoordinates = imageUrl;
           }
         },
         error: (error) => {

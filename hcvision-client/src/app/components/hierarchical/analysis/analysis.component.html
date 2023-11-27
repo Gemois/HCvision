@@ -31,7 +31,7 @@
           <mat-slide-toggle class="form-field" [(ngModel)]="sampleToggle" name="sampleToggle">Sample</mat-slide-toggle>
           <div *ngIf="availableAttributes.length > 0" class="checkbox-options">
             <h4>Attributes</h4>
-            <div *ngFor="let option of availableAttributes; let i = index" class="checkbox-option">
+            <div *ngFor="let option of availableAttributes; let i = index;" class="checkbox-option">
               <mat-checkbox [(ngModel)]="selectedAttributes[i]" name="options">{{ option }}</mat-checkbox>
             </div>
           </div>
@@ -54,7 +54,7 @@
       <div *ngIf="!loadingResults" class="result-container">
         <h2>Analysis Results</h2>
         <img [src]="dendrogram" alt="Dendrogram" (click)="openImageDialog(dendrogram)">
-        <img [src]="pararrelCoordinates" alt="Parallel Coordinates" (click)="openImageDialog(pararrelCoordinates)">
+        <img [src]="parallelCoordinates" alt="Parallel Coordinates" (click)="openImageDialog(parallelCoordinates)">
       </div>
     </mat-card-content>
   </mat-card>
@@ -71,7 +71,6 @@
     </mat-table>
     <mat-paginator [pageSizeOptions]="[20, 50, 100]" showFirstLastButtons></mat-paginator>
   </mat-card>
-
 
 </div>
 

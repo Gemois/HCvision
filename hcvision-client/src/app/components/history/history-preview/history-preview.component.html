@@ -1,0 +1,42 @@
+<div *ngIf="id && script">
+  <mat-card-header>
+    <mat-card-title>
+      {{ script === 'Optimal' ? 'Optimal Details' : 'Analysis Details' }}
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div *ngIf="script === 'Optimal'">
+      <mat-list>
+        <p><b>Dataset: </b> <span class="label">{{ optimalDetails?.dataset?.dataset }}
+          (Access: {{ optimalDetails?.dataset?.access_type }})</span></p>
+        <p><b>Max Clusters: </b> <span class="label">{{ optimalDetails?.max_clusters }}</span></p>
+        <p><b>Attributes: </b> <span class="label"
+                                     *ngFor="let attribute of optimalDetails?.attributes">{{ attribute }}</span></p>
+        <p><b>Sample: </b> <span class="label">{{ optimalDetails?.sample }}</span></p>
+      </mat-list>
+      <div class="button-container">
+        <button mat-raised-button color="primary" style="float: left" (click)="redirectToHierarchical()">Preview Optimal
+          Run
+        </button>
+        <button mat-raised-button color="warn" style="float: right" (click)="deleteHistoryById(id)">Delete</button>
+      </div>
+    </div>
+    <div *ngIf="script === 'Analysis'">
+      <mat-list>
+        <p><b>Dataset: </b> <span class="label">{{ analysisDetails?.dataset?.dataset }}
+          (Access: {{ analysisDetails?.dataset?.access_type }})</span></p>
+        <p><b>Linkage: </b> <span class="label">{{ analysisDetails?.linkage }}</span></p>
+        <p><b>Num Clusters: </b> <span class="label">{{ analysisDetails?.n_clusters }}</span></p>
+        <p><b>Attributes: </b> <span class="label"
+                                     *ngFor="let attribute of analysisDetails?.attributes">{{ attribute }}</span></p>
+        <p><b>Sample: </b> <span class="label">{{ analysisDetails?.sample }}</span></p>
+      </mat-list>
+      <div class="button-container">
+        <button mat-raised-button color="primary" style="float: left" (click)="redirectToHierarchical()">Preview
+          Analysis Run
+        </button>
+        <button mat-raised-button color="warn" style="float: right" (click)="deleteHistoryById(id)">Delete</button>
+      </div>
+    </div>
+  </mat-card-content>
+</div>

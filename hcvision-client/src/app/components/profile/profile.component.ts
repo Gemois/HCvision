@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 import {UserService} from "../../services/user.service";
-import {AuthService} from "../../services/auth/auth.service";
+import {AuthService} from "../../services/auth.service";
 import {Router} from "@angular/router";
 import {SnackbarService} from "../../services/snackbar.service";
 import {MatDialog} from "@angular/material/dialog";
@@ -75,7 +75,7 @@ export class ProfileComponent implements OnInit {
       this.isEditing = false;
       this.loadUserData();
       console.log("User Details updated!")
-      this.customSnackbar.open("User Details updated!","Close",{})
+      this.customSnackbar.open("User Details updated!", "Close", {})
     });
   }
 }

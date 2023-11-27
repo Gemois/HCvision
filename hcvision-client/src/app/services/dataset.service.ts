@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {Dataset} from "../models/Dataset";
-import {AuthService} from "./auth/auth.service";
 import {DatasetResponse} from "../models/DatasetResponse";
 
 @Injectable({
@@ -12,8 +11,7 @@ export class DatasetService {
 
   private baseUrl = 'http://localhost:8080/api/v1/datasets';
 
-  constructor(private http: HttpClient,
-              private authService: AuthService) {
+  constructor(private http: HttpClient) {
   }
 
   readDataset(dataset: Dataset): Observable<DatasetResponse> {

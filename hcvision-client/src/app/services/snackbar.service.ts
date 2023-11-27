@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {
   MatSnackBar,
   MatSnackBarConfig,
@@ -11,7 +11,8 @@ import {
 })
 export class SnackbarService {
 
-  constructor(private snackBar: MatSnackBar) {}
+  constructor(private snackBar: MatSnackBar) {
+  }
 
   open(message: string, action: string, config?: MatSnackBarConfig): MatSnackBarRef<TextOnlySnackBar> {
     const defaultConfig: MatSnackBarConfig = {
@@ -21,7 +22,7 @@ export class SnackbarService {
       panelClass: [],
     };
 
-    const mergedConfig = { ...defaultConfig, ...config };
+    const mergedConfig = {...defaultConfig, ...config};
     return this.snackBar.open(message, action, mergedConfig);
   }
 }

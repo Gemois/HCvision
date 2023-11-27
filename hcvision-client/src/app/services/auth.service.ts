@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Router} from "@angular/router";
-import {AuthResponse} from "../../models/AuthResponse";
+import {AuthResponse} from "../models/AuthResponse";
 
 @Injectable({
   providedIn: 'root'

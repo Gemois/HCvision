@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {DatasetService} from "../../../services/dataset.service";
 import {Dataset} from "../../../models/Dataset";
 
@@ -7,28 +7,12 @@ import {Dataset} from "../../../models/Dataset";
   templateUrl: './dataset-list.component.html',
   styleUrl: './dataset-list.component.css'
 })
-export class DatasetListComponent implements OnInit {
+export class DatasetListComponent {
   @Output() itemSelected: EventEmitter<Dataset> = new EventEmitter<Dataset>();
 
-  datasets: Dataset[] = [];
+  @Input() datasets: Dataset[] = [];
 
   constructor(private datasetService: DatasetService) {
-  }
-
-  ngOnInit() {
-    this.showDatasetList();
-  }
-
-  showDatasetList() {
-    this.datasetService.getDatasetList().subscribe({
-        next: (response) => {
-          this.datasets = response;
-        },
-        error: (error: any) => {
-          console.error('Error fetching file list:', error);
-        }
-      }
-    );
   }
 
   onDatasetSelect(index: number, dataset: Dataset) {

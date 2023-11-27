@@ -1,31 +1,54 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Dataset} from "../../models/Dataset";
 import {UploadDialogComponent} from "./upload-dialog/upload-dialog.component";
 import {DatasetService} from "../../services/dataset.service";
 import {MatDialog} from "@angular/material/dialog";
 import {SnackbarService} from "../../services/snackbar.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-dataset',
   templateUrl: './dataset.component.html',
   styleUrl: './dataset.component.css'
 })
-export class DatasetComponent {
+export class DatasetComponent implements OnInit {
   jsonData: any[] = [];
   selectedDataset: Dataset;
+  datasets: Dataset[];
+  datasetPreviewLoading: boolean = false;
 
   constructor(private dialog: MatDialog,
               private datasetService: DatasetService,
-              private customSnackbarService: SnackbarService) {
+              private customSnackbarService: SnackbarService,
+              private router: Router) {
   }
 
+  ngOnInit(): void {
+    this.showDatasetList();
+  }
+
+  showDatasetList() {
+    this.datasetService.getDatasetList().subscribe({
+        next: (response) => {
+          this.datasets = response;
+        },
+        error: (error: any) => {
+          console.error('Error fetching file list:', error);
+        }
+      }
+    );
+  }
+
+
   previewDataset(dataset: Dataset) {
+    this.datasetPreviewLoading = true;
     if (dataset) {
       this.selectedDataset = dataset;
       this.datasetService.readDataset(dataset).subscribe({
           next: (response) => {
+            this.datasetPreviewLoading = false;
             this.jsonData = response.dataset;
-            console.error('fetched JSON data successfully');
+            console.log('fetched JSON data successfully');
           },
           error: (error) => {
             console.error('Error fetching JSON data:', error);
@@ -48,7 +71,7 @@ export class DatasetComponent {
             next: (response) => {
               this.customSnackbarService.open('File uploaded successfully', 'Close', {});
               console.error('File uploaded successfully');
-              window.location.reload();
+              this.reloadDatasetList();
             },
             error: (error) => {
               console.error('Error uploading file:', error);
@@ -93,7 +116,7 @@ export class DatasetComponent {
     if (this.selectedDataset) {
       this.datasetService.deleteDataset(this.selectedDataset).subscribe({
           next: () => {
-            window.location.reload();
+            this.reloadDatasetList();
             this.customSnackbarService.open('Dataset deleted successfully', 'Close', {});
             console.error('Dataset deleted successfully');
           },
@@ -105,5 +128,10 @@ export class DatasetComponent {
       );
     }
   }
+
+  reloadDatasetList() {
+    this.showDatasetList();
+  }
+
 
 }

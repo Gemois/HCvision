@@ -1,1 +1,24 @@
-<p>history works!</p>
+<div class="center-container">
+  <div class="history-card">
+    <mat-card-header>
+      <mat-card-title class="custom-title">History</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div *ngFor="let item of historyList">
+        <mat-card class="panel-card">
+          <mat-expansion-panel (opened)="panelOpened(item)">
+            <mat-expansion-panel-header>
+              {{ item.script}} - {{item.started_at | date: 'medium'}}
+            </mat-expansion-panel-header>
+            <app-history-preview
+              *ngIf="expandedItemId === item.id"
+              [id]="item.id"
+              [script]="item.script"
+              (deleteHistoryEvent)="deleteHistory($event)"
+            ></app-history-preview>
+          </mat-expansion-panel>
+        </mat-card>
+      </div>
+    </mat-card-content>
+  </div>
+</div>
