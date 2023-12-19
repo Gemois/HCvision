@@ -103,6 +103,19 @@ public class DatasetUtils {
         return str.replaceAll("\"", "");
     }
 
+    public static String encloseInDoubleQuotes(String str) {
+        String[] elements = str.split(",");
+
+        StringBuilder formattedString = new StringBuilder();
+
+        for (String element : elements) {
+            formattedString.append("\"").append(element).append("\",");
+        }
+        return formattedString.toString();
+    }
+
+
+
     public static JSONArray convertDatasetToJson(String filePath) {
 
         if (filePath.toLowerCase().endsWith(".csv")) {

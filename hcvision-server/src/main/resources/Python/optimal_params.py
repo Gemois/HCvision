@@ -1,11 +1,15 @@
 import pandas as pd
-from sklearn.cluster import AgglomerativeClustering
-from sklearn.metrics import silhouette_score
 import argparse
 import json
 import os
+from scipy.cluster.hierarchy import linkage, fcluster
+import numpy as np
 
-def find_best_linkage_and_clusters(result_path, dataset_path, max_clusters, sampling, attributes):
+def find_optimal_clusters(Z, max_d):
+    clusters = fcluster(Z, t=max_d, criterion='distance')
+    return len(np.unique(clusters))
+
+def find_best_linkage_and_clusters(result_path, dataset_path, sampling, attributes):
     if dataset_path.endswith('.csv'):
         if sampling:
             dataset = pd.read_csv(dataset_path, nrows=1000)
@@ -20,36 +24,33 @@ def find_best_linkage_and_clusters(result_path, dataset_path, max_clusters, samp
     selected_attributes = dataset[attributes]
 
     all_results = []
-    best_score = -1
     best_linkage = None
-    best_clusters = None
+    best_clusters = 0
 
-    max_clusters = min(max_clusters, 15)
+    for linkage_method in ['ward', 'complete', 'average', 'single']:
+        Z = linkage(selected_attributes, linkage_method)
+        distances = Z[:, 2]
+        diff_distances = np.diff(distances, 2)
+        max_d = distances[np.argmax(diff_distances)]
 
-    for linkage in ['ward', 'complete', 'average', 'single']:
-        for n_clusters in range(2, max_clusters + 1):
-            clustering = AgglomerativeClustering(n_clusters=n_clusters, linkage=linkage)
-            cluster_labels = clustering.fit_predict(selected_attributes)
-            score = silhouette_score(selected_attributes, cluster_labels)
+        n_clusters = find_optimal_clusters(Z, max_d)
 
-            result = {
-                "linkage": linkage,
-                "clusters": n_clusters,
-                "score": score
-            }
+        result = {
+            "linkage": linkage_method,
+            "clusters": n_clusters,
+            "max_inconsistency": max_d
+        }
 
-            all_results.append(result)
+        all_results.append(result)
 
-            if score > best_score:
-                best_score = score
-                best_linkage = linkage
-                best_clusters = n_clusters
+        if n_clusters > best_clusters:
+            best_linkage = linkage_method
+            best_clusters = n_clusters
 
     result = {
         "all_results": all_results,
         "best_linkage": best_linkage,
-        "best_clusters": best_clusters,
-        "best_score": best_score
+        "best_clusters": best_clusters
     }
 
     predict_json_path = os.path.join(result_path, "optimal_params.json")
@@ -60,8 +61,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("result_path", type=str)
     parser.add_argument("dataset_path", type=str)
-    parser.add_argument("max_clusters", type=int)
     parser.add_argument("--sampling", action="store_true", default=False)
     parser.add_argument("attributes", type=str, nargs='+')
     args = parser.parse_args()
-    find_best_linkage_and_clusters(args.result_path, args.dataset_path, args.max_clusters, args.sampling, args.attributes)
+    find_best_linkage_and_clusters(args.result_path, args.dataset_path, args.sampling, args.attributes)

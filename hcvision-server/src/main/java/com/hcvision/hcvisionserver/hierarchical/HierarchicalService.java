@@ -75,15 +75,15 @@ public class HierarchicalService {
         Dataset dataset = datasetService.getDataset(request.getFilename(), request.getAccessType(), user);
         if (dataset == null) throw new NotFoundException("Dataset not found");
 
-        if (invalidParams(dataset, request.getMaxClusters(), request.getAttributes()))
+        if (invalidParams(dataset, request.getAttributes()))
             throw new BadRequestException("Invalid attributes selected");
 
-        Optional<Optimal.ProjectOptimal> reRun = optimalService.getOptimalReRun(user, dataset, request.getMaxClusters(),
+        Optional<Optimal.ProjectOptimal> reRun = optimalService.getOptimalReRun(user, dataset,
                 request.isSample(), DatasetUtils.sortAttributes(request.getAttributes()));
 
         if (reRun.isPresent()) return reRun.get();
 
-        Optimal optimal = optimalService.createOptimal(new Optimal(user, dataset, request.getMaxClusters(), request.isSample(),
+        Optimal optimal = optimalService.createOptimal(new Optimal(user, dataset, request.isSample(),
                 DatasetUtils.sortAttributes(request.getAttributes()), ResultStatus.RUNNING));
 
         historyService.keepHistory(user, optimal);
@@ -91,9 +91,9 @@ public class HierarchicalService {
         String command = "python " +
                 getPythonScriptPath(OPTIMAL_SCRIPT) + " " +
                 getBaseResultPathByPythonScript(optimal) + " " +
-                dataset.getPath() + " " + request.getMaxClusters() + " " +
+                dataset.getPath() + " " +
                 (request.isSample() ? "--sampling " : "") +
-                request.getAttributes().replace(",", " ");
+                DatasetUtils.encloseInDoubleQuotes(request.getAttributes()).replace(",", " ");
 
         maybeCreateResultDirectory(optimal);
         asyncPythonService.runScript(optimal, command);
@@ -103,10 +103,10 @@ public class HierarchicalService {
     }
 
 
-    private boolean invalidParams(Dataset dataset, int maxClusters, String attributes) {
+    private boolean invalidParams(Dataset dataset, String attributes) {
         String[] numericColumns = dataset.getNumericCols().split(",");
         String[] selectedAttributes = attributes.split(",");
-        return maxClusters < 0 || !DatasetUtils.areAllElementsInArray(selectedAttributes, numericColumns);
+        return !DatasetUtils.areAllElementsInArray(selectedAttributes, numericColumns);
     }
 
 
@@ -116,7 +116,7 @@ public class HierarchicalService {
         Dataset dataset = datasetService.getDataset(request.getFilename(), request.getAccessType(), user);
         if (dataset == null) throw new NotFoundException("Dataset not found");
 
-        if (invalidParams(dataset, request.getNumClusters(), request.getAttributes()))
+        if (invalidParams(dataset,  request.getAttributes()))
             throw new BadRequestException("Invalid attributes selected");
 
         Optional<Analysis.ProjectAnalysis> reRun = analysisService.getAnalysisReRun(user, dataset, request.getLinkage(),
@@ -135,7 +135,7 @@ public class HierarchicalService {
                 dataset.getPath() + " " + request.getLinkage() + " " +
                 request.getNumClusters() + " " +
                 (request.isSample() ? "--sampling " : "") +
-                request.getAttributes().replace(",", " ");
+                DatasetUtils.encloseInDoubleQuotes(request.getAttributes()).replace(",", " ");
 
         maybeCreateResultDirectory(analysis);
         asyncPythonService.runScript(analysis, command);

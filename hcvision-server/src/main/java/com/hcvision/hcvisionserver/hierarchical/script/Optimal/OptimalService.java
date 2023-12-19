@@ -20,7 +20,7 @@ public class OptimalService {
         optimal.setStatus(ResultStatus.FINISHED);
         optimal.setEndedAt(LocalDateTime.now());
         optimal.calcDuration();
-        optimal.setSilhouette(HierarchicalService.getResultPathByPythonScript(optimal, Optimal.getOptimalParamsResultFileName()));
+        optimal.setInconsistencyCoefficient(HierarchicalService.getResultPathByPythonScript(optimal, Optimal.getOptimalParamsResultFileName()));
         optimalRepository.save(optimal);
     }
 
@@ -33,8 +33,8 @@ public class OptimalService {
         return optimalRepository.save(optimal);
     }
 
-    public Optional<Optimal.ProjectOptimal> getOptimalReRun(User user, Dataset dataset, int maxClusters, boolean isSample, String attributes) {
-        return optimalRepository.findByDatasetAndUserAndMaxClustersAndSampleAndAttributes(dataset, user, maxClusters, isSample, attributes);
+    public Optional<Optimal.ProjectOptimal> getOptimalReRun(User user, Dataset dataset, boolean isSample, String attributes) {
+        return optimalRepository.findByDatasetAndUserAndSampleAndAttributes(dataset, user, isSample, attributes);
     }
 
     public Optional<Optimal.ProjectOptimalStatus> getOptimalStatus(long id, User user) {
