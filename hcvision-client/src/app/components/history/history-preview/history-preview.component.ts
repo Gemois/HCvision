@@ -51,7 +51,7 @@ export class HistoryPreviewComponent implements OnInit {
       dataset: this.optimalDetails?.dataset?.dataset,
       accessType: this.optimalDetails?.dataset?.access_type,
       maxClusters: this.optimalDetails?.max_clusters,
-      attributes: this.optimalDetails?.attributes?.join(','),
+      attributes: this.optimalDetails?.attributes?.join(' '),
       sample: this.optimalDetails?.sample,
     };
 
@@ -61,7 +61,7 @@ export class HistoryPreviewComponent implements OnInit {
       accessType: this.analysisDetails?.dataset?.access_type,
       linkage: this.analysisDetails?.linkage,
       numClusters: this.analysisDetails?.n_clusters,
-      attributes: this.analysisDetails?.attributes?.join(','),
+      attributes: this.analysisDetails?.attributes?.join(' '),
       sample: this.analysisDetails?.sample,
     };
 

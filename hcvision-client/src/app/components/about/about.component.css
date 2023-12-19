@@ -4,18 +4,12 @@ a {
   text-decoration: none;
 }
 
-.home-container {
-  max-width: 50%;
-  margin: 0 auto;
+.about-container {
+  flex-direction: column;
+  flex: 1;
   padding: 20px;
   color: #333;
-}
-
-.background-container {
-  background-color: rgb(245, 245, 245);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  width: 100%;
+  min-height: 100vh;
+  max-width: 50%;
+  margin: 0 auto;
 }

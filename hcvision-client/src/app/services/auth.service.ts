@@ -24,13 +24,13 @@ export class AuthService {
   }
 
   setToken(access_token: string): void {
-    localStorage.setItem('access_token', access_token);
+    sessionStorage.setItem('access_token', access_token);
     this.router.navigateByUrl(this.redirectUrl || '/');
     this.redirectUrl = null;
   }
 
   getToken(): string | null {
-    return localStorage.getItem('access_token');
+    return sessionStorage.getItem('access_token');
   }
 
   isAuthenticated(): boolean {
@@ -39,7 +39,8 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem('access_token');
+    sessionStorage.removeItem('access_token');
   }
+
 
 }

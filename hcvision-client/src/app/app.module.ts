@@ -54,10 +54,16 @@ import {MatExpansionModule} from "@angular/material/expansion";
 import { HistoryPreviewComponent } from './components/history/history-preview/history-preview.component';
 import {MatProgressBarModule} from "@angular/material/progress-bar";
 import {MatSidenavModule} from "@angular/material/sidenav";
+import { FooterComponent } from './components/footer/footer.component';
+import {FlexModule} from "@angular/flex-layout";
+import { ResetPasswordComponent } from './components/auth/reset-password/reset-password.component';
+import { ResetPasswordDialogComponent } from './components/auth/reset-password/reset-password-dialog/reset-password-dialog.component';
+import {AttributeValidatorDirective} from "./directives/attribute-validator.directive";
 
 @NgModule({
   declarations: [
     AppComponent,
+    NavbarComponent,
     LoginComponent,
     RegisterComponent,
     HomeComponent,
@@ -76,41 +82,47 @@ import {MatSidenavModule} from "@angular/material/sidenav";
     AnalysisComponent,
     ImageDialogComponent,
     HistoryPreviewComponent,
+    FooterComponent,
+    ResetPasswordComponent,
+    ResetPasswordDialogComponent,
+    AttributeValidatorDirective,
+
   ],
-    imports: [
-        BrowserModule,
-        RouterLink,
-        BrowserAnimationsModule,
-        MatToolbarModule,
-        MatButtonModule,
-        RouterOutlet,
-        RoutingModule,
-        MatCardModule,
-        MatIconModule,
-        MatInputModule,
-        FormsModule,
-        HttpClientModule,
-        MatDialogTitle,
-        MatDialogContent,
-        MatSelectModule,
-        MatDialogActions,
-        MatDialogClose,
-        MatDialogModule,
-        MatChipsModule,
-        MatListModule,
-        MatTableModule,
-        MatPaginatorModule,
-        MatSortModule,
-        ReactiveFormsModule,
-        MatTabsModule,
-        MatSlideToggleModule,
-        MatCheckboxModule,
-        NgChartsModule,
-        MatProgressSpinnerModule,
-        MatExpansionModule,
-        MatProgressBarModule,
-        MatSidenavModule
-    ],
+  imports: [
+    BrowserModule,
+    RouterLink,
+    BrowserAnimationsModule,
+    MatToolbarModule,
+    MatButtonModule,
+    RouterOutlet,
+    RoutingModule,
+    MatCardModule,
+    MatIconModule,
+    MatInputModule,
+    FormsModule,
+    HttpClientModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatSelectModule,
+    MatDialogActions,
+    MatDialogClose,
+    MatDialogModule,
+    MatChipsModule,
+    MatListModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    ReactiveFormsModule,
+    MatTabsModule,
+    MatSlideToggleModule,
+    MatCheckboxModule,
+    NgChartsModule,
+    MatProgressSpinnerModule,
+    MatExpansionModule,
+    MatProgressBarModule,
+    MatSidenavModule,
+    FlexModule
+  ],
   providers: [{
     provide: HTTP_INTERCEPTORS,
     useClass: AuthInterceptor,

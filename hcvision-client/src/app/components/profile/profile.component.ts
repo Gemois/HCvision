@@ -78,4 +78,9 @@ export class ProfileComponent implements OnInit {
       this.customSnackbar.open("User Details updated!", "Close", {})
     });
   }
+
+  cancelEdit() {
+    this.isEditing = false;
+  }
+
 }

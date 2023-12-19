@@ -1,11 +1,13 @@
 .form-container {
   max-width: 600px;
   margin: auto;
+  background-color: rgb(245, 245, 245);
 }
 
 .horizontal-form {
   display: flex;
   flex-direction: column;
+
 }
 
 .form-row {
@@ -14,11 +16,13 @@
   justify-content: space-between;
   flex-direction: row;
 
+
 }
 
 .form-field {
   flex: 0 0 calc(30% - 10px);
   margin-bottom: 10px;
+
 }
 
 .checkbox-options {
@@ -55,3 +59,8 @@
   margin-top: 20px;
 }
 
+.horizontal-checkbox-container {
+  display: flex;
+  flex-wrap: wrap; /* Allow items to wrap onto the next line if the container is not wide enough */
+  margin-bottom: 16px; /* Add some space between rows, adjust as needed */
+}

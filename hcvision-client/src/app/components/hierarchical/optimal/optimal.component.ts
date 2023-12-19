@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {Dataset} from "../../../models/Dataset";
 import {HierarchicalService} from "../../../services/hierarchical.service";
 import {DatasetService} from "../../../services/dataset.service";
@@ -17,16 +17,17 @@ export class OptimalComponent implements OnInit {
   @Input() param_script: string;
   @Input() param_dataset: string;
   @Input() param_accessType: string;
-  @Input() param_maxClusters: number;
   @Input() param_attributes: string;
   @Input() param_sample: boolean;
+  @Input() currentTab: number;
+
 
   datasets: Dataset[] = [];
   selectedDataset: Dataset | null = null;
-  maxClusters: number = 0;
+  maxClusters: number = 2;
   sampleToggle: boolean = true;
   availableAttributes: any[] = [];
-  selectedAttributes: any[] = [];
+  selectedAttributes: boolean[] = [];
 
   silhouetteCombos: any[] = [];
   chartData: any[] = [];
@@ -41,6 +42,7 @@ export class OptimalComponent implements OnInit {
   loadingResults: boolean = true;
   loadingParams: boolean = true;
 
+  error: boolean = false;
   constructor(private hierarchicalService: HierarchicalService,
               private datasetService: DatasetService,
               private resourceService: ResourceService,
@@ -58,6 +60,11 @@ export class OptimalComponent implements OnInit {
     }
   }
 
+
+  atLeastOneAttribute(): boolean {
+    return this.selectedAttributes.some(attribute => attribute);
+  }
+
   historyPreview() {
     const getDatasetList$ = this.datasetService.getDatasetList();
 
@@ -67,7 +74,6 @@ export class OptimalComponent implements OnInit {
         dataset.dataset === this.param_dataset && dataset.access_type === this.param_accessType
       );
 
-      this.maxClusters = this.param_maxClusters;
       this.sampleToggle = this.param_sample;
 
       const readDataset$ = this.datasetService.readDataset(this.selectedDataset);
@@ -75,18 +81,19 @@ export class OptimalComponent implements OnInit {
       readDataset$.pipe(
         switchMap((response) => {
           this.availableAttributes = [...response.attributes];
-          this.selectedAttributes = new Array(this.availableAttributes.length).fill(false);
-          this.param_attributes.split(",").forEach(attribute => {
-            const index = this.availableAttributes.indexOf(attribute);
-            if (index !== -1) {
-              this.selectedAttributes[index] = true;
-            }
-          });
-
+          this.selectedAttributes = new Array(this.availableAttributes.length).fill(true);
           return of(response);
         })
       ).subscribe(() => {
-        this.runAlgorithm();
+        this.param_attributes.split(",").forEach(attribute => {
+          const index = this.availableAttributes.indexOf(attribute);
+          if (index !== -1) {
+            this.selectedAttributes[index] = true;
+          }
+        });
+
+          this.runAlgorithm();
+
       });
     });
   }
@@ -99,12 +106,19 @@ export class OptimalComponent implements OnInit {
       readDataset$.subscribe((response) => {
         console.log(response);
         this.availableAttributes = [...response.attributes];
-        this.selectedAttributes = new Array(this.availableAttributes.length).fill(false);
+        this.selectedAttributes = new Array(this.availableAttributes.length).fill(true);
       });
     }
   }
 
   runAlgorithm(): void {
+
+    if (this.currentTab != 0)
+      return;
+
+    if (!this.atLeastOneAttribute())
+      return;
+
     this.loadingResults = true;
     this.loadingParams = true;
     this.runPressed = true;
@@ -112,7 +126,6 @@ export class OptimalComponent implements OnInit {
     const requestData = {
       filename: this.selectedDataset?.dataset,
       access_type: this.selectedDataset?.access_type,
-      max_clusters: this.maxClusters.toString(),
       sample: this.sampleToggle.toString(),
       attributes: this.availableAttributes
         .filter((option, index) => this.selectedAttributes[index])
@@ -142,7 +155,8 @@ export class OptimalComponent implements OnInit {
       } else if (result.status === 'FINISHED') {
         console.log('Operation finished successfully!');
         this.getOptimalResult(result.id);
-      } else {
+      } else if (result.status === 'ERROR'){
+        this.error = true;
         console.error('Unexpected status:', result.status);
       }
     });
@@ -168,33 +182,56 @@ export class OptimalComponent implements OnInit {
     );
   }
 
-  private transformChartData(allResults: SilhouetteCombo[]): void {
-    const groupByLinkageAndClusters: { [key: string]: { [key: string]: number } } = {};
+  private transformChartData(allResults: any[]): void {
+    const barChartData = [];
+    const barChartLabels = [];
+    const linearChartData = [];
 
-    allResults.forEach((result) => {
-      const linkage = result.linkage;
-      const clusters = result.clusters;
-      const score = result.score;
-
-      if (!groupByLinkageAndClusters[linkage]) {
-        groupByLinkageAndClusters[linkage] = {};
-      }
-
-      groupByLinkageAndClusters[linkage][clusters] = score;
+      allResults.forEach(result => {
+      barChartLabels.push(`${result.linkage} - ${result.clusters}`);
+      barChartData.push(result.max_inconsistency);
+      linearChartData.push(result.clusters);
     });
 
-    this.silhouetteCombos = Object.keys(groupByLinkageAndClusters).map((linkage) => {
-      return {
-        data: Object.values(groupByLinkageAndClusters[linkage]),
-        label: linkage
-      };
-    });
+    this.chartData = [
+      { data: barChartData, label: 'Max Inconsistency', type: 'bar' },
+      { data: linearChartData, label: 'Clusters', type: 'line' }
+    ];
 
-    const clusters = Object.keys(groupByLinkageAndClusters[Object.keys(groupByLinkageAndClusters)[0]] || {});
-
-    this.chartData = this.silhouetteCombos;
-    this.chartLabels = clusters;
+    this.chartLabels = barChartLabels;
   }
+
+
+
+
+
+  // private transformChartData(allResults: SilhouetteCombo[]): void {
+  //   const groupByLinkageAndClusters: { [key: string]: { [key: string]: number } } = {};
+  //
+  //   allResults.forEach((result) => {
+  //     const linkage = result.linkage;
+  //     const clusters = result.clusters;
+  //     const score = result.score;
+  //
+  //     if (!groupByLinkageAndClusters[linkage]) {
+  //       groupByLinkageAndClusters[linkage] = {};
+  //     }
+  //
+  //     groupByLinkageAndClusters[linkage][clusters] = score;
+  //   });
+  //
+  //   this.silhouetteCombos = Object.keys(groupByLinkageAndClusters).map((linkage) => {
+  //     return {
+  //       data: Object.values(groupByLinkageAndClusters[linkage]),
+  //       label: linkage
+  //     };
+  //   });
+  //
+  //   const clusters = Object.keys(groupByLinkageAndClusters[Object.keys(groupByLinkageAndClusters)[0]] || {});
+  //
+  //   this.chartData = this.silhouetteCombos;
+  //   this.chartLabels = clusters;
+  // }
 
 
   redirectToAnalysis(): void {

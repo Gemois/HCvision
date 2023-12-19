@@ -1,4 +1,5 @@
 .home-container {
+
   max-width: 50%;
   margin: 0 auto;
   padding: 20px;
@@ -25,15 +26,21 @@
   margin-bottom: 20px;
 }
 
+
+html {
+  background-color: rgb(245, 245, 245);
+
+}
+
 img {
   max-width: 50%;
   height: 100%;
 }
-.background-container {
-  background-color: rgb(245, 245, 245);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  width: 100%;
-}
+/*.background-container {*/
+/*  background-color: rgb(245, 245, 245);*/
+/*  display: flex;*/
+/*  justify-content: center;*/
+/*  align-items: center;*/
+/*  height: 100%;*/
+/*  width: 100%;*/
+/*}*/

@@ -9,6 +9,7 @@ import {ProfileComponent} from "../components/profile/profile.component";
 import {LoginComponent} from "../components/auth/login/login.component";
 import {RegisterComponent} from "../components/auth/register/register.component";
 import {AuthGuard} from "./auth.guard";
+import {ResetPasswordComponent} from "../components/auth/reset-password/reset-password.component";
 
 
 const routes: Routes = [
@@ -20,6 +21,7 @@ const routes: Routes = [
   {path: 'profile', component: ProfileComponent, canActivate: [AuthGuard]},
   {path: 'login', component: LoginComponent},
   {path: 'register', component: RegisterComponent},
+  { path: 'reset-password', component: ResetPasswordComponent }, // Add this line
 
 ];
 

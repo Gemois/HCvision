@@ -1,12 +1,13 @@
+
 <mat-tab-group [(selectedIndex)]="selectedIndex" (click)="removeQueryParams();">
   <mat-tab label="Optimal Parameters" (click)="selectTab('first')">
     <app-optimal
       [param_script]="script"
       [param_dataset]="dataset"
       [param_accessType]="accessType"
-      [param_maxClusters]="maxClusters"
       [param_attributes]="attributes"
-      [param_sample]="sample"></app-optimal>
+      [param_sample]="sample"
+      [currentTab]="selectedIndex"></app-optimal>
   </mat-tab>
   <mat-tab label="Analysis" (click)="selectTab('second')">
     <app-analysis
@@ -16,6 +17,8 @@
       [param_linkage]="linkage"
       [param_numClusters]="numClusters"
       [param_attributes]="attributes"
-      [param_sample]="sample"></app-analysis>
+      [currentTab]="selectedIndex"></app-analysis>
+      []
   </mat-tab>
 </mat-tab-group>
+

@@ -13,7 +13,6 @@ export class HierarchicalComponent implements OnInit {
   accessType: string;
   linkage: string;
   numClusters: number;
-  maxClusters: number;
   attributes: string;
   sample: boolean;
   selectedIndex: number = 0;
@@ -32,7 +31,6 @@ export class HierarchicalComponent implements OnInit {
         this.accessType = params['accessType'];
         this.linkage = params['linkage'];
         this.numClusters = params['numClusters'];
-        this.maxClusters = params['maxClusters'];
         this.attributes = params['attributes'];
         this.sample = params['sample'];
         this.selectedIndex = this.script === 'Optimal' ? 0 : 1;

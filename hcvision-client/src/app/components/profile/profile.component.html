@@ -1,3 +1,50 @@
+<!--<div *ngIf="user">-->
+<!--  <mat-card class="user-card" [ngClass]="{'editing-mode': isEditing}">-->
+<!--    <mat-card-header>-->
+<!--      <div mat-card-avatar class="user-avatar">-->
+<!--        <img src="https://cdn-icons-png.flaticon.com/512/6596/6596121.png" alt="User Avatar"/>-->
+<!--      </div>-->
+<!--      <mat-card-title>{{ user.firstname }} {{ user.lastname }}</mat-card-title>-->
+<!--    </mat-card-header>-->
+
+<!--    <mat-card-content *ngIf="!isEditing">-->
+<!--      <div>-->
+<!--        <label>Email:</label>-->
+<!--        <p>{{ user.email }}</p>-->
+<!--      </div>-->
+<!--    </mat-card-content>-->
+
+<!--    <mat-card-content *ngIf="isEditing">-->
+<!--      <form [formGroup]="userForm">-->
+<!--        <mat-form-field>-->
+<!--          <label for="firstname">First Name:</label>-->
+<!--          <input matInput type="text" id="firstname" formControlName="firstname"/>-->
+<!--        </mat-form-field>-->
+<!--        <mat-form-field>-->
+<!--          <label for="lastname">Last Name:</label>-->
+<!--          <input matInput type="text" id="lastname" formControlName="lastname"/>-->
+<!--        </mat-form-field>-->
+<!--        <mat-form-field>-->
+<!--          <label for="email">Email:</label>-->
+<!--          <input matInput type="text" id="email" formControlName="email"/>-->
+<!--        </mat-form-field>-->
+<!--        <mat-form-field>-->
+<!--          <label for="password">Password:</label>-->
+<!--          <input matInput type="text" id="password" formControlName="password"/>-->
+<!--        </mat-form-field>-->
+<!--      </form>-->
+<!--    </mat-card-content>-->
+
+<!--    <mat-card-actions *ngIf="isEditing">-->
+<!--      <button mat-button color="primary" class="card-button" (click)="updateUser()">Save</button>-->
+<!--    </mat-card-actions>-->
+
+<!--    <mat-card-actions *ngIf="!isEditing">-->
+<!--      <button mat-button color="primary" class="card-button" (click)="editUser()">Edit</button>-->
+<!--      <button mat-button color="warn" class="card-button" (click)="deleteUser()">Delete</button>-->
+<!--    </mat-card-actions>-->
+<!--  </mat-card>-->
+<!--</div>-->
 <div *ngIf="user">
   <mat-card class="user-card" [ngClass]="{'editing-mode': isEditing}">
     <mat-card-header>
@@ -8,35 +55,45 @@
     </mat-card-header>
 
     <mat-card-content *ngIf="!isEditing">
-      <div>
-        <label>Email:</label>
+      <div class="label-value">
+        <label for="firstname">First Name:</label>
+        <p>{{ user.firstname }}</p>
+      </div>
+      <div class="label-value">
+        <label for="lastname">Last Name:</label>
+        <p>{{ user.lastname }}</p>
+      </div>
+      <div class="label-value">
+        <label for="email">Email:</label>
         <p>{{ user.email }}</p>
       </div>
     </mat-card-content>
 
     <mat-card-content *ngIf="isEditing">
-      <form [formGroup]="userForm">
-        <mat-form-field>
-          <label for="firstname">First Name:</label>
-          <input matInput type="text" id="firstname" formControlName="firstname"/>
-        </mat-form-field>
-        <mat-form-field>
-          <label for="lastname">Last Name:</label>
-          <input matInput type="text" id="lastname" formControlName="lastname"/>
-        </mat-form-field>
-        <mat-form-field>
-          <label for="email">Email:</label>
-          <input matInput type="text" id="email" formControlName="email"/>
-        </mat-form-field>
-        <mat-form-field>
-          <label for="password">Password:</label>
-          <input matInput type="text" id="password" formControlName="password"/>
-        </mat-form-field>
-      </form>
+            <form [formGroup]="userForm">
+              <mat-form-field>
+                <label for="firstname">First Name:</label>
+                <input matInput type="text" id="firstname" formControlName="firstname"/>
+              </mat-form-field>
+              <mat-form-field>
+                <label for="lastname">Last Name:</label>
+                <input matInput type="text" id="lastname" formControlName="lastname"/>
+              </mat-form-field>
+              <mat-form-field>
+                <label for="email">Email:</label>
+                <input matInput type="text" id="email" formControlName="email"/>
+              </mat-form-field>
+              <mat-form-field>
+                <label for="password">Password:</label>
+                <input matInput type="text" id="password" formControlName="password"/>
+              </mat-form-field>
+            </form>
     </mat-card-content>
 
     <mat-card-actions *ngIf="isEditing">
       <button mat-button color="primary" class="card-button" (click)="updateUser()">Save</button>
+      <button mat-button color="warn" class="card-button" (click)="cancelEdit()">Cancel</button>
+
     </mat-card-actions>
 
     <mat-card-actions *ngIf="!isEditing">

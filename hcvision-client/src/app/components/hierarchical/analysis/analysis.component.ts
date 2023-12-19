@@ -10,6 +10,7 @@ import {MatTableDataSource} from "@angular/material/table";
 import {MatPaginator} from "@angular/material/paginator";
 import {forkJoin, of, switchMap} from "rxjs";
 import {NavigationEnd, Router} from "@angular/router";
+import {FormBuilder, FormGroup, Validators} from "@angular/forms";
 
 @Component({
   selector: 'app-analysis',
@@ -28,8 +29,8 @@ export class AnalysisComponent implements OnInit {
   datasets: Dataset[] = [];
   selectedDataset: Dataset | null = null;
   selectedLinkage: string = 'single';
-  numClusters: number = 0;
-  sampleToggle: boolean = false;
+  numClusters: number = 2;
+  sampleToggle: boolean = true;
   availableAttributes: any[] = [];
   selectedAttributes: any[] = [];
 
@@ -42,6 +43,10 @@ export class AnalysisComponent implements OnInit {
   parallelCoordinates: string;
   clusterAssignments: any[]
 
+  error: boolean = false;
+  @Input() currentTab: number;
+
+
   dataSource: MatTableDataSource<any>;
   displayedColumns: string[];
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -49,7 +54,7 @@ export class AnalysisComponent implements OnInit {
   constructor(private hierarchicalService: HierarchicalService,
               private datasetService: DatasetService,
               private resourceService: ResourceService,
-              private customSnackbarService: SnackbarService, private dialog: MatDialog, private router:Router) {
+              private customSnackbarService: SnackbarService,private fb: FormBuilder, private dialog: MatDialog, private router:Router) {
 
   }
 
@@ -108,12 +113,12 @@ export class AnalysisComponent implements OnInit {
       readDataset$.pipe(
         switchMap((response) => {
           this.availableAttributes = [...response.attributes];
-          this.selectedAttributes = new Array(this.availableAttributes.length).fill(false);
+          this.selectedAttributes = new Array(this.availableAttributes.length).fill(true);
 
           return of(response);
         })
       ).subscribe((response) => {
-        this.param_attributes.split(",").forEach(attribute => {
+        this.param_attributes.split(" ").forEach(attribute => {
           const index = this.availableAttributes.indexOf(attribute);
           console.log(index)
           if (index !== -1) {
@@ -133,12 +138,19 @@ export class AnalysisComponent implements OnInit {
 
       readDataset$.subscribe((response) => {
         this.availableAttributes = [...response.attributes];
-        this.selectedAttributes = new Array(this.availableAttributes.length).fill(false);
+        this.selectedAttributes = new Array(this.availableAttributes.length).fill(true);
       });
     }
   }
 
   runAnalysis(): void {
+
+    // if (this.currentTab !== 1)
+    //   return;
+
+    // if (!this.atLeastOneAttribute())
+    //   return;
+
     this.loadingResults = true;
     this.loadingParams = true;
     this.runPressed = true;
@@ -167,6 +179,10 @@ export class AnalysisComponent implements OnInit {
     );
   }
 
+  atLeastOneAttribute(): boolean {
+    return this.selectedAttributes.some(attribute => attribute);
+  }
+
   private pollForStatus(requestData: any): void {
     this.hierarchicalService.runAnalysis(requestData).subscribe((result) => {
       console.log('Result:', result);
@@ -176,7 +192,8 @@ export class AnalysisComponent implements OnInit {
       } else if (result.status === 'FINISHED') {
         console.log('Operation finished successfully!');
         this.getAnalysisResults(result.id);
-      } else {
+      } else if (result.status === 'ERROR'){
+        this.error = true;
         console.error('Unexpected status:', result.status);
       }
     });

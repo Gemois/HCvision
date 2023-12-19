@@ -61,3 +61,9 @@
   display: block;
   margin: 0 auto;
 }
+
+.horizontal-checkbox-container {
+  display: flex;
+  flex-wrap: wrap; /* Allow items to wrap onto the next line if the container is not wide enough */
+  margin-bottom: 16px; /* Add some space between rows, adjust as needed */
+}

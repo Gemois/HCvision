@@ -23,6 +23,12 @@ export class HistoryComponent implements OnInit {
   showHistoryList() {
     this.historyService.getHistoryList().subscribe({
         next: (data) => {
+          data.sort((a, b) => {
+            const timestampA = new Date(a.started_at).getTime();
+            const timestampB = new Date(b.started_at).getTime();
+
+            return timestampB - timestampA;
+          });
           this.historyList = data;
         },
         error: (error) => {
