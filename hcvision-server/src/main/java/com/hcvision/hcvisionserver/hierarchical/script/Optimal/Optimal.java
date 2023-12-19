@@ -34,8 +34,6 @@ public class Optimal implements PythonScript {
     @JoinColumn(nullable = false, name = "dataset_id")
     private Dataset dataset;
 
-    private int maxClusters;
-
     private boolean sample;
 
     private String attributes;
@@ -49,12 +47,11 @@ public class Optimal implements PythonScript {
     @Enumerated
     private ResultStatus status;
 
-    private String silhouette;
+    private String inconsistencyCoefficient;
 
-    public Optimal(User user, Dataset dataset, int maxClusters, boolean isSample, String attributes, ResultStatus status) {
+    public Optimal(User user, Dataset dataset, boolean isSample, String attributes, ResultStatus status) {
         this.user = user;
         this.dataset = dataset;
-        this.maxClusters = maxClusters;
         this.sample = isSample;
         this.attributes = attributes;
         this.status = status;
@@ -77,16 +74,13 @@ public class Optimal implements PythonScript {
         return List.of(attributes.split(","));
     }
 
-    @JsonPropertyOrder({"id", "dataset", "max_clusters", "attributes", "sample", "status", "duration", "silhouette"})
+    @JsonPropertyOrder({"id", "dataset", "attributes", "sample", "status", "duration", "max-inconsistency"})
     public interface ProjectOptimal {
         @JsonProperty("id")
         Long getId();
 
         @JsonProperty("dataset")
         Dataset.ProjectNameAndAccessType getDataset();
-
-        @JsonProperty("max_clusters")
-        int getMaxClusters();
 
         @JsonProperty("attributes")
         List<String> getAttributes();
@@ -100,8 +94,8 @@ public class Optimal implements PythonScript {
         @JsonProperty("duration")
         long getDuration();
 
-        @JsonProperty("silhouette")
-        String getSilhouette();
+        @JsonProperty("max-inconsistency")
+        String getInconsistencyCoefficient();
     }
 
     @JsonPropertyOrder({"id", "status"})

@@ -22,9 +22,6 @@ public class OptimalRequest {
     @JsonProperty("access_type")
     AccessType accessType;
 
-    @JsonProperty("max_clusters")
-    int maxClusters;
-
     @JsonProperty("sample")
     boolean isSample;
 

@@ -20,8 +20,8 @@ public class HistoryController {
         return ResponseEntity.ok(service.getHistoryById(id, jwt));
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteHistory(@RequestBody long id, @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteHistory(@PathVariable long id, @RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
         return ResponseEntity.ok(service.deleteHistory(id, jwt));
     }
 

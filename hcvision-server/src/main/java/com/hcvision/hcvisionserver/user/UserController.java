@@ -31,7 +31,7 @@ public class UserController {
         return ResponseEntity.ok(service.forgotPassword(request));
     }
 
-    @PostMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(value = "/delete", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> deleteUser(@RequestHeader(HttpHeaders.AUTHORIZATION) String jwt) {
         return ResponseEntity.ok(service.deleteUser(jwt));
     }
