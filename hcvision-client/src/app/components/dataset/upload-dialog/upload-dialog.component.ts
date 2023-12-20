@@ -16,7 +16,7 @@ export class UploadDialogComponent {
   ) {}
 
   onDialogClose(): void {
-    this.dialogRef.close({ file: this.selectedFile, accessType: this.data.accessType });
+    this.dialogRef.close();
   }
 
 

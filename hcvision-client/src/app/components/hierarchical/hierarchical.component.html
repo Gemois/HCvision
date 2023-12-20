@@ -1,4 +1,3 @@
-
 <mat-tab-group [(selectedIndex)]="selectedIndex" (click)="removeQueryParams();">
   <mat-tab label="Optimal Parameters" (click)="selectTab('first')">
     <app-optimal
@@ -18,7 +17,6 @@
       [param_numClusters]="numClusters"
       [param_attributes]="attributes"
       [currentTab]="selectedIndex"></app-analysis>
-      []
   </mat-tab>
 </mat-tab-group>
 

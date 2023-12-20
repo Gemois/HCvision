@@ -88,7 +88,6 @@ export class AnalysisComponent implements OnInit {
         this.datasets = datasets;
         this.runPressed = false;
         this.script = this.param_script;
-
       });
     } else {
       this.historyPreview();
@@ -159,8 +158,8 @@ export class AnalysisComponent implements OnInit {
       filename: this.selectedDataset?.dataset,
       access_type: this.selectedDataset?.access_type,
       linkage: this.selectedLinkage,
-      n_clusters: this.numClusters.toString(),
-      sample: this.sampleToggle.toString(),
+      n_clusters: this.numClusters,
+      sample: this.sampleToggle,
       attributes: this.availableAttributes
         .filter((option, index) => this.selectedAttributes[index])
     };

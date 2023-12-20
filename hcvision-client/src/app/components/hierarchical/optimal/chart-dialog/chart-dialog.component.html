@@ -1,0 +1,13 @@
+<mat-dialog-actions>
+  <button mat-button (click)="onClose()">Close</button>
+</mat-dialog-actions>
+
+<mat-dialog-content>
+  <mat-card-title>Silhouette Chart</mat-card-title>
+  <canvas baseChart
+          [datasets]="data.chartData"
+          [labels]="data.chartLabels"
+          [options]="data.chartOptions"
+  ></canvas>
+</mat-dialog-content>
+

@@ -1,4 +1,4 @@
-import {CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
+import {NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 
 import {AppComponent} from './app.component';
@@ -59,6 +59,7 @@ import {FlexModule} from "@angular/flex-layout";
 import { ResetPasswordComponent } from './components/auth/reset-password/reset-password.component';
 import { ResetPasswordDialogComponent } from './components/auth/reset-password/reset-password-dialog/reset-password-dialog.component';
 import {AttributeValidatorDirective} from "./directives/attribute-validator.directive";
+import { ChartDialogComponent } from './components/hierarchical/optimal/chart-dialog/chart-dialog.component';
 
 @NgModule({
   declarations: [
@@ -86,6 +87,7 @@ import {AttributeValidatorDirective} from "./directives/attribute-validator.dire
     ResetPasswordComponent,
     ResetPasswordDialogComponent,
     AttributeValidatorDirective,
+    ChartDialogComponent,
 
   ],
   imports: [

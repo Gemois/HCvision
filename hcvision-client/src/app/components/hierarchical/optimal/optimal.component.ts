@@ -1,12 +1,13 @@
-import {ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {Dataset} from "../../../models/Dataset";
 import {HierarchicalService} from "../../../services/hierarchical.service";
 import {DatasetService} from "../../../services/dataset.service";
 import {ResourceService} from "../../../services/resource.service";
-import {SilhouetteCombo} from "../../../models/SilhouetteCombo";
 import {SnackbarService} from "../../../services/snackbar.service";
 import {forkJoin, of, switchMap} from "rxjs";
 import {Router} from "@angular/router";
+import {ChartDialogComponent} from "./chart-dialog/chart-dialog.component";
+import {MatDialog} from "@angular/material/dialog";
 
 @Component({
   selector: 'app-optimal',
@@ -21,32 +22,61 @@ export class OptimalComponent implements OnInit {
   @Input() param_sample: boolean;
   @Input() currentTab: number;
 
-
   datasets: Dataset[] = [];
   selectedDataset: Dataset | null = null;
-  maxClusters: number = 2;
   sampleToggle: boolean = true;
   availableAttributes: any[] = [];
   selectedAttributes: boolean[] = [];
 
-  silhouetteCombos: any[] = [];
   chartData: any[] = [];
   chartLabels: string[] = [];
   chartOptions: any = {
-    responsive: true
+    scales: {
+      yAxes: [
+        {
+          id: 'y-axis-0',
+          position: 'left',
+          scaleLabel: {
+            display: true,
+            labelString: 'Clusters'
+          },
+          ticks: {
+            beginAtZero: true,
+            callback: function (value, index, values) {
+              return value;
+            }
+          }
+        },
+        {
+          id: 'y-axis-1',
+          position: 'right',
+          scaleLabel: {
+            display: true,
+            labelString: 'Max Inconsistency'
+          },
+          ticks: {
+            beginAtZero: true,
+            callback: function (value, index, values) {
+              return value.toFixed(2);
+            }
+          }
+        }
+      ]
+    }
   };
+
   recommendedLinkage: string | null = null;
   recommendedNumClusters: number | null = null;
 
   runPressed: boolean = false;
   loadingResults: boolean = true;
   loadingParams: boolean = true;
-
   error: boolean = false;
+
   constructor(private hierarchicalService: HierarchicalService,
               private datasetService: DatasetService,
               private resourceService: ResourceService,
-              private customSnackbarService: SnackbarService, private router:Router) {
+              private customSnackbarService: SnackbarService, private router: Router, private dialog: MatDialog) {
   }
 
   ngOnInit(): void {
@@ -92,7 +122,7 @@ export class OptimalComponent implements OnInit {
           }
         });
 
-          this.runAlgorithm();
+        this.runAlgorithm();
 
       });
     });
@@ -151,11 +181,11 @@ export class OptimalComponent implements OnInit {
       console.log('Result:', result);
 
       if (result.status === 'RUNNING') {
-        setTimeout(() => this.pollForStatus(requestData), 1000); // Adjust the delay as needed
+        setTimeout(() => this.pollForStatus(requestData), 1000);
       } else if (result.status === 'FINISHED') {
         console.log('Operation finished successfully!');
         this.getOptimalResult(result.id);
-      } else if (result.status === 'ERROR'){
+      } else if (result.status === 'ERROR') {
         this.error = true;
         console.error('Unexpected status:', result.status);
       }
@@ -187,52 +217,19 @@ export class OptimalComponent implements OnInit {
     const barChartLabels = [];
     const linearChartData = [];
 
-      allResults.forEach(result => {
-      barChartLabels.push(`${result.linkage} - ${result.clusters}`);
-      barChartData.push(result.max_inconsistency);
-      linearChartData.push(result.clusters);
+    allResults.forEach(result => {
+      barChartLabels.push(result.linkage);
+      barChartData.push(result.clusters);
+      linearChartData.push(result.max_inconsistency);
     });
 
     this.chartData = [
-      { data: barChartData, label: 'Max Inconsistency', type: 'bar' },
-      { data: linearChartData, label: 'Clusters', type: 'line' }
+      {data: barChartData, label: 'Clusters', yAxisID: 'y-axis-0', type: 'bar'},
+      {data: linearChartData, label: 'Max Inconsistency', yAxisID: 'y-axis-1', type: 'line'}
     ];
 
     this.chartLabels = barChartLabels;
   }
-
-
-
-
-
-  // private transformChartData(allResults: SilhouetteCombo[]): void {
-  //   const groupByLinkageAndClusters: { [key: string]: { [key: string]: number } } = {};
-  //
-  //   allResults.forEach((result) => {
-  //     const linkage = result.linkage;
-  //     const clusters = result.clusters;
-  //     const score = result.score;
-  //
-  //     if (!groupByLinkageAndClusters[linkage]) {
-  //       groupByLinkageAndClusters[linkage] = {};
-  //     }
-  //
-  //     groupByLinkageAndClusters[linkage][clusters] = score;
-  //   });
-  //
-  //   this.silhouetteCombos = Object.keys(groupByLinkageAndClusters).map((linkage) => {
-  //     return {
-  //       data: Object.values(groupByLinkageAndClusters[linkage]),
-  //       label: linkage
-  //     };
-  //   });
-  //
-  //   const clusters = Object.keys(groupByLinkageAndClusters[Object.keys(groupByLinkageAndClusters)[0]] || {});
-  //
-  //   this.chartData = this.silhouetteCombos;
-  //   this.chartLabels = clusters;
-  // }
-
 
   redirectToAnalysis(): void {
 
@@ -253,6 +250,21 @@ export class OptimalComponent implements OnInit {
     });
   }
 
+
+  openChartDialog(): void {
+    const dialogRef = this.dialog.open(ChartDialogComponent, {
+      width: '50%',
+      data: {
+        chartData: this.chartData,
+        chartLabels: this.chartLabels,
+        chartOptions: this.chartOptions
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('Dialog closed');
+    });
+  }
 
 
 }

@@ -9,9 +9,8 @@
       <mat-list>
         <p><b>Dataset: </b> <span class="label">{{ optimalDetails?.dataset?.dataset }}
           (Access: {{ optimalDetails?.dataset?.access_type }})</span></p>
-        <p><b>Max Clusters: </b> <span class="label">{{ optimalDetails?.max_clusters }}</span></p>
         <p><b>Attributes: </b> <span class="label"
-                                     *ngFor="let attribute of optimalDetails?.attributes">{{ attribute }}</span></p>
+                                     *ngIf="optimalDetails?.attributes">{{ optimalDetails?.attributes.join(', ') }}</span></p>
         <p><b>Sample: </b> <span class="label">{{ optimalDetails?.sample }}</span></p>
       </mat-list>
       <div class="button-container">
@@ -28,9 +27,10 @@
         <p><b>Linkage: </b> <span class="label">{{ analysisDetails?.linkage }}</span></p>
         <p><b>Num Clusters: </b> <span class="label">{{ analysisDetails?.n_clusters }}</span></p>
         <p><b>Attributes: </b> <span class="label"
-                                     *ngFor="let attribute of analysisDetails?.attributes">{{ attribute }}</span></p>
+                                     *ngIf="analysisDetails?.attributes">{{ analysisDetails?.attributes.join(', ') }}</span></p>
         <p><b>Sample: </b> <span class="label">{{ analysisDetails?.sample }}</span></p>
       </mat-list>
+
       <div class="button-container">
         <button mat-raised-button color="primary" style="float: left" (click)="redirectToHierarchical()">Preview
           Analysis Run

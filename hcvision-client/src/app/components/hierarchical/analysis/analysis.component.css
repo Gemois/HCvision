@@ -1,5 +1,5 @@
 .form-container {
-  max-width: 600px;
+  max-width: 800px;
   margin: auto;
 }
 
@@ -35,13 +35,13 @@
 }
 
 .results-card {
-  max-width: 600px;
+  max-width: 800px;
   margin: auto;
   margin-top: 20px;
 }
 
 .recommended-params-card {
-  max-width: 600px;
+  max-width: 800px;
   margin: auto;
   margin-top: 20px;
 }
