@@ -12,8 +12,9 @@ export class UploadDialogComponent {
 
   constructor(
     public dialogRef: MatDialogRef<UploadDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { file:File,accessType : String }
-  ) {}
+    @Inject(MAT_DIALOG_DATA) public data: { file: File, accessType: String }
+  ) {
+  }
 
   onDialogClose(): void {
     this.dialogRef.close();

@@ -1,6 +1,10 @@
 <h2 mat-dialog-title>Upload File</h2>
 <div mat-dialog-content>
-  <input type="file" (change)="handleFileInput($event)">
+  <input type="file" (change)="handleFileInput($event)" #fileInput style="display: none">
+
+  <button mat-raised-button color="primary" (click)="fileInput.click()">Choose File</button>
+  <br>
+  <br>
   <mat-form-field>
     <mat-label>Access Type</mat-label>
     <mat-select [(ngModel)]="data.accessType" name="accessType">
@@ -9,6 +13,8 @@
   </mat-form-field>
 </div>
 <div mat-dialog-actions>
-  <button mat-button (click)="onDialogClose()">Cancel</button>
-  <button mat-button [mat-dialog-close]="{ file: selectedFile, accessType: data.accessType }" cdkFocusInitial>Upload</button>
+  <button mat-raised-button (click)="onDialogClose()">Cancel</button>
+  <button mat-raised-button color="primary" [mat-dialog-close]="{ file: selectedFile, accessType: data.accessType }"
+          cdkFocusInitial>Upload
+  </button>
 </div>

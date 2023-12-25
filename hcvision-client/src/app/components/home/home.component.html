@@ -1,41 +1,69 @@
 <div class="background-container">
   <mat-card-content class="home-container">
-    <mat-card-title class="title">Welcome to HCvision - autoML Hierarchical Clustering Visualizer</mat-card-title>
+    <mat-card-title class="title">Welcome to HCvision - AutoML Hierarchical Clustering Visualizer</mat-card-title>
+    <p class="app-description">
+      Empowering users with no machine learning knowledge and expertise to effortlessly execute Hierarchical Clustering.
+      <br>
+      <br>
+      Try it now by
+      <button mat-raised-button color="primary" routerLink="/login">Login</button>
+      or
+      <button mat-raised-button color="primary" routerLink="/register">Registering</button>
+    </p>
+    <h2 class="section-title">Key Features</h2>
 
-    <h2>Utilize the application by</h2>
-    <mat-card class="algorithm-info">
-      <mat-card-content>
-        <h2>Managing your Datasets</h2>
-        <p>
-          Manage your datasets by uploading, downloading, and deleting CSV or XLSX files. You can also preview the data.
-        </p>
-      </mat-card-content>
-    </mat-card>
+    <section class="feature">
+      <mat-card-title class="feature-title">Dataset Management</mat-card-title>
+      <mat-card class="algorithm-info">
+        <mat-card-content>
+          <p>
+            Seamlessly manage your datasets by effortlessly uploading, downloading, and deleting CSV or XLSX files. Gain
+            insights
+            into your data with the ability to preview it before making critical decisions.
+          </p>
+        </mat-card-content>
+      </mat-card>
+    </section>
 
-    <mat-card class="algorithm-info">
-      <mat-card-content>
-        <h2>Determining the Best Linkage and Number of Clusters for Hierarchical Clustering</h2>
-        <p>
-          Determine the optimal linkage and number of clusters for Hierarchical Clustering using the Inconsistency Coefficient.
-          The Silhouette Score measures how well-defined the clusters are, helping you choose the best configuration for
-          your data.
-        </p>
-        <img src="../../../assets/home/silhouette.png" alt="Algorithm 1 Result Diagram">
-        <p>Diagram illustrating the silhouette score results per linkage method and number of clusters.</p>
-      </mat-card-content>
-    </mat-card>
+    <section class="feature">
+      <mat-card-title class="feature-title">Optimal Parameters Selection</mat-card-title>
+      <mat-card class="algorithm-info">
+        <mat-card-content>
+          <p>
+            Let our advanced algorithms take the guesswork out of Hierarchical Clustering. Automatically determine the
+            optimal
+            linkage and number of clusters using the Inconsistency Coefficient. The optimal configuration is the one
+            with the
+            maximum coefficient, indicating a more robust and well-defined clustering structure.
+          </p>
+          <div class="result-diagram">
+            <img src="../../../assets/home/Inconsistety.jpg" alt="Inconsistency Coefficient Chart">
+            <p>Chart illustrating the number of clusters determined by cutting the dendrogram based on the Inconsistency
+              Coefficient per linkage.</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </section>
 
-    <mat-card class="algorithm-info">
-      <mat-card-content>
-        <h2>Running Hierarchical Clustering</h2>
-        <p>
-          Utilize the power of Hierarchical Clustering to discover patterns in your data.-->
-          Explore the results through informative visualizations like dendrograms and parallel coordinates plots. </p>
-        <img src="../../../assets/home/dendrogram.png" alt="Algorithm 2 Dendrogram">
-        <img src="../../../assets/home/parallel_coordinates.png" alt="Algorithm 2 Parallel Coordinates">
-      </mat-card-content>
-    </mat-card>
+    <section class="feature">
+      <mat-card-title class="feature-title">Run Hierarchical Clustering</mat-card-title>
+      <mat-card class="algorithm-info">
+        <mat-card-content>
+          <p>
+            Harness the power of Hierarchical Clustering to uncover hidden patterns in your data. Explore the results
+            through
+            informative visualizations, such as dendrograms and parallel coordinates plots, providing you with valuable
+            insights
+            into your dataset's structure.
+          </p>
+          <div class="visualization">
+            <img src="../../../assets/home/dendrogram.png" alt="Algorithm 2 Dendrogram">
+            <img src="../../../assets/home/parallel_coordinates.png" alt="Algorithm 2 Parallel Coordinates">
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </section>
 
   </mat-card-content>
 </div>
-
+<app-footer></app-footer>

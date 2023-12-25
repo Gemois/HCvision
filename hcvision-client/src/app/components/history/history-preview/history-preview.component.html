@@ -1,6 +1,6 @@
-<div *ngIf="id && script">
+<div *ngIf="id && script" class="history-details">
   <mat-card-header>
-    <mat-card-title>
+    <mat-card-title class="details-title">
       {{ script === 'Optimal' ? 'Optimal Details' : 'Analysis Details' }}
     </mat-card-title>
   </mat-card-header>
@@ -10,14 +10,15 @@
         <p><b>Dataset: </b> <span class="label">{{ optimalDetails?.dataset?.dataset }}
           (Access: {{ optimalDetails?.dataset?.access_type }})</span></p>
         <p><b>Attributes: </b> <span class="label"
-                                     *ngIf="optimalDetails?.attributes">{{ optimalDetails?.attributes.join(', ') }}</span></p>
+                                     *ngIf="optimalDetails?.attributes">{{ optimalDetails?.attributes.join(', ') }}</span>
+        </p>
         <p><b>Sample: </b> <span class="label">{{ optimalDetails?.sample }}</span></p>
       </mat-list>
       <div class="button-container">
-        <button mat-raised-button color="primary" style="float: left" (click)="redirectToHierarchical()">Preview Optimal
-          Run
+        <button mat-raised-button color="primary" style="float: left;" (click)="redirectToHierarchical()">Preview
+          Optimal Run
         </button>
-        <button mat-raised-button color="warn" style="float: right" (click)="deleteHistoryById(id)">Delete</button>
+        <button mat-raised-button color="warn" style="float: right;" (click)="deleteHistoryById(id)">Delete</button>
       </div>
     </div>
     <div *ngIf="script === 'Analysis'">
@@ -27,15 +28,15 @@
         <p><b>Linkage: </b> <span class="label">{{ analysisDetails?.linkage }}</span></p>
         <p><b>Num Clusters: </b> <span class="label">{{ analysisDetails?.n_clusters }}</span></p>
         <p><b>Attributes: </b> <span class="label"
-                                     *ngIf="analysisDetails?.attributes">{{ analysisDetails?.attributes.join(', ') }}</span></p>
+                                     *ngIf="analysisDetails?.attributes">{{ analysisDetails?.attributes.join(', ') }}</span>
+        </p>
         <p><b>Sample: </b> <span class="label">{{ analysisDetails?.sample }}</span></p>
       </mat-list>
-
       <div class="button-container">
-        <button mat-raised-button color="primary" style="float: left" (click)="redirectToHierarchical()">Preview
+        <button mat-raised-button color="primary" style="float: left;" (click)="redirectToHierarchical()">Preview
           Analysis Run
         </button>
-        <button mat-raised-button color="warn" style="float: right" (click)="deleteHistoryById(id)">Delete</button>
+        <button mat-raised-button color="warn" style="float: right;" (click)="deleteHistoryById(id)">Delete</button>
       </div>
     </div>
   </mat-card-content>

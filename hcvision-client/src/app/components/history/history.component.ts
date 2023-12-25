@@ -1,7 +1,8 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit, ViewChild} from '@angular/core';
 import {HistoryService} from "../../services/history.service";
 import {Router} from "@angular/router";
 import {SnackbarService} from "../../services/snackbar.service";
+import {AnalysisComponent} from "../hierarchical/analysis/analysis.component";
 
 @Component({
   selector: 'app-history',
@@ -15,6 +16,7 @@ export class HistoryComponent implements OnInit {
   constructor(private historyService: HistoryService, private snackbarService: SnackbarService, private router: Router) {
 
   }
+
 
   ngOnInit(): void {
     this.showHistoryList();

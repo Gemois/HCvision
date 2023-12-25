@@ -1,5 +1,8 @@
-.home-container {
+.background-container {
+  background-color: #f0f0f0;
+}
 
+.home-container {
   max-width: 50%;
   margin: 0 auto;
   padding: 20px;
@@ -7,13 +10,27 @@
 }
 
 .title {
-  text-align: center;
   margin-bottom: 20px;
-  font-size: 25px;
+  font-size: 28px;
+}
+
+.app-description {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 24px;
+  margin-bottom: 15px;
 }
 
 .algorithm-info {
   margin-bottom: 20px;
+  text-align: center;
+}
+
+.result-diagram {
+  text-align: center;
 }
 
 .results-section {
@@ -26,21 +43,12 @@
   margin-bottom: 20px;
 }
 
-
 html {
   background-color: rgb(245, 245, 245);
-
 }
 
 img {
   max-width: 50%;
   height: 100%;
 }
-/*.background-container {*/
-/*  background-color: rgb(245, 245, 245);*/
-/*  display: flex;*/
-/*  justify-content: center;*/
-/*  align-items: center;*/
-/*  height: 100%;*/
-/*  width: 100%;*/
-/*}*/
+

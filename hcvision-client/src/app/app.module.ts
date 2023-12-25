@@ -60,6 +60,9 @@ import { ResetPasswordComponent } from './components/auth/reset-password/reset-p
 import { ResetPasswordDialogComponent } from './components/auth/reset-password/reset-password-dialog/reset-password-dialog.component';
 import {AttributeValidatorDirective} from "./directives/attribute-validator.directive";
 import { ChartDialogComponent } from './components/hierarchical/optimal/chart-dialog/chart-dialog.component';
+import { OptimalResultsHelpDialogComponent } from './components/hierarchical/optimal/optimal-help-dialog/optimal-results-help-dialog.component';
+import { AnalysisHelpDialogComponent } from './components/hierarchical/analysis/analysis-help-dialog/analysis-help-dialog.component';
+import { OptimalRunHelpDialogComponent } from './components/hierarchical/optimal/optimal-run-help-dialog/optimal-run-help-dialog.component';
 
 @NgModule({
   declarations: [
@@ -88,8 +91,9 @@ import { ChartDialogComponent } from './components/hierarchical/optimal/chart-di
     ResetPasswordDialogComponent,
     AttributeValidatorDirective,
     ChartDialogComponent,
-
-  ],
+    OptimalResultsHelpDialogComponent,
+    AnalysisHelpDialogComponent,
+    OptimalRunHelpDialogComponent],
   imports: [
     BrowserModule,
     RouterLink,
@@ -123,8 +127,7 @@ import { ChartDialogComponent } from './components/hierarchical/optimal/chart-di
     MatExpansionModule,
     MatProgressBarModule,
     MatSidenavModule,
-    FlexModule
-  ],
+    FlexModule],
   providers: [{
     provide: HTTP_INTERCEPTORS,
     useClass: AuthInterceptor,

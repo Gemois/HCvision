@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {DatasetService} from "../../../services/dataset.service";
 import {Dataset} from "../../../models/Dataset";
 import {HierarchicalService} from "../../../services/hierarchical.service";
@@ -11,6 +11,8 @@ import {MatPaginator} from "@angular/material/paginator";
 import {forkJoin, of, switchMap} from "rxjs";
 import {NavigationEnd, Router} from "@angular/router";
 import {FormBuilder, FormGroup, Validators} from "@angular/forms";
+import {OptimalRunHelpDialogComponent} from "../optimal/optimal-run-help-dialog/optimal-run-help-dialog.component";
+import {AnalysisHelpDialogComponent} from "./analysis-help-dialog/analysis-help-dialog.component";
 
 @Component({
   selector: 'app-analysis',
@@ -30,7 +32,7 @@ export class AnalysisComponent implements OnInit {
   selectedDataset: Dataset | null = null;
   selectedLinkage: string = 'single';
   numClusters: number = 2;
-  sampleToggle: boolean = true;
+  sampleToggle: boolean;
   availableAttributes: any[] = [];
   selectedAttributes: any[] = [];
 
@@ -54,9 +56,19 @@ export class AnalysisComponent implements OnInit {
   constructor(private hierarchicalService: HierarchicalService,
               private datasetService: DatasetService,
               private resourceService: ResourceService,
-              private customSnackbarService: SnackbarService,private fb: FormBuilder, private dialog: MatDialog, private router:Router) {
+              private customSnackbarService: SnackbarService, private fb: FormBuilder,
+              private dialog: MatDialog,
+              private router: Router) {
 
   }
+
+
+  openRunInfoDialog(): void {
+    const dialogRef = this.dialog.open(AnalysisHelpDialogComponent, {
+      width: '900px',
+    });
+  }
+
 
   openImageDialog(imageUrl: string): void {
     this.dialog.open(ImageDialogComponent, {
@@ -76,8 +88,6 @@ export class AnalysisComponent implements OnInit {
         this.historyPreview();
       }
     });
-
-
 
 
     console.log(this.script);
@@ -112,7 +122,7 @@ export class AnalysisComponent implements OnInit {
       readDataset$.pipe(
         switchMap((response) => {
           this.availableAttributes = [...response.attributes];
-          this.selectedAttributes = new Array(this.availableAttributes.length).fill(true);
+          this.selectedAttributes = new Array(this.availableAttributes.length).fill(false);
 
           return of(response);
         })
@@ -120,16 +130,16 @@ export class AnalysisComponent implements OnInit {
         this.param_attributes.split(" ").forEach(attribute => {
           const index = this.availableAttributes.indexOf(attribute);
           console.log(index)
-          if (index !== -1) {
-            this.selectedAttributes[index] = true;
-            console.log(this.availableAttributes);
-          }
+          // if (index !== -1) {
+          this.selectedAttributes[index] = true;
+          // }
         });
+
+
         this.runAnalysis();
       });
     });
   }
-
 
   onDatasetSelect(): void {
     if (this.selectedDataset) {
@@ -178,6 +188,11 @@ export class AnalysisComponent implements OnInit {
     );
   }
 
+  updateSampleToggle() {
+    this.sampleToggle = this.param_sample;
+  }
+
+
   atLeastOneAttribute(): boolean {
     return this.selectedAttributes.some(attribute => attribute);
   }
@@ -191,7 +206,7 @@ export class AnalysisComponent implements OnInit {
       } else if (result.status === 'FINISHED') {
         console.log('Operation finished successfully!');
         this.getAnalysisResults(result.id);
-      } else if (result.status === 'ERROR'){
+      } else if (result.status === 'ERROR') {
         this.error = true;
         console.error('Unexpected status:', result.status);
       }

@@ -1,3 +1,4 @@
+
 <mat-sidenav-container>
   <mat-sidenav-content>
     <mat-toolbar color="primary">
@@ -13,6 +14,7 @@
           <button mat-button routerLink="/hierarchical">Hierarchical</button>
           <button mat-button routerLink="/history">History</button>
           <button mat-button routerLink="/profile">Profile</button>
+          <button mat-button (click)="openRateForm()">Rate us</button>
           <span *ngIf="!isAuthenticated();" class="login-button">
       <button mat-button routerLink="/login">Login</button>
     </span>
@@ -39,6 +41,7 @@
         <a mat-list-item routerLink="/hierarchical">Hierarchical</a>
         <a mat-list-item routerLink="/history">History</a>
         <a mat-list-item routerLink="/profile">Profile</a>
+        <a mat-list-item (click)="openRateForm()">Rate us</a>
         <a *ngIf="!isAuthenticated();" mat-list-item routerLink="/login">Login</a>
         <a *ngIf="isAuthenticated();" mat-list-item (click)="logout()">Logout</a>
       </mat-nav-list>

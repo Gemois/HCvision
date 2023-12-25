@@ -1,11 +1,13 @@
-import {Component, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from "@angular/router";
 import {event} from "jquery";
 
 @Component({
   selector: 'app-hierarchical',
   templateUrl: './hierarchical.component.html',
-  styleUrl: './hierarchical.component.css'
+  styleUrl: './hierarchical.component.css',
+  changeDetection: ChangeDetectionStrategy.Default, // or ChangeDetectionStrategy.OnPush
+
 })
 export class HierarchicalComponent implements OnInit {
   script: string;

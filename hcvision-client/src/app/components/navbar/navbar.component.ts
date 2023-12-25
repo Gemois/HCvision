@@ -19,6 +19,11 @@ export class NavbarComponent {
   }
 
 
+  openRateForm(): void {
+    window.open("https://docs.google.com/forms/d/e/1FAIpQLSfcToH9RTdWMJmAy_4xHVEqhxZblwUPYHxT_WintFm6si_lAw/viewform?usp=sf_link", '_blank');
+  }
+
+
   isAuthenticated() {
     return this.authService.isAuthenticated();
   }

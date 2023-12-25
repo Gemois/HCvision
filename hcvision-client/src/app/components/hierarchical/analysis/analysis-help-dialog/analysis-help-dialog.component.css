@@ -1,0 +1,33 @@
+.dialog-container {
+  max-width: 900px;
+  margin: 20px;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.step {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.step-number {
+  background-color: #E91E63;
+  color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+}
+
+.step-content {
+  flex: 1;
+}
+
+.button-container {
+  margin-top: 20px;
+  text-align: right;
+}

@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {Dataset} from "../../../models/Dataset";
 import {HierarchicalService} from "../../../services/hierarchical.service";
 import {DatasetService} from "../../../services/dataset.service";
@@ -8,6 +8,8 @@ import {forkJoin, of, switchMap} from "rxjs";
 import {Router} from "@angular/router";
 import {ChartDialogComponent} from "./chart-dialog/chart-dialog.component";
 import {MatDialog} from "@angular/material/dialog";
+import {OptimalResultsHelpDialogComponent} from "./optimal-help-dialog/optimal-results-help-dialog.component";
+import {OptimalRunHelpDialogComponent} from "./optimal-run-help-dialog/optimal-run-help-dialog.component";
 
 @Component({
   selector: 'app-optimal',
@@ -26,7 +28,10 @@ export class OptimalComponent implements OnInit {
   selectedDataset: Dataset | null = null;
   sampleToggle: boolean = true;
   availableAttributes: any[] = [];
-  selectedAttributes: boolean[] = [];
+  selectedAttributes: boolean[];
+
+  testAttributes: boolean[];
+
 
   chartData: any[] = [];
   chartLabels: string[] = [];
@@ -79,6 +84,19 @@ export class OptimalComponent implements OnInit {
               private customSnackbarService: SnackbarService, private router: Router, private dialog: MatDialog) {
   }
 
+  openResultsInfoDialog(): void {
+    const dialogRef = this.dialog.open(OptimalResultsHelpDialogComponent, {
+      width: '900px', // Adjust the width as needed
+    });
+  }
+
+  openRunInfoDialog(): void {
+    const dialogRef = this.dialog.open(OptimalRunHelpDialogComponent, {
+      width: '900px', // Adjust the width as needed
+    });
+  }
+
+
   ngOnInit(): void {
     if (!(this.param_script === 'Optimal')) {
       this.datasetService.getDatasetList().subscribe((datasets) => {
@@ -89,7 +107,6 @@ export class OptimalComponent implements OnInit {
       this.historyPreview();
     }
   }
-
 
   atLeastOneAttribute(): boolean {
     return this.selectedAttributes.some(attribute => attribute);
@@ -105,21 +122,24 @@ export class OptimalComponent implements OnInit {
       );
 
       this.sampleToggle = this.param_sample;
-
       const readDataset$ = this.datasetService.readDataset(this.selectedDataset);
 
       readDataset$.pipe(
         switchMap((response) => {
           this.availableAttributes = [...response.attributes];
-          this.selectedAttributes = new Array(this.availableAttributes.length).fill(true);
+          this.selectedAttributes = new Array(this.availableAttributes.length);
           return of(response);
         })
       ).subscribe(() => {
-        this.param_attributes.split(",").forEach(attribute => {
+        this.param_attributes.split(" ").forEach(attribute => {
           const index = this.availableAttributes.indexOf(attribute);
+
           if (index !== -1) {
+            // this.selectedAttributes[index] = true
             this.selectedAttributes[index] = true;
+
           }
+
         });
 
         this.runAlgorithm();
@@ -233,7 +253,7 @@ export class OptimalComponent implements OnInit {
 
   redirectToAnalysis(): void {
 
-    const selectedAttributes = this.availableAttributes
+    const attributes = this.availableAttributes
       .filter((option, index) => this.selectedAttributes[index]);
     const analysisQueryParams = {
       script: "Analysis",
@@ -241,7 +261,7 @@ export class OptimalComponent implements OnInit {
       accessType: this.selectedDataset.access_type,
       linkage: this.recommendedLinkage,
       numClusters: this.recommendedNumClusters,
-      attributes: selectedAttributes.join(','),
+      attributes: attributes.join(' '),
       sample: this.sampleToggle,
     };
 

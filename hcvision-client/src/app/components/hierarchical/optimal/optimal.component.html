@@ -1,93 +1,103 @@
 <div style="  background-color: rgb(245, 245, 245);">
-    <div class="form-container">
-        <mat-card>
+  <div class="form-container">
+    <mat-card>
+      <mat-card-content>
+        <h2>Select parameters
+          <button mat-icon-button (click)="openRunInfoDialog()">
+            <mat-icon color="accent">info</mat-icon>
+          </button>
+        </h2>
+
+        <form #optimalForm="ngForm" class="horizontal-form">
+          <div class="form-row">
+            <mat-form-field class="form-field">
+              <mat-label>Dataset</mat-label>
+              <mat-select placeholder="Select Dataset" [(ngModel)]="selectedDataset"
+                          name="selectedDataset"
+                          (selectionChange)="onDatasetSelect()" required>
+                <mat-option *ngFor="let dataset of datasets" [value]="dataset">
+                  {{ dataset.dataset }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="optimalForm.controls.selectedDataset?.hasError('required')">Dataset is
+                required.
+              </mat-error>
+            </mat-form-field>
+            <mat-slide-toggle class="form-field" style="margin-left: 10px" [(ngModel)]="sampleToggle"
+                              name="sampleToggle">Sample
+            </mat-slide-toggle>
+            <div *ngIf="availableAttributes.length > 0" class="checkbox-options">
+              <h4>Attributes</h4>
+
+              <div class="horizontal-checkbox-container">
+                <div *ngFor="let option of availableAttributes; let i = index" class="checkbox-option">
+                  <mat-checkbox [(ngModel)]="selectedAttributes[i]"
+                                name="options">{{ option }}</mat-checkbox>
+                </div>
+                <mat-error *ngIf="!atLeastOneAttribute()">At least one attribute must be selected!
+                </mat-error>
+
+              </div>
+            </div>
+
+            <button mat-raised-button color="primary" class="form-field run-button"
+                    (click)="runAlgorithm()">Run
+            </button>
+          </div>
+
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+  <div *ngIf="runPressed">
+    <mat-card class="results-card">
+      <mat-card-header>
+        <mat-card-title>Results</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div *ngIf="loadingResults && !error">
+          <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        </div>
+
+        <div *ngIf="!loadingResults && chartData" (click)="openChartDialog()">
+          <mat-card-title>Inconsistency Coefficient Chart</mat-card-title>
+
+          <canvas baseChart
+                  [datasets]="chartData"
+                  [labels]="chartLabels"
+                  [chartType]="'bar'"
+                  [options]="chartOptions"
+          ></canvas>
+
+        </div>
+
+        <div *ngIf="!loadingParams && recommendedLinkage && recommendedNumClusters">
+          <mat-card-title>Recommended Parameters
+            <button mat-icon-button (click)="openResultsInfoDialog()">
+              <mat-icon color="accent">info</mat-icon>
+            </button>
+          </mat-card-title>
+
+          <div>
+            <p><strong>Linkage:</strong> {{ recommendedLinkage }}</p>
+            <p><strong>Number of Clusters:</strong> {{ recommendedNumClusters }}</p>
+          </div>
+          <button mat-raised-button color="primary" class="form-field run-button"
+                  (click)="redirectToAnalysis()">Run Analysis
+          </button>
+
+        </div>
+
+        <div *ngIf="error" class="results-card">
+          <mat-card>
             <mat-card-content>
-                <h2>Select parameters</h2>
-
-                <form #optimalForm="ngForm" class="horizontal-form">
-                    <div class="form-row">
-                        <mat-form-field class="form-field">
-                            <mat-label>Dataset</mat-label>
-                            <mat-select placeholder="Select Dataset" [(ngModel)]="selectedDataset"
-                                        name="selectedDataset"
-                                        (selectionChange)="onDatasetSelect()" required>
-                                <mat-option *ngFor="let dataset of datasets" [value]="dataset">
-                                    {{ dataset.dataset }}
-                                </mat-option>
-                            </mat-select>
-                            <mat-error *ngIf="optimalForm.controls.selectedDataset?.hasError('required')">Dataset is
-                                required.
-                            </mat-error>
-                        </mat-form-field>
-
-                        <mat-slide-toggle class="form-field" [(ngModel)]="sampleToggle" name="sampleToggle">Sample
-                        </mat-slide-toggle>
-                        <div *ngIf="availableAttributes.length > 0" class="checkbox-options">
-                            <h4>Attributes</h4>
-
-                            <div class="horizontal-checkbox-container">
-                                <div *ngFor="let option of availableAttributes; let i = index" class="checkbox-option">
-                                    <mat-checkbox [(ngModel)]="selectedAttributes[i]"
-                                                  name="options">{{ option }}</mat-checkbox>
-                                </div>
-                                <mat-error *ngIf="!atLeastOneAttribute()">At least one attribute must be selected!
-                                </mat-error>
-
-                            </div>
-                        </div>
-
-                        <button mat-raised-button color="primary" class="form-field run-button"
-                                (click)="runAlgorithm()">Run
-                        </button>
-                    </div>
-
-                </form>
+              <p>Error while running {{param_script}}</p>
             </mat-card-content>
-        </mat-card>
-    </div>
-    <div *ngIf="runPressed">
-        <mat-card class="results-card">
-            <mat-card-header>
-                <mat-card-title>Results</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-                <div *ngIf="loadingResults && !error">
-                    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-                </div>
+          </mat-card>
 
-                <div *ngIf="!loadingResults && chartData"  (click)="openChartDialog()">
-                    <mat-card-title >Inconsistency Coefficient Chart</mat-card-title>
-
-                    <canvas baseChart
-                            [datasets]="chartData"
-                            [labels]="chartLabels"
-                            [chartType]="'bar'"
-                            [options]="chartOptions"
-                    ></canvas>
-
-                </div>
-
-                <div *ngIf="!loadingParams && recommendedLinkage && recommendedNumClusters">
-                    <mat-card-title>Recommended Parameters</mat-card-title>
-
-                    <div>
-                        <p><strong>Linkage:</strong> {{ recommendedLinkage }}</p>
-                        <p><strong>Number of Clusters:</strong> {{ recommendedNumClusters }}</p>
-                    </div>
-                    <button mat-raised-button color="primary" class="form-field run-button"
-                            (click)="redirectToAnalysis()">Run Analysis</button>
-                </div>
-
-                <div *ngIf="error" class="results-card">
-                    <mat-card>
-                        <mat-card-content>
-                            <p>Error while running {{param_script}}</p>
-                        </mat-card-content>
-                    </mat-card>
-
-                </div>
-            </mat-card-content>
-        </mat-card>
-    </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
 </div>
-
+<app-footer *ngIf="runPressed"></app-footer>

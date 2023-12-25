@@ -11,10 +11,11 @@ export class LoginComponent {
   email: string = '';
   password: string = '';
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) {
+  }
 
   login() {
-    this.authService.login({ email: this.email, password: this.password })
+    this.authService.login({email: this.email, password: this.password})
       .subscribe(response => {
         this.router.navigate(['']);
         this.authService.setToken(response.access_token);

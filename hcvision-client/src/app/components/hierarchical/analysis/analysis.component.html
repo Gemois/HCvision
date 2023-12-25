@@ -1,9 +1,13 @@
 <div style="  background-color: rgb(245, 245, 245);">
 
-<div class="form-container">
+  <div class="form-container">
     <mat-card>
       <mat-card-content>
-        <h2>Analysis Parameters</h2>
+        <h2>Analysis Parameters
+          <button mat-icon-button (click)="openRunInfoDialog()">
+            <mat-icon color="accent">info</mat-icon>
+          </button>
+        </h2>
 
         <form #analysisForm="ngForm" class="horizontal-form" (ngSubmit)="runAnalysis()">
           <div class="form-row">
@@ -108,3 +112,4 @@
   </div>
 
 </div>
+<app-footer *ngIf="runPressed"></app-footer>

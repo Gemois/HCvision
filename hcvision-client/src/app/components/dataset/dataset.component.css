@@ -1,26 +1,57 @@
+body, html {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
 
+.page-title {
 
-.button-container {
-  margin-top: 10px;
-  margin-bottom: 10px;
+  margin: 10px;
+  padding: 10px;
+  font-size: 1.3em;
+}
+
+.split-container {
+  height: calc(100vh - 80px);
+}
+
+.left-panel, .right-panel {
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: 20px;
+  margin: 10px;
+}
+
+.panel-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .button-container button {
+  margin-top: 10px;
+  margin-bottom: 10px;
   margin-right: 10px;
   margin-left: 10px;
 }
 
-.split-container {
+.result-container {
   display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+app-dataset-list, app-dataset-preview {
+  height: calc(100% - 80px);
+  overflow-y: scroll;
+}
+
+.full-container {
   height: 100vh;
 }
 
-.left-panel {
-  flex: 0 0 30%;
-  overflow-y: auto;
-}
-
-.right-panel {
-  flex: 1;
-  overflow-y: auto;
+footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
 }

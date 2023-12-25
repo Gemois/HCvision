@@ -1,19 +1,28 @@
-<div class="split-container">
-  <div class="left-panel">
-    <mat-card style="display: flex; flex-direction: column; height: 100%;  ;
-">
+<mat-card class="page-title" fxLayout="column" fxLayoutAlign="center center">
+  <mat-card-header>
+    <p>
+      Effortlessly Manage Your Datasets - Upload, Preview, Delete, and Download with Ease
+    </p>
+  </mat-card-header>
+</mat-card>
+
+<div fxLayout="row" class="full-container">
+  <div fxFlex="33.33%" class="left-panel">
+    <mat-card class="panel-card">
       <div class="button-container">
         <button mat-raised-button color="primary" (click)="uploadDataset()">Upload</button>
         <button mat-raised-button color="accent" (click)="downloadDataset()">Download</button>
         <button mat-raised-button color="warn" (click)="deleteDataset()">Delete</button>
       </div>
-      <app-dataset-list [datasets]="datasets"  (itemSelected)="previewDataset($event)" style="overflow-y: scroll"></app-dataset-list>
+      <app-dataset-list [datasets]="datasets" (itemSelected)="previewDataset($event)"></app-dataset-list>
     </mat-card>
   </div>
-  <div class="right-panel">
+
+  <div fxFlex="66.66%" class="right-panel">
     <div *ngIf="datasetPreviewLoading" class="result-container">
       <mat-progress-bar mode="indeterminate"></mat-progress-bar>
     </div>
     <app-dataset-preview [jsonData]="jsonData"></app-dataset-preview>
   </div>
 </div>
+<app-footer></app-footer>

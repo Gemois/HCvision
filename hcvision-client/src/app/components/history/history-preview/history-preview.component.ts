@@ -50,7 +50,6 @@ export class HistoryPreviewComponent implements OnInit {
       script: this.script,
       dataset: this.optimalDetails?.dataset?.dataset,
       accessType: this.optimalDetails?.dataset?.access_type,
-      maxClusters: this.optimalDetails?.max_clusters,
       attributes: this.optimalDetails?.attributes?.join(' '),
       sample: this.optimalDetails?.sample,
     };
@@ -64,6 +63,8 @@ export class HistoryPreviewComponent implements OnInit {
       attributes: this.analysisDetails?.attributes?.join(' '),
       sample: this.analysisDetails?.sample,
     };
+    console.log("kkkkkkkk");
+    console.log(analysisQueryParams);
 
     this.router.navigate(['/hierarchical'], {
       queryParams: this.script === 'Optimal' ? optimalQueryParams : analysisQueryParams,
