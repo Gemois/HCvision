@@ -45,6 +45,8 @@ export class AnalysisComponent implements OnInit {
   parallelCoordinates: string;
   clusterAssignments: any[]
 
+  duration: number;
+
   error: boolean = false;
   @Input() currentTab: number;
 
@@ -52,6 +54,7 @@ export class AnalysisComponent implements OnInit {
   dataSource: MatTableDataSource<any>;
   displayedColumns: string[];
   @ViewChild(MatPaginator) paginator: MatPaginator;
+
 
   constructor(private hierarchicalService: HierarchicalService,
               private datasetService: DatasetService,
@@ -63,6 +66,16 @@ export class AnalysisComponent implements OnInit {
   }
 
 
+  getImageFileName(image: string) {
+    if (image == 'dendrogram')
+      return this.selectedDataset.dataset + '_' + this.selectedLinkage + '_' + this.numClusters + (this.sampleToggle ? '_sample' : '') + '_dendrogram'
+    else if (image == 'parallel_coordinates')
+      return this.selectedDataset.dataset + '_' + this.selectedLinkage + '_' + this.numClusters + (this.sampleToggle ? '_sample' : '') + '_parallel_coordinates'
+    else
+      return 'graph'
+  }
+
+
   openRunInfoDialog(): void {
     const dialogRef = this.dialog.open(AnalysisHelpDialogComponent, {
       width: '900px',
@@ -70,9 +83,9 @@ export class AnalysisComponent implements OnInit {
   }
 
 
-  openImageDialog(imageUrl: string): void {
+  openImageDialog(imageUrl: string, filename: string): void {
     this.dialog.open(ImageDialogComponent, {
-      data: {imageUrl},
+      data: {imageUrl, filename},
       width: 'auto',
       height: 'auto',
     });
@@ -89,10 +102,6 @@ export class AnalysisComponent implements OnInit {
       }
     });
 
-
-    console.log(this.script);
-    console.log(this.selectedLinkage);
-    console.log(this.numClusters);
     if (!(this.param_script === 'Analysis')) {
       this.datasetService.getDatasetList().subscribe((datasets) => {
         this.datasets = datasets;
@@ -122,17 +131,16 @@ export class AnalysisComponent implements OnInit {
       readDataset$.pipe(
         switchMap((response) => {
           this.availableAttributes = [...response.attributes];
-          this.selectedAttributes = new Array(this.availableAttributes.length).fill(false);
+          this.selectedAttributes = new Array(this.availableAttributes.length).fill(true);
 
           return of(response);
         })
       ).subscribe((response) => {
         this.param_attributes.split(" ").forEach(attribute => {
           const index = this.availableAttributes.indexOf(attribute);
-          console.log(index)
-          // if (index !== -1) {
-          this.selectedAttributes[index] = true;
-          // }
+          if (index !== -1) {
+            this.selectedAttributes[index] = true;
+          }
         });
 
 
@@ -176,7 +184,6 @@ export class AnalysisComponent implements OnInit {
 
     this.hierarchicalService.runAnalysis(requestData).subscribe({
         next: (result) => {
-          console.log('Result:', result);
           this.pollForStatus(requestData);
         },
         error: (error) => {
@@ -188,23 +195,17 @@ export class AnalysisComponent implements OnInit {
     );
   }
 
-  updateSampleToggle() {
-    this.sampleToggle = this.param_sample;
-  }
-
-
   atLeastOneAttribute(): boolean {
     return this.selectedAttributes.some(attribute => attribute);
   }
 
   private pollForStatus(requestData: any): void {
     this.hierarchicalService.runAnalysis(requestData).subscribe((result) => {
-      console.log('Result:', result);
 
       if (result.status === 'RUNNING') {
         setTimeout(() => this.pollForStatus(requestData), 1000); // Adjust the delay as needed
       } else if (result.status === 'FINISHED') {
-        console.log('Operation finished successfully!');
+        this.duration = result.duration;
         this.getAnalysisResults(result.id);
       } else if (result.status === 'ERROR') {
         this.error = true;
@@ -252,9 +253,6 @@ export class AnalysisComponent implements OnInit {
     const arrayBuffer = new Uint8Array(imageData).buffer;
 
     const imageUrl = URL.createObjectURL(new Blob([arrayBuffer], {type: 'image/png'}));
-
-    console.log(imageData);
-    console.log(imageUrl);
     return imageUrl;
   }
 
@@ -273,7 +271,7 @@ export class AnalysisComponent implements OnInit {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `clusters_${this.selectedDataset.dataset}`;
+    a.download = this.selectedDataset.dataset + '_' + this.selectedLinkage + '_' + this.numClusters + (this.sampleToggle ? '_sample' : '') + '_clusters.csv';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

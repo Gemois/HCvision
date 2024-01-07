@@ -1,0 +1,33 @@
+/* api-docs.component.css */
+
+.api-docs-container {
+  display: flex;
+  justify-content: center;
+}
+
+.request-panel {
+  margin-bottom: 16px;
+}
+
+.request-panel .http-type {
+  padding: 5px;
+  color: white;
+  border-radius: 3px;
+  margin-right: 10px;
+}
+
+.request-panel.get {
+  background-color: #4CAF50; /* Green for GET */
+}
+
+.request-panel.post {
+  background-color: #FFA500; /* Orange for POST */
+}
+
+.request-panel.delete {
+  background-color: #FF0000; /* Red for DELETE */
+}
+
+.endpoint {
+  /* Add any styles for the endpoint here */
+}

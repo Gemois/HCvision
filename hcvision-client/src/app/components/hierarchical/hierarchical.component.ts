@@ -27,7 +27,6 @@ export class HierarchicalComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       if (params && Object.keys(params).length > 0) {
-        console.log("I'm here");
         this.script = params['script'];
         this.dataset = params['dataset'];
         this.accessType = params['accessType'];
@@ -48,7 +47,6 @@ export class HierarchicalComponent implements OnInit {
   removeQueryParams() {
     const currentUrlTree = this.router.createUrlTree([], {relativeTo: this.route});
     this.router.navigate([currentUrlTree.toString()]);
-
   }
 
 

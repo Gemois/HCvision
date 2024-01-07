@@ -63,6 +63,9 @@ import { ChartDialogComponent } from './components/hierarchical/optimal/chart-di
 import { OptimalResultsHelpDialogComponent } from './components/hierarchical/optimal/optimal-help-dialog/optimal-results-help-dialog.component';
 import { AnalysisHelpDialogComponent } from './components/hierarchical/analysis/analysis-help-dialog/analysis-help-dialog.component';
 import { OptimalRunHelpDialogComponent } from './components/hierarchical/optimal/optimal-run-help-dialog/optimal-run-help-dialog.component';
+import { ApiDocsComponent } from './components/api-docs/api-docs.component';
+import { ConfirmComponent } from './components/auth/confirm/confirm.component';
+import { ConfirmEmailNotificationComponent } from './components/auth/confirmemail-notification/confirm-email-notification.component';
 
 @NgModule({
   declarations: [
@@ -93,7 +96,10 @@ import { OptimalRunHelpDialogComponent } from './components/hierarchical/optimal
     ChartDialogComponent,
     OptimalResultsHelpDialogComponent,
     AnalysisHelpDialogComponent,
-    OptimalRunHelpDialogComponent],
+    OptimalRunHelpDialogComponent,
+    ApiDocsComponent,
+    ConfirmComponent,
+    ConfirmEmailNotificationComponent],
   imports: [
     BrowserModule,
     RouterLink,

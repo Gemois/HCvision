@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -36,7 +37,7 @@ public class AnalysisService {
 
     public Analysis createAnalysis(Analysis analysis) { return analysisRepository.save(analysis); }
 
-    public Optional<Analysis.ProjectAnalysis> getAnalysisReRun(User user, Dataset dataset, Linkage linkage, int numClusters, boolean isSample, String attributes) {
+    public List<Analysis.ProjectAnalysis> getAnalysisReRun(User user, Dataset dataset, Linkage linkage, int numClusters, boolean isSample, String attributes) {
         return analysisRepository.findByDatasetAndUserAndLinkageAndNumClustersAndSampleAndAttributes(dataset, user, linkage, numClusters, isSample, attributes);
     }
 

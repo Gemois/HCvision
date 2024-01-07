@@ -28,7 +28,7 @@ public class Analysis implements PythonScript {
     @GeneratedValue
     private long id;
     @ManyToOne
-    @JoinColumn(nullable = false, name = "_user_id")
+    @JoinColumn(nullable = false, name = "user_id")
     private User user;
     @ManyToOne
     @JoinColumn(nullable = false, name = "dataset_id")
@@ -117,15 +117,6 @@ public class Analysis implements PythonScript {
 
         @JsonProperty("duration")
         long getDuration();
-
-        @JsonProperty("dendrogram")
-        String getDendrogramResultPath();
-
-        @JsonProperty("parallel_coordinates")
-        String getParallelCoordinatesResultPath();
-
-        @JsonProperty("cluster_assignment")
-        String getClusterAssignmentResultPath();
     }
 
     @JsonPropertyOrder({"id", "status"})

@@ -30,7 +30,7 @@ export class OptimalComponent implements OnInit {
   availableAttributes: any[] = [];
   selectedAttributes: boolean[];
 
-  testAttributes: boolean[];
+  duration: number;
 
 
   chartData: any[] = [];
@@ -86,13 +86,13 @@ export class OptimalComponent implements OnInit {
 
   openResultsInfoDialog(): void {
     const dialogRef = this.dialog.open(OptimalResultsHelpDialogComponent, {
-      width: '900px', // Adjust the width as needed
+      width: '900px',
     });
   }
 
   openRunInfoDialog(): void {
     const dialogRef = this.dialog.open(OptimalRunHelpDialogComponent, {
-      width: '900px', // Adjust the width as needed
+      width: '900px',
     });
   }
 
@@ -135,15 +135,11 @@ export class OptimalComponent implements OnInit {
           const index = this.availableAttributes.indexOf(attribute);
 
           if (index !== -1) {
-            // this.selectedAttributes[index] = true
             this.selectedAttributes[index] = true;
-
           }
 
         });
-
         this.runAlgorithm();
-
       });
     });
   }
@@ -154,7 +150,6 @@ export class OptimalComponent implements OnInit {
       const readDataset$ = this.datasetService.readDataset(this.selectedDataset);
 
       readDataset$.subscribe((response) => {
-        console.log(response);
         this.availableAttributes = [...response.attributes];
         this.selectedAttributes = new Array(this.availableAttributes.length).fill(true);
       });
@@ -183,7 +178,6 @@ export class OptimalComponent implements OnInit {
 
     this.hierarchicalService.runOptimal(requestData).subscribe({
         next: (result) => {
-          console.log('Result:', result);
           this.pollForStatus(requestData);
         },
         error: (error) => {
@@ -198,12 +192,11 @@ export class OptimalComponent implements OnInit {
 
   private pollForStatus(requestData: any): void {
     this.hierarchicalService.runOptimal(requestData).subscribe((result) => {
-      console.log('Result:', result);
 
       if (result.status === 'RUNNING') {
         setTimeout(() => this.pollForStatus(requestData), 1000);
       } else if (result.status === 'FINISHED') {
-        console.log('Operation finished successfully!');
+        this.duration = result.duration;
         this.getOptimalResult(result.id);
       } else if (result.status === 'ERROR') {
         this.error = true;
@@ -282,7 +275,6 @@ export class OptimalComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('Dialog closed');
     });
   }
 

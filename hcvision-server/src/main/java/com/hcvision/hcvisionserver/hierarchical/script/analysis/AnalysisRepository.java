@@ -17,7 +17,7 @@ public interface AnalysisRepository extends JpaRepository<Analysis, Long> {
 
     Analysis.ProjectAnalysis getAnalysisById(Long id);
 
-    Optional<Analysis.ProjectAnalysis> findByDatasetAndUserAndLinkageAndNumClustersAndSampleAndAttributes
+    List<Analysis.ProjectAnalysis> findByDatasetAndUserAndLinkageAndNumClustersAndSampleAndAttributes
             (Dataset dataset, User user, Linkage linkage, int numClusters, boolean sample, String attributes);
 
     @Query("SELECT o FROM Analysis o WHERE o.id = ?1 AND o.user = ?2")

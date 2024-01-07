@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -33,7 +34,7 @@ public class OptimalService {
         return optimalRepository.save(optimal);
     }
 
-    public Optional<Optimal.ProjectOptimal> getOptimalReRun(User user, Dataset dataset, boolean isSample, String attributes) {
+    public List<Optimal.ProjectOptimal> getOptimalReRun(User user, Dataset dataset, boolean isSample, String attributes) {
         return optimalRepository.findByDatasetAndUserAndSampleAndAttributes(dataset, user, isSample, attributes);
     }
 

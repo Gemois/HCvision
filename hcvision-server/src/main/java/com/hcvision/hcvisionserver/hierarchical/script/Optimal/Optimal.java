@@ -28,7 +28,7 @@ public class Optimal implements PythonScript {
     @GeneratedValue
     private long id;
     @ManyToOne
-    @JoinColumn(nullable = false, name = "_user_id")
+    @JoinColumn(nullable = false, name = "user_id")
     private User user;
     @ManyToOne
     @JoinColumn(nullable = false, name = "dataset_id")
@@ -93,9 +93,6 @@ public class Optimal implements PythonScript {
 
         @JsonProperty("duration")
         long getDuration();
-
-        @JsonProperty("max-inconsistency")
-        String getInconsistencyCoefficient();
     }
 
     @JsonPropertyOrder({"id", "status"})

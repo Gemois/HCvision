@@ -43,7 +43,7 @@ def find_best_linkage_and_clusters(result_path, dataset_path, sampling, attribut
 
         all_results.append(result)
 
-        if n_clusters > best_clusters:
+        if n_clusters > best_clusters and max_d > 0:
             best_linkage = linkage_method
             best_clusters = n_clusters
 

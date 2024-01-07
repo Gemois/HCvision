@@ -27,10 +27,20 @@ public class SecurityConfiguration {
     private final AuthenticationProvider authenticationProvider;
 
     private static final String[] WHITE_LIST = {
+
             "/api/v1/auth/**",
             "/api/v1/resources/logo-light",
             "/api/v1/users/password/forgot",
-            "/api/v1/users/password/reset"
+            "/api/v1/users/password/reset",
+            "/swagger-ui.html",
+            "/swagger-ui/**",
+            "/swagger-resources/**",
+            "/swagger-resources",
+            "/v2/api-docs/",
+            "/v3/api-docs/",
+            "/v3/api-docs/**",
+            "/webjars/**"
+
     };
 
     @Bean

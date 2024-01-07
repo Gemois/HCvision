@@ -85,7 +85,7 @@ public class AuthenticationService {
         String token = confirmationTokenService.createConfirmationToken(user);
 
         try {
-            String link = "http://localhost:8080/api/v1/auth/confirm?token=" + token;
+            String link = "http://localhost:4200/confirm-email?token=" + token;
             emailService.send(request.getEmail(), emailService.buildVerificationEmail(request.getFirstname(), link),
                     EmailService.EMAIL_VERIFICATION_SUBJECT);
         } catch (Exception e) {
@@ -138,7 +138,7 @@ public class AuthenticationService {
         String token = confirmationTokenService.createConfirmationToken(user);
 
         log.info("Sending verification email to {} ", user.getEmail());
-        String link = "http://localhost:8080/api/v1/auth/confirm?token=" + token;
+        String link = "http://localhost:4200/confirm-email?token=" + token;
         emailService.send(user.getEmail(),
                 emailService.buildVerificationEmail(user.getFirstName(), link),
                 EmailService.EMAIL_VERIFICATION_SUBJECT);

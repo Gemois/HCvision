@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -78,10 +79,10 @@ public class HierarchicalService {
         if (invalidParams(dataset, request.getAttributes()))
             throw new BadRequestException("Invalid attributes selected");
 
-        Optional<Optimal.ProjectOptimal> reRun = optimalService.getOptimalReRun(user, dataset,
+        List<Optimal.ProjectOptimal> reRun = optimalService.getOptimalReRun(user, dataset,
                 request.isSample(), DatasetUtils.sortAttributes(request.getAttributes()));
 
-        if (reRun.isPresent()) return reRun.get();
+        if (!reRun.isEmpty()) return reRun.get(0);
 
         Optimal optimal = optimalService.createOptimal(new Optimal(user, dataset, request.isSample(),
                 DatasetUtils.sortAttributes(request.getAttributes()), ResultStatus.RUNNING));
@@ -91,7 +92,7 @@ public class HierarchicalService {
         String command = "python " +
                 getPythonScriptPath(OPTIMAL_SCRIPT) + " " +
                 getBaseResultPathByPythonScript(optimal) + " " +
-                dataset.getPath() + " " +
+                "\"" + dataset.getPath() + "\" " +
                 (request.isSample() ? "--sampling " : "") +
                 DatasetUtils.encloseInDoubleQuotes(request.getAttributes()).replace(",", " ");
 
@@ -119,10 +120,11 @@ public class HierarchicalService {
         if (invalidParams(dataset,  request.getAttributes()))
             throw new BadRequestException("Invalid attributes selected");
 
-        Optional<Analysis.ProjectAnalysis> reRun = analysisService.getAnalysisReRun(user, dataset, request.getLinkage(),
+        List<Analysis.ProjectAnalysis> reRun = analysisService.getAnalysisReRun(user, dataset, request.getLinkage(),
                 request.getNumClusters(), request.isSample(), DatasetUtils.sortAttributes(request.getAttributes()));
 
-        if (reRun.isPresent()) return reRun.get();
+        if (!reRun.isEmpty())
+            return reRun.get(0);
 
         Analysis analysis = analysisService.createAnalysis(new Analysis(user, dataset, request.getLinkage(), request.getNumClusters(),
                 request.isSample(), DatasetUtils.sortAttributes(request.getAttributes()), ResultStatus.RUNNING));
@@ -132,7 +134,8 @@ public class HierarchicalService {
         String command = "python " +
                 getPythonScriptPath(ANALYSIS_SCRIPT) + " " +
                 getBaseResultPathByPythonScript(analysis) + " " +
-                dataset.getPath() + " " + request.getLinkage() + " " +
+                "\"" + dataset.getPath() + "\" " +
+                request.getLinkage() + " " +
                 request.getNumClusters() + " " +
                 (request.isSample() ? "--sampling " : "") +
                 DatasetUtils.encloseInDoubleQuotes(request.getAttributes()).replace(",", " ");

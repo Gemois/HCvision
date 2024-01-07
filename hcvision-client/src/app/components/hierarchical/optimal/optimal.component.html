@@ -51,9 +51,12 @@
   </div>
   <div *ngIf="runPressed">
     <mat-card class="results-card">
-      <mat-card-header>
-        <mat-card-title>Results</mat-card-title>
-      </mat-card-header>
+      <mat-card-title>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 1.5em;">Optimal Results</span>
+          <p *ngIf="!loadingResults" style="color: gray; font-size: 0.8em;">Time Taken: {{duration}} seconds</p>
+        </div>
+      </mat-card-title>
       <mat-card-content>
         <div *ngIf="loadingResults && !error">
           <mat-progress-bar mode="indeterminate"></mat-progress-bar>

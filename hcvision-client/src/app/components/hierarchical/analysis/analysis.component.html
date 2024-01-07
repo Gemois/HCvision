@@ -72,16 +72,18 @@
   </div>
   <div *ngIf="runPressed">
 
-    <mat-card class="results-card">
-      <mat-card-title>Results</mat-card-title>
+    <mat-card *ngIf="!error" class="results-card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 1.5em;">Analysis Results</span>
+        <p *ngIf="!loadingResults" style="color: gray; font-size: 0.8em;">Time Taken: {{duration}} seconds</p>
+      </div>
       <mat-card-content>
-        <div *ngIf="loadingResults " class="result-container">
+        <div *ngIf="loadingResults && !error" class="result-container">
           <mat-progress-bar mode="indeterminate"></mat-progress-bar>
         </div>
         <div *ngIf="!loadingResults" class="result-container">
-          <h2>Analysis Results</h2>
-          <img [src]="dendrogram" alt="Dendrogram" (click)="openImageDialog(dendrogram)">
-          <img [src]="parallelCoordinates" alt="Parallel Coordinates" (click)="openImageDialog(parallelCoordinates)">
+          <img [src]="dendrogram" alt="Dendrogram" (click)="openImageDialog(dendrogram, getImageFileName('dendrogram'))">
+          <img [src]="parallelCoordinates" alt="Parallel Coordinates" (click)="openImageDialog(parallelCoordinates, getImageFileName('parallel_coordinates'))">
         </div>
       </mat-card-content>
     </mat-card>

@@ -7,6 +7,9 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import argparse
 import os
+import sys
+
+sys.setrecursionlimit(100000000)
 
 def perform_hierarchical_clustering(result_path, dataset_path, linkage_type, num_clusters, sampling, attributes):
     if dataset_path.endswith('.csv'):

@@ -48,7 +48,6 @@ export class DatasetComponent implements OnInit {
           next: (response) => {
             this.datasetPreviewLoading = false;
             this.jsonData = response.dataset;
-            console.log('fetched JSON data successfully');
           },
           error: (error) => {
             console.error('Error fetching JSON data:', error);

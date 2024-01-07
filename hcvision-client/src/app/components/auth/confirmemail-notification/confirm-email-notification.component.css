@@ -1,0 +1,38 @@
+.center-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.confirm-card {
+  max-width: 600px;
+  text-align: center;
+  padding: 20px;
+  box-sizing: border-box;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.top-icon {
+  max-width: 200px;
+  margin-top: 20px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+mat-card-title {
+  margin-top: 10px;
+}
+
+mat-card-content {
+  margin-top: 20px;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}

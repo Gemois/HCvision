@@ -23,7 +23,9 @@ export class NavbarComponent {
     window.open("https://docs.google.com/forms/d/e/1FAIpQLSfcToH9RTdWMJmAy_4xHVEqhxZblwUPYHxT_WintFm6si_lAw/viewform?usp=sf_link", '_blank');
   }
 
-
+  openApiDocs(): void {
+    window.open("http://localhost:8080/swagger-ui/index.html#/", '_blank');
+  }
   isAuthenticated() {
     return this.authService.isAuthenticated();
   }

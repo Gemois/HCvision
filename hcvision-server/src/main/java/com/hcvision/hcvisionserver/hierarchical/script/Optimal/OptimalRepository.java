@@ -16,7 +16,7 @@ public interface OptimalRepository extends JpaRepository<Optimal, Long> {
 
     Optimal.ProjectOptimal getOptimalById(Long id);
 
-    Optional<Optimal.ProjectOptimal> findByDatasetAndUserAndSampleAndAttributes
+    List<Optimal.ProjectOptimal> findByDatasetAndUserAndSampleAndAttributes
             (Dataset dataset, User user, boolean sample, String attributes);
 
     @Query("SELECT o FROM Optimal o WHERE o.id = ?1 AND o.user = ?2")
