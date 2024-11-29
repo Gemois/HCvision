@@ -1,295 +1,171 @@
-# HCvision - autoML Hierarchical Clustering Visualiser
+# HCvision - AutoML Hierarchical Clustering Visualizer
 
-HCvision is currently under development as a component of my bachelor's thesis in computer science at the [International Hellenic University.](https://www.iee.ihu.gr/)
+HCvision was developed as part of my bachelor's thesis in Computer Science at the [International Hellenic University](https://www.iee.ihu.gr/). It is a fully functional AutoML application designed to automate hierarchical agglomerative clustering (HAC) on datasets. The application allows users to upload datasets, determine the optimal number of clusters, select the appropriate proximity method, and visualize the clustering results, all through an intuitive user interface. HCvision provides both a web interface and a Web API to facilitate clustering operations and integration with other systems. The backend is built using **Spring Boot**, **MySQL**, and **Python**, while the frontend client is developed with **Angular**, offering a responsive and user-friendly experience.
 
-## About
-
-This application will allow users to upload datasets on which they wish to perform cluster analysis, help them determine both the number of clusters and the appropriate cluster proximity method, perform the clustering, and present the user with the results. 
-The application will have a user-friendly web interface and a WEB API which will allow all operations to be performed via http requests. 
+<img src="/screenshots/hcvision-home.png" width="300">
+<img src="/screenshots/hcvision-optimal.png" width="300">
+<img src="/screenshots/hcvision-analysis.png" width="300">
+<img src="/screenshots/hcvision-dataset.png" width="300">
+<img src="/screenshots/hcvision-history.png" width="300">
 
 ---------------------------------------------------------------------------------------------
 
-## Backend - API
+## Features
 
-### Technologies Used
+### 1. **User Management**
+- **Registration & Authentication**: Users can register, log in, and access the platform securely.
+- **Profile Management**: Update or delete account details directly via the **Profile** page.
 
-- Spring Boot
-- MySQL
-- Python
+### 2. **Dataset Management**
+- **Dataset Uploads**: Upload datasets in either CSV or XLS format with ease.
+- **Dataset Preview**: Manage uploaded datasets and preview their contents via the **Dataset** page.
 
-### Database Schema
+### 3. **Optimal Parameter Calculation**
+- **Automated Parameter Selection**: Determine the optimal number of clusters and the most suitable cluster proximity method using the **Optimal Parameters** feature.
+- **Visual Representation**: View a detailed visualization of the findings for better understanding.
 
-#### `users` Table
+### 4. **Hierarchical Clustering Analysis**
+- **Customizable Analysis**: Perform clustering analysis using parameters derived from the **Optimal Parameter Calculation** step.
+- **Dendrograms and Visualizations**: Generate a dendrogram and parallel coordinates plot to visualize the clustering process.
+- **Cluster Assignments**: Obtain clear cluster assignments for every data point.
 
+### 5. **Export Results**
+- **Visualizations Export**: Export visuals in png format for further analysis or reporting.
+- **Cluster Export**: Export cluster assignments in CSV format for further analysis or reporting.
 
-| Column      | Data Type    | Constraints           | Description                    |
-|-------------|--------------|-----------------------|--------------------------------|
-| id          | bigint       | NOT NULL AUTO_INCREMENT| User ID (Primary Key)          |
-| first_name  | varchar(255) | DEFAULT NULL          | User's first name              |
-| last_name   | varchar(255) | DEFAULT NULL          | User's last name               |
-| email       | varchar(255) | DEFAULT NULL          | User email address             |
-| password    | varchar(255) | DEFAULT NULL          | User password                  |
-| role        | tinyint      | DEFAULT NULL          | User role (0 or 1)             |
-| activated   | bit(1)       | NOT NULL              | Account activation status      |
+### 6. **History Tracking**
+- **Analysis History**: Automatically record every analysis performed.
+- **Revisit and Replay**: Re-run or review results of past analyses via the **History** page.
 
-
-
-
-#### `confirmation_token` Table
-
-| Column        | Data Type      | Constraints   | Description                        |
-|---------------|----------------|---------------|------------------------------------|
-| id            | bigint         | NOT NULL      | Token ID (Primary Key)             |
-| type          | tinyint        | DEFAULT NULL  | Type of confirmation token         |
-| token         | varchar(255)   | NOT NULL      | Confirmation token value          |
-| confirmed_at  | datetime(6)    | DEFAULT NULL  | Date and time of confirmation      |
-| created_at    | datetime(6)    | NOT NULL      | Date and time of creation          |
-| expires_at    | datetime(6)    | NOT NULL      | Expiry date and time               |
-| user_id       | bigint         | NOT NULL      | User ID (Foreign Key)              |
-
-#### `dataset` Table
-
-| Column                  | Data Type      | Constraints   | Description                       |
-|-------------------------|----------------|---------------|-----------------------------------|
-| id                      | bigint         | NOT NULL      | Dataset ID (Primary Key)          |
-| access_type             | tinyint        | DEFAULT NULL  | Type of dataset access            |
-| file_name               | varchar(255)   | DEFAULT NULL  | Name of the dataset file           |
-| path                    | varchar(255)   | DEFAULT NULL  | Path to the dataset                |
-| numeric_cols            | varchar(255)   | DEFAULT NULL  | Numeric columns information        |
-| user_id                 | bigint         | NOT NULL      | User ID (Foreign Key)              |
-
-#### `optimal` Table
-
-| Column                     | Data Type      | Constraints   | Description                           |
-|----------------------------|----------------|---------------|---------------------------------------|
-| id                         | bigint         | NOT NULL      | Optimal process ID (Primary Key)      |
-| user_id                    | bigint         | NOT NULL      | User ID (Foreign Key)                 |
-| dataset_id                 | bigint         | NOT NULL      | Dataset ID (Foreign Key)              |
-| sample                     | bit(1)         | NOT NULL      | Sample indicator                      |
-| attributes                 | varchar(255)   | DEFAULT NULL  | Information about attributes          |
-| inconsistency_coefficient  | varchar(255)   | DEFAULT NULL  | Inconsistency coefficient            |
-| status                     | tinyint        | DEFAULT NULL  | Status of the optimal process         |
-| started_at                 | datetime(6)    | DEFAULT NULL  | Start date and time of the process    |
-| ended_at                   | datetime(6)    | DEFAULT NULL  | End date and time of the process      |
-| duration                   | bigint         | NOT NULL      | Duration of the process               |
-
-#### `analysis` Table
-
-| Column                        | Data Type      | Constraints   | Description                              |
-|-------------------------------|----------------|---------------|------------------------------------------|
-| id                            | bigint         | NOT NULL      | Analysis process ID (Primary Key)         |
-| user_id                       | bigint         | NOT NULL      | User ID (Foreign Key)                    |
-| dataset_id                    | bigint         | NOT NULL      | Dataset ID (Foreign Key)                 |
-| sample                        | bit(1)         | NOT NULL      | Sample indicator                         |
-| linkage                       | tinyint        | DEFAULT NULL  | Linkage type                             |
-| num_clusters                  | int            | NOT NULL      | Number of clusters                       |
-| attributes                    | varchar(255)   | DEFAULT NULL  | Information about attributes             |
-| cluster_assignment_result_path| varchar(255)   | DEFAULT NULL  | Path to cluster assignment result        |
-| dendrogram_result_path        | varchar(255)   | DEFAULT NULL  | Path to dendrogram result                 |
-| parallel_coordinates_result_path| varchar(255) | DEFAULT NULL  | Path to parallel coordinates result      |
-| status                        | tinyint        | DEFAULT NULL  | Status of the analysis process           |
-| started_at                    | datetime(6)    | DEFAULT NULL  | Start date and time of the process       |
-| ended_at                      | datetime(6)    | DEFAULT NULL  | End date and time of the process         |
-| duration                      | bigint         | NOT NULL      | Duration of the process                  |
-
-#### `history` Table
-
-| Column          | Data Type      | Constraints   | Description                          |
-|-----------------|----------------|---------------|--------------------------------------|
-| id              | bigint         | NOT NULL      | History entry ID (Primary Key)        |
-| user_id         | bigint         | NOT NULL      | User ID (Foreign Key)                 |
-| optimal_id      | bigint         | DEFAULT NULL  | Optimal ID (Foreign Key)              |
-| analysis_id     | bigint         | DEFAULT NULL  | Analysis ID (Foreign Key)             |
-| current_script  | varchar(255)   | DEFAULT NULL  | Path to the current script            |
-| time_started    | datetime(6)    | DEFAULT NULL  | Start date and time of the history entry |
-
-### Endpoints
-
-#### Authentication
-
-- **POST** `/api/v1/auth/authenticate` - Authenticate User
-- **POST** `/api/v1/auth/register` - Register User
-- **GET** `/api/v1/auth/confirm` - Confirm Email
-- **GET** `/api/v1/auth/confirmation-link` - Request Email Confirmation
-
-#### Users
-
-- **GET** `/api/v1/users/` - Retrieve User Information
-- **POST** `/api/v1/users/update` - Update User Information
-- **DELETE** `/api/v1/users/delete` - Delete User
-- **POST** `/api/v1/users/password/forgot` - Request Password Reset
-- **POST** `/api/v1/users/password/reset` - Reset User Password
-
-#### Datasets
-
-- **GET** `/api/v1/datasets/` - Retrieve Public and Private Datasets
-- **DELETE** `/api/v1/datasets/delete` - Delete Dataset
-- **GET** `/api/v1/datasets/download` - Download Dataset
-- **POST** `/api/v1/datasets/upload` - Upload Dataset
-
-#### Clustering
-
-- **GET** `/api/v1/hierarchical/optimal` - Execute 'Optimal Parameter Calculation'
-- **GET** `/api/v1/hierarchical/analysis` - Execute 'Hierarchical Clustering'
-
-#### History
-
-- **GET** `/api/v1/hierarchical/history/` - Retrieve List of History Entries
-- **GET** `/api/v1/hierarchical/history/{id}` - Retrieve Information of a Specific History Entry
-- **DELETE** `/api/v1/hierarchical/history/{id}` - Delete History Entry
-
-#### Results
-
-- **GET** `/api/v1/resources/analysis/` - Retrieve Clustering Results
-- **GET** `/api/v1/resources/optimal/` - Retrieve Optimal Parameter Results
+### 7. **Asynchronous Processing**
+- **Non-blocking Operations**: Initiate clustering algorithms and allow them to run asynchronously in the background.
+- **Log in Later**: Start a process and return at a convenient time to review the results once the analysis is complete.
 
 
-### Environmental Variables
+---------------------------------------------------------------------------------------------
 
-To run the server successfully, ensure the following environmental variables are set with their corresponding values:
+## Technologies Used
 
-- **DB_PASSWORD**: Password for the MySQL database.
+The application is built using a combination of powerful technologies to ensure scalability, security, and efficient processing across both the backend and frontend. Below are the key technologies utilized in the project:
 
-- **DB_URL**: URL for the MySQL database, including connection details.
+- **Spring Boot**: A Java-based framework that simplifies the development of stand-alone, production-grade applications. It is used to build the backend API and handle HTTP requests, providing a robust foundation for the server-side logic.
 
-- **DB_USER**: Username for connecting to the MySQL database.
+- **MySQL**: A relational database management system used to store and manage data, including datasets, clustering results, and user-related information.
 
-- **LOGGING_FILE**: Path to the log file for application logs.
+- **JWT Authentication**: JSON Web Tokens (JWT) are used to secure the application by providing stateless authentication. JWT ensures that only authorized users can access sensitive endpoints.
 
-- **MAIL_CONNECTION_TIMEOUT**: Connection timeout for email.
+- **Swagger**: A tool for API documentation and testing, integrated into the backend to automatically generate interactive API documentation. It allows developers and users to interact with and test API endpoints efficiently.
 
-- **MAIL_HOST**: Hostname for the mail server.
+- **Python**: Utilized for the machine learning components, particularly for clustering analysis. Python's powerful libraries are leveraged, including:
+   - **Scikit-learn**: A library providing efficient tools for data mining and machine learning, specifically for hierarchical agglomerative clustering.
+   - **Pandas**: Used for data manipulation and analysis, allowing efficient handling of datasets before passing them into machine learning algorithms.
+   - **Matplotlib**: Used to generate visualizations and graphs, helping represent the clustering results.
 
-- **MAIL_PASSWORD**: Password for the email account.
-
-- **MAIL_PORT**: Port number for the mail server.
-
-- **MAIL_TIMEOUT**: Timeout for email operations.
-
-- **MAIL_USERNAME**: Username for the email account.
-
-- **MAIL_WRITETIMEOUT**: Write timeout for email operations.
-
-- **MULTIPART_MAX_FILE_SIZE**: Maximum allowed file size for multipart requests.
-
-- **MULTIPART_MAX_REQUEST_SIZE**: Maximum allowed request size for multipart requests.
-
-- **SECRET_KEY**: Secret key for securing the application.
-
-- **SECRET_KEY_EXPIRATION**: Expiration time for the secret key.
-
-- **THREADS**: Number of threads for the application.
-
-Ensure these environmental variables are correctly set with the appropriate values before running the server to ensure proper functionality.
+- **Angular**: A framework used to build the interactive user interface, enabling seamless communication with the backend API. It allows users to manage datasets, perform clustering operations, and view results through an intuitive and responsive web interface.
 
 
-### Python Configuration
+---------------------------------------------------------------------------------------------
 
-Ensure the server has a Python 3 virtual environment (venv) set up with the following dependencies installed. Exclude any duplicate dependencies or those already included in the default Python installation:
 
-```
-# Step 1: Create and activate a Python 3 virtual environment
-python3 -m venv [your_venv_name]
-source [your_venv_name]/bin/activate
+## How to Run the Backend
 
-# Step 2: Install required Python dependencies
-pip install pandas scipy scikit-learn matplotlib
+Follow the steps below to set up and run the HCvision backend application.
 
-# Step 3: Verify the installation
-python -c "import pandas, scipy, sklearn, matplotlib"
-```
+### 1. Clone the Repository
 
-### Compiling and Running the Application
+First, clone the repository to your local machine using Git:
 
-Follow these steps to compile the JAR file and run the application:
-
-```
-Step 1: Clone the Repository
+```bash
 git clone [repository_url]
 cd [repository_directory]
+```
 
-Step 2: Compile the Code
-mvn clean package
 
-Step 3: Set Environmental Variables
+### 2. Set Up Environment Variables
+You can export these variables directly from the command line before running the backend application. Alternatively, you can define the environment variables directly in the application.yml configuration file.
+
+```config
 export DB_PASSWORD=your_db_password
 export DB_URL=your_db_url
 export DB_USER=your_db_user
 export LOGGING_FILE=./logs/app.log
-... (set other variables accordingly)
-
-Step 4: Run the Application
-java -jar target/[your_jar_file_name].jar
-Replace [your_jar_file_name] with the actual name of the JAR file generated in the target directory.
-
+export MAIL_CONNECTION_TIMEOUT=your_mail_connection_timeout
+export MAIL_HOST=your_mail_host
+export MAIL_PASSWORD=your_mail_password
+export MAIL_PORT=your_mail_port
+export MAIL_TIMEOUT=your_mail_timeout
+export MAIL_USERNAME=your_mail_username
+export MAIL_WRITETIMEOUT=your_mail_writetimeout
+export MULTIPART_MAX_FILE_SIZE=your_max_file_size
+export MULTIPART_MAX_REQUEST_SIZE=your_max_request_size
+export SECRET_KEY=your_secret_key
+export SECRET_KEY_EXPIRATION=your_secret_key_expiration_time
+export THREADS=your_thread_count
 ```
-## Client
 
-### Technologies Used
+### 3. Python Configuration
 
-- Angular
-- Angular Material
-- TypeScript
+- Create and Activate a Python Virtual Environment
+   ```bash
+   python3 -m venv [your_venv_name]
+   source [your_venv_name]/bin/activate  # For macOS/Linux
+   [your_venv_name]\Scripts\activate     # For Windows
+   ```
+- Install Required Python Dependencies
+   ```
+   pip install pandas scipy scikit-learn matplotlib
+   ```
+### 4. Compile the Backend Application
+   ```
+   mvn clean package
+   ```
 
-### Pages
+### 5. Run the Application
+   ```
+   java -jar target/[your_jar_file_name].jar
+   ```
 
-1. **Home**
-   - Description: Landing page with an overview of the application.
-   
-2. **About**
-   - Description: Information about the application and its purpose.
 
-3. **Datasets**
-   - Description: View and manage datasets.
+---------------------------------------------------------------------------------------------
 
-4. **Hierarchical**
-   - Description: Execute hierarchical clustering on datasets.
 
-5. **History**
-   - Description: View history and details of past activities.
+## How to Run the Client
 
-6. **Api Docs**
-   - Description: Documentation for the API endpoints.
+### 1. Prerequisites
 
-7. **Rate Us**
-   - Description: Provide feedback and rate the application.
+Before running the client, make sure you have the following tools installed on your system:
 
-8. **Profile**
-   - Description: Manage user profile settings.
+- **Node.js**: Required for running the Angular development server and building the project.
+- **npm** (Node Package Manager): Comes with Node.js and is used to manage project dependencies.
+- **Angular CLI**: A command-line interface tool for managing Angular applications.
 
-### How to Compile and Deploy
+You can install Node.js and npm from [here](https://nodejs.org/).
 
-#### Compile Angular Project
-
-1. Install Node.js and npm if not already installed.
-2. Open a terminal and navigate to the client project directory.
-3. Run the following commands:
-
-    ```bash
-    # Install dependencies
-    npm install
-
-    # Build the project
-    ng build
-    ```
-
-#### Deploy Compiled Files
-
-After running the build command, the compiled files will be available in the `dist/` directory. You can deploy these files to a web server, or host them using services like Netlify, Vercel, or GitHub Pages.
-
-If using a simple web server, you can deploy by copying the contents of the `dist/` directory to the server's public directory.
-
-Example using a simple Python server:
+To install Angular CLI, run:
 
 ```bash
-# Install Python's http server (if not installed)
-npm install -g http-server
+npm install -g @angular/cli
+```
 
-# Navigate to the dist/ directory
-cd dist/
+### 2. Install Dependencies
+- Navigate to the client project directory and install the necessary dependencies using npm:
+```
+cd [client_directory]
+npm install
+```
+This will install all the required dependencies listed in the package.json file, including Angular and Angular Material.
 
-# Start the server
-http-server
+### 3. Compile the Angular Project
+```
+ng build --prod
+```
+### 4. Run the Development Server
+```
+ng serve
+```
+### 5. Deploying the Compiled Application
+- You can deploy the files by copying the contents of the dist/ directory to your web server's public directory.
+
 
 
 
