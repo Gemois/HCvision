@@ -75,15 +75,17 @@
     <mat-card *ngIf="!error" class="results-card">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <span style="font-size: 1.5em;">Analysis Results</span>
-        <p *ngIf="!loadingResults" style="color: gray; font-size: 0.8em;">Time Taken: {{duration}} seconds</p>
+        <p *ngIf="!loadingResults" style="color: gray; font-size: 0.8em;">Time Taken: {{ duration }} seconds</p>
       </div>
       <mat-card-content>
         <div *ngIf="loadingResults && !error" class="result-container">
           <mat-progress-bar mode="indeterminate"></mat-progress-bar>
         </div>
         <div *ngIf="!loadingResults" class="result-container">
-          <img [src]="dendrogram" alt="Dendrogram" (click)="openImageDialog(dendrogram, getImageFileName('dendrogram'))">
-          <img [src]="parallelCoordinates" alt="Parallel Coordinates" (click)="openImageDialog(parallelCoordinates, getImageFileName('parallel_coordinates'))">
+          <img [src]="dendrogram" alt="Dendrogram"
+               (click)="openImageDialog(dendrogram, getImageFileName('dendrogram'))">
+          <img [src]="parallelCoordinates" alt="Parallel Coordinates"
+               (click)="openImageDialog(parallelCoordinates, getImageFileName('parallel_coordinates'))">
         </div>
       </mat-card-content>
     </mat-card>
@@ -92,8 +94,8 @@
       <button mat-raised-button color="primary" class="download-button" (click)="downloadCsv()">Download CSV</button>
       <mat-table style="overflow: auto;" [dataSource]="dataSource" matSort>
         <ng-container *ngFor="let col of displayedColumns" matColumnDef="{{col}}">
-          <mat-header-cell *matHeaderCellDef mat-sort-header>{{col}}</mat-header-cell>
-          <mat-cell *matCellDef="let element">{{element[col]}}</mat-cell>
+          <mat-header-cell *matHeaderCellDef mat-sort-header>{{ col }}</mat-header-cell>
+          <mat-cell *matCellDef="let element">{{ element[col] }}</mat-cell>
         </ng-container>
         <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
         <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
@@ -107,7 +109,7 @@
   <div *ngIf="error" class="results-card">
     <mat-card>
       <mat-card-content>
-        <p>Error while running {{param_script}}</p>
+        <p>Error while running {{ param_script }}</p>
       </mat-card-content>
     </mat-card>
 

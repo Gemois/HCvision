@@ -7,19 +7,15 @@ import {MAT_DIALOG_DATA} from "@angular/material/dialog";
   styleUrl: './image-dialog.component.css'
 })
 export class ImageDialogComponent {
-  constructor(@Inject(MAT_DIALOG_DATA) public data: { imageUrl: string , filename:string}) {}
-
-
+  constructor(@Inject(MAT_DIALOG_DATA) public data: { imageUrl: string, filename: string }) {
+  }
 
   downloadImage(): void {
     const link = document.createElement('a');
     link.href = this.data.imageUrl;
-    link.download = this.data.filename + '.png' // Set a default filename or customize as needed
+    link.download = this.data.filename + '.png'
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   }
-
-
-
 }

@@ -162,12 +162,6 @@ export class AnalysisComponent implements OnInit {
 
   runAnalysis(): void {
 
-    // if (this.currentTab !== 1)
-    //   return;
-
-    // if (!this.atLeastOneAttribute())
-    //   return;
-
     this.loadingResults = true;
     this.loadingParams = true;
     this.runPressed = true;
@@ -203,7 +197,7 @@ export class AnalysisComponent implements OnInit {
     this.hierarchicalService.runAnalysis(requestData).subscribe((result) => {
 
       if (result.status === 'RUNNING') {
-        setTimeout(() => this.pollForStatus(requestData), 1000); // Adjust the delay as needed
+        setTimeout(() => this.pollForStatus(requestData), 1000);
       } else if (result.status === 'FINISHED') {
         this.duration = result.duration;
         this.getAnalysisResults(result.id);
@@ -277,5 +271,4 @@ export class AnalysisComponent implements OnInit {
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
   }
-
 }

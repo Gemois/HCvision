@@ -10,7 +10,7 @@ import {DatasetResponse} from "../models/DatasetResponse";
 })
 export class ResourceService {
 
-  private baseUrl = 'http://localhost:8080/api/v1/resources'; // Replace with your API base URL
+  private baseUrl = 'http://localhost:8080/api/v1/resources';
 
   constructor(private http: HttpClient) {
   }

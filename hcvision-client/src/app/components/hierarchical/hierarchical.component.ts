@@ -6,7 +6,7 @@ import {event} from "jquery";
   selector: 'app-hierarchical',
   templateUrl: './hierarchical.component.html',
   styleUrl: './hierarchical.component.css',
-  changeDetection: ChangeDetectionStrategy.Default, // or ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.Default,
 
 })
 export class HierarchicalComponent implements OnInit {

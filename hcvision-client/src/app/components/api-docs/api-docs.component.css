@@ -1,5 +1,3 @@
-/* api-docs.component.css */
-
 .api-docs-container {
   display: flex;
   justify-content: center;
@@ -17,17 +15,13 @@
 }
 
 .request-panel.get {
-  background-color: #4CAF50; /* Green for GET */
+  background-color: #4CAF50;
 }
 
 .request-panel.post {
-  background-color: #FFA500; /* Orange for POST */
+  background-color: #FFA500;
 }
 
 .request-panel.delete {
-  background-color: #FF0000; /* Red for DELETE */
-}
-
-.endpoint {
-  /* Add any styles for the endpoint here */
+  background-color: #FF0000;
 }

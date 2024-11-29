@@ -277,6 +277,4 @@ export class OptimalComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
     });
   }
-
-
 }

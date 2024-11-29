@@ -1,10 +1,8 @@
-
-
 :host {
   display: flex;
-  flex-direction: column; /* Stack children vertically */
-  justify-content: space-between; /* Align items at the start and end of the container */
-  min-height: 100vh; /* Ensure at least the viewport height */
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100vh;
 }
 
 .profile-container {
@@ -57,7 +55,7 @@
 }
 
 .user-card .label-value p {
-  font-size: 16px; /* Adjust the font size for paragraph text */
+  font-size: 16px;
 }
 
 .editing-mode .mat-card-content {
@@ -73,17 +71,17 @@
 }
 
 .editing-mode .mat-form-field label {
-  font-size: 16px; /* Adjust the font size for form field labels */
+  font-size: 16px;
 }
 
 .editing-mode .mat-form-field input {
-  font-size: 14px; /* Adjust the font size for form field inputs */
+  font-size: 14px;
 }
 
 .card-button {
   flex-grow: 1;
   margin: 8px;
-  font-size: 14px; /* Adjust the font size for buttons */
+  font-size: 14px;
 }
 
 footer {

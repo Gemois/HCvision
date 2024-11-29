@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component} from '@angular/core';
 
 @Component({
   selector: 'app-api-docs',
@@ -7,7 +7,6 @@ import { Component } from '@angular/core';
 })
 export class ApiDocsComponent {
 
-  // Define your API requests data here
   authRequests = [
     {
       name: 'Register',
@@ -15,7 +14,6 @@ export class ApiDocsComponent {
       exampleRequest: '{ "firstname": "george", "lastname": "moisidis", "email": "test@gmail.com", "password": "password" }',
       exampleResponse: '...'
     },
-    // Include other authentication requests
   ];
 
   datasetRequests = [
@@ -25,7 +23,6 @@ export class ApiDocsComponent {
       exampleRequest: '{ "file": "iris.csv", "access_type": "PUBLIC" }',
       exampleResponse: '...'
     },
-    // Include other dataset requests
   ];
 
   userRequests = [
@@ -35,7 +32,6 @@ export class ApiDocsComponent {
       exampleRequest: '{ "userId": "123" }',
       exampleResponse: '...'
     },
-    // Include other user requests
   ];
 
   actionRequests = [
@@ -45,9 +41,5 @@ export class ApiDocsComponent {
       exampleRequest: '{ "action": "doSomething" }',
       exampleResponse: '...'
     },
-    // Include other action requests
   ];
-
-  // Define other request categories similarly
-
 }

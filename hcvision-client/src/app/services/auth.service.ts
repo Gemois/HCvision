@@ -15,9 +15,6 @@ export class AuthService {
   constructor(private http: HttpClient, private router: Router) {
   }
 
-  // login(credentials: { email: string; password: string }): Observable<AuthResponse> {
-  //   return this.http.post<AuthResponse>(`${this.apiUrl}/authenticate`, credentials);
-  // }
   login(credentials: { email: string; password: string }): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/authenticate`, credentials)
       .pipe(
@@ -48,7 +45,6 @@ export class AuthService {
     return !!token;
   }
 
-
   isConfirmed(): boolean {
     return sessionStorage.getItem('confirmed') == 'true';
   }
@@ -58,10 +54,8 @@ export class AuthService {
     return this.http.get(apiUrl);
   }
 
-
   logout(): void {
     sessionStorage.removeItem('access_token');
   }
-
 
 }

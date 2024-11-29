@@ -6,7 +6,7 @@ import {Observable} from "rxjs";
   providedIn: 'root'
 })
 export class HierarchicalService {
-  private baseUrl = 'http://localhost:8080/api/v1/hierarchical'; // Replace with your actual endpoint
+  private baseUrl = 'http://localhost:8080/api/v1/hierarchical';
 
   constructor(private http: HttpClient) {
   }

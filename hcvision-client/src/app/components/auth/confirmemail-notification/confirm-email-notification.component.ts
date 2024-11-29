@@ -7,6 +7,4 @@ import {Component} from '@angular/core';
   styleUrl: './confirm-email-notification.component.css'
 })
 export class ConfirmEmailNotificationComponent {
-
-
 }

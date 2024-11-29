@@ -32,7 +32,8 @@
               <div class="horizontal-checkbox-container">
                 <div *ngFor="let option of availableAttributes; let i = index" class="checkbox-option">
                   <mat-checkbox [(ngModel)]="selectedAttributes[i]"
-                                name="options">{{ option }}</mat-checkbox>
+                                name="options">{{ option }}
+                  </mat-checkbox>
                 </div>
                 <mat-error *ngIf="!atLeastOneAttribute()">At least one attribute must be selected!
                 </mat-error>
@@ -54,7 +55,7 @@
       <mat-card-title>
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <span style="font-size: 1.5em;">Optimal Results</span>
-          <p *ngIf="!loadingResults" style="color: gray; font-size: 0.8em;">Time Taken: {{duration}} seconds</p>
+          <p *ngIf="!loadingResults" style="color: gray; font-size: 0.8em;">Time Taken: {{ duration }} seconds</p>
         </div>
       </mat-card-title>
       <mat-card-content>
@@ -94,7 +95,7 @@
         <div *ngIf="error" class="results-card">
           <mat-card>
             <mat-card-content>
-              <p>Error while running {{param_script}}</p>
+              <p>Error while running {{ param_script }}</p>
             </mat-card-content>
           </mat-card>
 

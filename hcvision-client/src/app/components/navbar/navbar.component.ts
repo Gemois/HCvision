@@ -26,6 +26,7 @@ export class NavbarComponent {
   openApiDocs(): void {
     window.open("http://localhost:8080/swagger-ui/index.html#/", '_blank');
   }
+
   isAuthenticated() {
     return this.authService.isAuthenticated();
   }
